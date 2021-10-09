@@ -22,18 +22,22 @@ enum class TokenType : uint {
   END
 };
 
+struct FileLocation {
+  uint fileId = UINT_MAX;
+  uint line = UINT_MAX;
+};
+
 struct Token {
-  uint fileId;
+  FileLocation origin;
   TokenType type;
   string content;
   Value literal;
-  uint line;
 };
 
 struct Scanner {
   Scanner(uint fileId, const string& source);
   auto scanTokens() -> vector<Token>;
-  auto getTokens() -> vector<Token> { return tokens; }
+  auto getTokens() -> vector<Token>& { return tokens; }
 
   auto debug() -> void;
   static auto debug(const vector<Token>& tokens) -> void;
@@ -88,7 +92,5 @@ protected:
   auto isAlphaNumeric(char c) -> bool;
 
   template<typename... P> 
-  auto error(P&&... p) -> void;  /**/
+  auto error(P&&... p) -> void;
 };
-
-#define tt(t) (Bass::TokenType::t)

@@ -13,12 +13,13 @@ struct Value : public any {
 
 // Components
 #include "scanner.hpp"
-
+#include "parser.hpp"
 
 struct Plek {
   protected:
     vector<string> sourceFilenames;
-
+    Program program;
+    
   public:
     auto load(const string& filename) -> bool;
 };

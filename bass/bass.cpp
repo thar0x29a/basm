@@ -6,6 +6,9 @@
 #include "core/core.cpp"
 //#include "architecture/table/table.cpp"
 
+// global instance that we all going to use
+Bass::Plek plek;  
+
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {
   if(!arguments) {
@@ -24,7 +27,6 @@ auto nall::main(Arguments arguments) -> void {
   for(auto& argument : arguments) sourceFilenames.append(argument);
 
   clock_t clockStart = clock();
-  Bass::Plek plek;
   //plek.target(targetFilename, create);
 
   // loat sources:

@@ -1,6 +1,9 @@
-#include "scanner.cpp"
+#include "stringifys.cpp"
 
 namespace Bass {
+  #include "scanner.cpp"
+  #include "parser.cpp"
+
   auto Plek::load(const string& filename) -> bool {
     if(!file::exists(filename)) {
       print(stderr, "warning: source file not found: ", filename, "\n");
@@ -14,13 +17,15 @@ namespace Bass {
 
     Scanner scanner(fileNumber, data);
     auto tokens = scanner.scanTokens();
+    //Scanner::debug(tokens);
 
-    Scanner::debug(tokens);
+    Parser parser(scanner);
+    parser.parseAll();
+    program.append(parser.first());
 
-    //Analyzer analyzer(tokens);
-    //analyzer.analyzeAll();
-    //mainProgram.append(analyzer.getProgramm());
+    Parser::debug(program);
 
+    print("Done loading ", filename, "\n");
     return true;
   }
 };
