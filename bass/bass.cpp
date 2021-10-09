@@ -18,5 +18,17 @@ auto nall::main(Arguments arguments) -> void {
     exit(EXIT_FAILURE);
   }
 
-  print("Hello World\n");
+  //todo: handle options
+
+  vector<string> sourceFilenames;
+  for(auto& argument : arguments) sourceFilenames.append(argument);
+
+  clock_t clockStart = clock();
+  Bass::Plek plek;
+  //plek.target(targetFilename, create);
+
+  // loat sources:
+  for(auto& sourceFilename : sourceFilenames) {
+    plek.load(sourceFilename);
+  }
 }
