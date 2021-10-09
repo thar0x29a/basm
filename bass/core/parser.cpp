@@ -205,9 +205,7 @@ auto Parser::block() -> const Statement {
   }
 
   auto Parser::cmdInclude() -> const Statement {
-    return Statement::create(previous(), StmtType::CmdInclude,
-      Statement::create(consume(tt(STRING), "expected file name"))
-    );
+    return Statement::create(previous(), StmtType::CmdInclude, primary());
   }
 
 
@@ -222,7 +220,7 @@ auto Parser::equality() -> const Statement {
     
   while(match(tt(BANG_EQUAL), tt(EQUAL_EQUAL))) {
     auto op = previous();
-    expr = Statement::create(op, expr, comparison());
+    expr = Statement::create(op, StmtType::Expr, expr, comparison());
   }
 
   return expr;
@@ -233,7 +231,7 @@ auto Parser::comparison() -> const Statement {
 
   while(match(tt(GREATER), tt(EQUAL), tt(LESS), tt(LESS_EQUAL))) {
     auto op = previous();
-    expr = Statement::create(op, expr, term());
+    expr = Statement::create(op, StmtType::Expr, expr, term());
   }
 
   return expr;
@@ -244,7 +242,9 @@ auto Parser::term() -> const Statement {
 
   while(match(tt(MINUS), tt(PLUS))) {
     auto op = previous();
-    expr = Statement::create(op, expr, factor());
+    auto type = (op.type == tt(MINUS)) ? st(Sub) : st(Add);
+
+    expr = Statement::create(op, type, expr, factor());
   }
 
   return expr;
@@ -253,9 +253,10 @@ auto Parser::term() -> const Statement {
 auto Parser::factor() -> const Statement {
   auto expr = unary();
 
-  while(match(tt(SLASH), tt(STAR), tt(WAVE))) {
+  while(match(tt(SLASH), tt(STAR))) {
     auto op = previous();
-    expr = Statement::create(op, expr, unary());
+    auto type = (op.type == tt(STAR)) ? st(Mul) : st(Div);
+    expr = Statement::create(op, type, expr, unary());
   }
 
   return expr;
@@ -264,7 +265,7 @@ auto Parser::factor() -> const Statement {
 auto Parser::unary() -> const Statement {
   if (match(tt(BANG), tt(MINUS))) {
     auto op = previous();
-    return Statement::create(op, unary());
+    return Statement::create(op, StmtType::Expr, unary());
   }
 
   return primary();
@@ -379,7 +380,7 @@ auto Parser::debug(Statement item) -> void {
   else {
     print("[", item, " ");
 
-    if(item().type==st(File) || item().type==st(Block)) {
+    if(item().is(st(File)) || item().is(st(Block))) {
       for(auto el : item().all()) {
         if(!el) continue;
         print("\n\t", el().origin.line+1, "\t");
@@ -387,7 +388,6 @@ auto Parser::debug(Statement item) -> void {
       }
       print("\n\t");
     }
-
     else {
       for(auto el : item().all()) {
         if(!el) continue;

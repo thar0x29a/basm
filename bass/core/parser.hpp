@@ -3,9 +3,11 @@ using Statement = shared_pointer<StmtNode>;
 using Program = vector<Statement>;
 
 enum class StmtType : uint {
-  File, Block, 
-  Value, Identifier, Label, 
+  File, Block,
+  Value, Identifier, Label,
   DecConst, DecVar, DecList,
+  Expr, // Todo: subtypes
+    Add, Sub, Mul, Div, 
   Macro, Call, List, Assignment,
 
   CmdInclude, CmdPrint,
@@ -16,6 +18,8 @@ const vector<string> StmtNames = {
   "File", "Block", 
   "Value", "Identifier", "Label", 
   "DecConst", "DecVar", "DecList",
+  "Expr",
+  "Add", "Sub", "Mul", "Div", 
   "Macro", "Call", "List", "Assignment",
 
   "CmdInclude", "CmdPrint",
@@ -54,7 +58,14 @@ struct StmtNode {
     content.append(item);
   }
 
-  auto all() -> const Program& { return content; }
+  auto all() const -> Program { return content; }
+  auto is(StmtType t) -> bool { return type == t; }
+
+  auto left() const -> Statement { return content[0]; }
+  auto right() const -> Statement { return content[1]; }
+
+  auto leftValue() const -> Value { return content[0]->value; }
+  auto rightValue() const -> Value { return content[1]->value; }
 };
 
 struct Parser {

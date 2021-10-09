@@ -16,12 +16,29 @@ struct Value : public any {
 #include "parser.hpp"
 
 struct Plek {
+  enum class Evaluation : uint { Default = 0, Strict = 1 };
+
   protected:
     vector<string> sourceFilenames;
     Program program;
-    
+
   public:
     auto load(const string& filename) -> bool;
+    template<typename... P> auto notice(P&&... p) -> void;
+    template<typename... P> auto warning(P&&... p) -> void;
+    template<typename... P> auto error(P&&... p) -> void;
+
+  // execute.cpp
+    auto execute() -> bool;
+    auto excecuteBlock(Statement) -> bool;
+  
+  // evaluate.cpp
+    auto evaluate(Statement, Evaluation mode = Evaluation::Default) -> bool;
+    auto calculate(Statement) -> Value;
+
+  // utility.cpp
+    auto walkUp(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
+    auto walkDown(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
 };
 
 };

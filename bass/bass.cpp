@@ -33,4 +33,6 @@ auto nall::main(Arguments arguments) -> void {
   for(auto& sourceFilename : sourceFilenames) {
     plek.load(sourceFilename);
   }
+
+  plek.execute();
 }

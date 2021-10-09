@@ -1,6 +1,7 @@
 template<> struct nall::stringify<Bass::Value> {
   stringify(Bass::Value source) {
-    if(source.isInt()) _text = { source.getInt() };
+    if(!source) _text = {"nothing"};
+    else if(source.isInt()) _text = { source.getInt() };
     else if(source.isFloat()) _text = { source.getFloat() };
     else if(source.isString()) _text = { source.getString() };
     else _text = "TODO";
@@ -14,8 +15,11 @@ template<> struct nall::stringify<Bass::Value> {
 
 template<> struct nall::stringify<Bass::Statement> {
   stringify(Bass::Statement source) {
-    uint k = (uint)source().type;
-    _text = { Bass::StmtNames[k] };
+    //if(source->type == st(Value)) _text = make_string(source->value);
+    //else {
+      uint k = (uint)source->type;
+      _text = { Bass::StmtNames[k] };
+    //}
   }
 
   auto data() const -> const char* { return _text.data(); }
