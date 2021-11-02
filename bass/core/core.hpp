@@ -11,6 +11,13 @@ struct Value : public any {
   auto getString() -> string { return get<string>(); };
 };
 
+struct SymbolRef {
+  enum class SymbolType : uint { Const, Var }; // and more ...
+  
+  SymbolType type;
+  Value value;
+};
+
 // Components
 #include "scanner.hpp"
 #include "parser.hpp"
@@ -28,6 +35,8 @@ struct Plek {
     template<typename... P> auto warning(P&&... p) -> void;
     template<typename... P> auto error(P&&... p) -> void;
 
+    map<string, SymbolRef> symbolTable; // replace with tuple, Value
+
   // execute.cpp
     auto execute() -> bool;
     auto excecuteBlock(Statement) -> bool;
@@ -39,6 +48,9 @@ struct Plek {
   // utility.cpp
     auto walkUp(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
     auto walkDown(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
+    auto identifier(const string& name) -> Value;
+    auto setConstant(const string& name, const Value& val) -> void;
+    auto setVariable(const string& name, const Value& val) -> void;
 };
 
 };

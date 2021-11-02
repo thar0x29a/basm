@@ -185,7 +185,7 @@ auto Scanner::anIdentifier() -> void {
 
   string text = source.slice(start, current-start);
   if(auto type = keywords.find(text)) addToken(type());
-  else addToken(TokenType::IDENTIFIER);
+  else addToken(TokenType::IDENTIFIER, text);
 }
 
 auto Scanner::isDigit(char c) -> bool {

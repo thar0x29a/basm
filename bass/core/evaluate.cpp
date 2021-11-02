@@ -1,8 +1,12 @@
 auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
-  walkUp(what->all(), [&](Statement stmt, int level) {
+  walkUp({what}, [&](Statement stmt, int level) {
     if(stmt->result) return true;
     if(stmt->leaf) {
-      stmt->result = stmt->value;
+      if(stmt->type == st(Identifier)) {
+        stmt->result = identifier(stmt->value.getString());
+      } else {
+        stmt->result =  stmt->value;
+      }
       return true;
     }
 
@@ -16,7 +20,7 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
           break;
 
         default:
-          warning("dont know what to do!");
+          break; //warning("dont know what to do! ", stmt);
       }
     } catch(string e) {
       error(e);
@@ -30,13 +34,12 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
 
 auto Plek::calculate(Statement stmt) -> Value {
   Value result;
-
   for(auto item : stmt->content) {
     if(!item->result) throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", item->result};
     if(!result) { result = item->result; continue; }
 
     if(result.type() != item->result.type()) {
-      throw string{"incompatible types: ", result.type().name(), ":", item->result.type().name()};
+      throw string{"incompatible types: ", result, ":", item->result};
     }
 
     if(stmt->type == st(Add)) {

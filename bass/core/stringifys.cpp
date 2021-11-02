@@ -4,7 +4,7 @@ template<> struct nall::stringify<Bass::Value> {
     else if(source.isInt()) _text = { source.getInt() };
     else if(source.isFloat()) _text = { source.getFloat() };
     else if(source.isString()) _text = { source.getString() };
-    else _text = "TODO";
+    else _text =  {"`", source.type().name(), "`"};
   }
 
   auto data() const -> const char* { return _text.data(); }

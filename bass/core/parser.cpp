@@ -83,13 +83,13 @@ auto Parser::parse() -> bool {
 auto Parser::constant() -> const Statement {
   auto name = consume(tt(IDENTIFIER), "expected name");
   consume(tt(EQUAL), "expected '='");
-  return Statement::create(t, StmtType::DecConst, Statement::create(name), expression());
+  return Statement::create(t, StmtType::DeclConst, Statement::create(name, StmtType::Identifier), expression());
 }
 
 auto Parser::variable() -> const Statement {
   auto name = consume(tt(IDENTIFIER), "expected name");
   consume(tt(EQUAL), "expected '='");
-  return Statement::create(t, StmtType::DecVar, Statement::create(name), expression());
+  return Statement::create(t, StmtType::DeclVar, Statement::create(name, StmtType::Identifier), expression());
 }
 
 auto Parser::alien() -> const Statement {

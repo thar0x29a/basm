@@ -41,21 +41,21 @@ auto Plek::excecuteBlock(Statement stmt) -> bool {
         break;
       }
 
-      case st(DecConst): {
+      case st(DeclConst): {
         if(!item->left() || !item->right()) throw "Broken AST #36";
-
-        //print(level, " define ", stmt->left().get()->result, " = ", stmt->right().get()->result, "\n");
-        //TODO: store value
+        auto r = item->right();
+        evaluate(r);
+        setConstant(item->left()->value.getString(), r->result);
         break;
       }
 
-      /*
-      case tt(KW_RAW): {
-        evaluate(item);
-        //todo: pass to assembler
-        //print("assemble: ", stmt->op.content, "\n");
+      case st(DeclVar): {
+        if(!item->left() || !item->right()) throw "Broken AST #36";
+        auto r = item->right();
+        evaluate(r);
+        setVariable(item->left()->value.getString(), r->result);
         break;
-      }/**/
+      }
 
       default: 
         notice("Unhandled element ", item);

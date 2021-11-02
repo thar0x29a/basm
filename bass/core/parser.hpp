@@ -5,7 +5,7 @@ using Program = vector<Statement>;
 enum class StmtType : uint {
   File, Block,
   Value, Identifier, Label,
-  DecConst, DecVar, DecList,
+  DeclConst, DeclVar, DecList,
   Expr, // Todo: subtypes
     Add, Sub, Mul, Div, 
   Macro, Call, List, Assignment,
@@ -17,7 +17,7 @@ enum class StmtType : uint {
 const vector<string> StmtNames = {
   "File", "Block", 
   "Value", "Identifier", "Label", 
-  "DecConst", "DecVar", "DecList",
+  "DeclConst", "DeclVar", "DecList",
   "Expr",
   "Add", "Sub", "Mul", "Div", 
   "Macro", "Call", "List", "Assignment",
