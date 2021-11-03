@@ -35,6 +35,9 @@ auto Parser::parse() -> bool {
     else if(t.type == tt(KW_MACRO)) {
       result = macro();
     }
+    else if(t.type == tt(KW_RETURN)) {
+      result = _return();
+    }
     else if(t.type == tt(LEFT_BRACE)) {
       result = block();
     }
@@ -90,6 +93,10 @@ auto Parser::variable() -> const Statement {
   auto name = consume(tt(IDENTIFIER), "expected name");
   consume(tt(EQUAL), "expected '='");
   return Statement::create(t, StmtType::DeclVar, Statement::create(name, StmtType::Identifier), expression());
+}
+
+auto Parser::_return() -> const Statement {
+  return Statement::create(previous(), StmtType::Return, expression());
 }
 
 auto Parser::alien() -> const Statement {
@@ -190,15 +197,15 @@ auto Parser::block() -> const Statement {
     auto res = Statement::create(start, StmtType::CmdPrint);
 
     while(!isAtEnd()) {
-      if(peek().type == tt(TERMINAL)) break;
+      if(check(tt(TERMINAL))) break;
       if(peek().origin.line > start.origin.line) break;
       res().append(expression());
 
-      if(peek().type != tt(COMMA)) break;
+      if(!check(tt(COMMA))) break;
       advance(); // ,
     }
 
-    if(!isAtEnd() && peek().origin.line<=start.origin.line) 
+    if(!check(tt(TERMINAL)) && !isAtEnd() && peek().origin.line<=start.origin.line) 
       throw string{"corrupted parameter list"};
 
     return res;

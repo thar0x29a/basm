@@ -59,11 +59,9 @@ auto Plek::invoke(const string& name, Statement args) -> Value {
     //3. call with this scope!
     frames.append(scope);
     excecuteBlock(fun.ref->content[2], scope);
-    //todo: return
     frames.removeRight();
+    return scope->result;
   }
-
-  
   
   return {nothing};
 }

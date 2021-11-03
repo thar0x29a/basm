@@ -12,7 +12,7 @@ enum class TokenType : uint {
   // Keywords
   KW_GLOBAL, KW_PARENT, KW_EXIT, KW_MACRO,
   KW_CONST, KW_VAR, KW_DEF, KW_EVAL, KW_EXPR,
-  KW_PRIMARY,
+  KW_PRIMARY, KW_RETURN,
 
   // Commands
   CMD_PRINT, CMD_INCLUDE,
@@ -49,6 +49,7 @@ protected:
       insert("parent", TokenType::KW_PARENT);
       insert("exit", TokenType::KW_EXIT);
       insert("macro", TokenType::KW_MACRO);
+      insert("return", TokenType::KW_RETURN);
 
       insert("constant", TokenType::KW_CONST);
       insert("const", TokenType::KW_CONST);

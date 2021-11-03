@@ -18,9 +18,12 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
         case st(Div):
           stmt->result = calculate(stmt);
           break;
-
+        case st(Call):
+          stmt->result = invoke(stmt->value, stmt->left());
+          break;
         default:
-          break; //warning("dont know what to do! ", stmt);
+          //notice(stmt);
+          break;
       }
     } catch(string e) {
       error(e);

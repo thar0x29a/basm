@@ -49,8 +49,8 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         if(!item->left() || !item->right()) throw "Broken AST #36";
         evaluate(item);
         scope->setConstant(
-          item->left()->value.getString(),
-          item->right()->result
+          item->leftValue().getString(),
+          item->rightResult()
         );
         break;
       }
@@ -59,8 +59,8 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         if(!item->left() || !item->right()) throw "Broken AST #36";
         evaluate(item);
         scope->setVariable(
-          item->left()->value.getString(),
-          item->right()->result
+          item->leftValue().getString(),
+          item->rightResult()
         );
         break;
       }
@@ -74,6 +74,12 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       case st(Call): {
         if(!item->left()) throw "Broken AST #36";
         invoke(item->value, item->left());
+        break;
+      }
+
+      case st(Return): {
+        evaluate(item);
+        scope->result = item->leftResult();
         break;
       }
 

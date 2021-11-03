@@ -9,6 +9,7 @@ enum class StmtType : uint {
   Expr, // Todo: subtypes
     Add, Sub, Mul, Div, 
   Macro, Call, List, Assignment,
+  Return,
 
   CmdInclude, CmdPrint,
   Raw
@@ -21,6 +22,7 @@ const vector<string> StmtNames = {
   "Expr",
   "Add", "Sub", "Mul", "Div", 
   "Macro", "Call", "List", "Assignment",
+  "Return",
 
   "CmdInclude", "CmdPrint",
   "Raw"
@@ -67,6 +69,9 @@ struct StmtNode {
   auto leftValue() const -> Value { return content[0]->value; }
   auto rightValue() const -> Value { return content[1]->value; }
 
+  auto leftResult() const -> Value { return content[0]->result; }
+  auto rightResult() const -> Value { return content[1]->result; }
+
   auto size() const -> uint { return content.size(); }
 };
 
@@ -90,6 +95,7 @@ protected:
   auto alien() -> const Statement;
 
   auto macro() -> const Statement;
+  auto _return() -> const Statement;
   auto call() -> const Statement;
   auto list() -> const Statement;
   auto defList() -> const Statement;

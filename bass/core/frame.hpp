@@ -14,6 +14,7 @@ struct SymbolRef {
 struct FrameElement {
   // content
   map<string, SymbolRef> symbolTable;
+  Value result;
   
   auto setConstant(const string& name, const Value& val) -> void;
   auto setVariable(const string& name, const Value& val) -> void;
