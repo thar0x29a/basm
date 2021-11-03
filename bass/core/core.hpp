@@ -41,8 +41,10 @@ struct Plek {
   // utility.cpp
     auto walkUp(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
     auto walkDown(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
-    auto identifier(const string& name, const Frame& scope) -> Value;
-    auto invoke(const string& name, Statement call, const Frame& scope) -> Value;
+    
+    auto identifier(const string& name) -> Value;
+    auto findSymbol(const string& name) -> SymbolRef;
+    auto invoke(const string& name, Statement call) -> Value;
 };
 
 };

@@ -10,7 +10,7 @@ namespace Bass {
 
   auto Plek::load(const string& filename) -> bool {
     if(!file::exists(filename)) {
-      print(stderr, "warning: source file not found: ", filename, "\n");
+      warning(stderr, "warning: source file not found: ", filename, "\n");
       return false;
     }
 
@@ -26,7 +26,7 @@ namespace Bass {
     parser.parseAll();
     program.append(parser.first());
 
-    notice("Done loading ", filename, "\n");
+    notice("Done loading ", filename);
     return true;
   }
 

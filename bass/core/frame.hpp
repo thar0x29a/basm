@@ -4,6 +4,11 @@ struct SymbolRef {
   SymbolType type;
   Value value;
   Statement ref;
+
+  static const SymbolRef nothing() {
+    static SymbolRef nothing{SymbolType::Const, {nothing}};
+    return nothing;
+  }
 };
 
 struct FrameElement {

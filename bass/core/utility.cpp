@@ -19,18 +19,51 @@ auto Plek::walkDown(const Program& what, std::function<bool (Statement, int)> wi
   }
 }
 
-auto Plek::identifier(const string& name, const Frame& scope) -> Value {
-  if(auto res = scope->symbolTable.find(name)) {
-    return res().value;
-  }
-  return {nothing};
+auto Plek::identifier(const string& name) -> Value {
+  return findSymbol(name).value;
 }
 
-auto Plek::invoke(const string& name, Statement args, const Frame& scope) -> Value {
+auto Plek::findSymbol(const string& name) -> SymbolRef {
+  auto scopes = frames;
+
+  // hunt in this and parent scopes
+  while(scopes.size()>0) {
+    auto scope = scopes.takeRight();
+    if(auto res = scope->symbolTable.find(name)) {
+      return res();
+    }
+  }
+
+  return {SymbolRef::nothing()};
+}
+
+auto Plek::invoke(const string& name, Statement args) -> Value {
   string id = {name, "#", args->size()};
-  print(id, " invoked");
+  
   //1. find or find not callable with this name
-  //2. prepare custom scope with parameters
-  //3. call with this scope!
+  auto fun = findSymbol(id);
+  if(fun.ref) {
+    auto padef = fun.ref->content[1]; // it would be nice to cast this somehow ..
+
+    //2. prepare custom scope with parameters
+    auto scope = Frame::create();
+    
+    for(int i=0; i<args->size(); i++) {
+      auto t = padef->content[i];
+      auto v = args->content[i];
+
+      //todo: handle decl types
+      scope->setVariable(t->value, v->value);
+    }
+
+    //3. call with this scope!
+    frames.append(scope);
+    excecuteBlock(fun.ref->content[2], scope);
+    //todo: return
+    frames.removeRight();
+  }
+
+  
+  
   return {nothing};
 }

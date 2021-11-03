@@ -1,7 +1,7 @@
 auto Plek::execute() -> bool {
   // Init
   frames.reset();
-  frames.append(Frame::create());
+  frames.append(Frame::create()); // root scope!
 
   for(auto& item : program) {
     excecuteBlock(item, frames.last());
@@ -19,9 +19,9 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
     error("AST: Block expected but got ", stmt);
   }
 
-  print("BLOCK\n");
+  /*print("BLOCK\n");
   Parser::debug(stmt->all());
-  print("___\n");
+  print("___\n");/**/
 
   for(auto& item : stmt->all()) {
     switch(item->type) {
@@ -73,7 +73,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
 
       case st(Call): {
         if(!item->left()) throw "Broken AST #36";
-        invoke(item->value, item->left(), scope);
+        invoke(item->value, item->left());
         break;
       }
 

@@ -6,7 +6,6 @@ auto FrameElement::setConstant(const string& name, const Value& val) -> void {
 }
 
 auto FrameElement::setVariable(const string& name, const Value& val) -> void {
-  print("-> var ", name, " = ", val, "\n");
   symbolTable.insert(name, {SymbolRef::SymbolType::Var, val});
 }
 

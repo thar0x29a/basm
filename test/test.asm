@@ -5,4 +5,4 @@ include "test2.asm"
 
 print foo + 1000, "\n"
 
-test()
+test(" zwei ")
