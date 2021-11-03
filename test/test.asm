@@ -3,4 +3,6 @@ print "Hello World! ", 3+1*2+1, "\n"
 
 include "test2.asm"
 
-//print foo + 1000, "\n"
+print foo + 1000, "\n"
+
+test()

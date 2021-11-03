@@ -66,6 +66,8 @@ struct StmtNode {
 
   auto leftValue() const -> Value { return content[0]->value; }
   auto rightValue() const -> Value { return content[1]->value; }
+
+  auto size() const -> uint { return content.size(); }
 };
 
 struct Parser {

@@ -1,1 +1,5 @@
-print "Hello second file!", "\n"
+macro test() {
+    print "Test!\n"
+}
+
+print "Hello second file! ", foo, "\n"

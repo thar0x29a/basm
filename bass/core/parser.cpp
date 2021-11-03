@@ -116,7 +116,7 @@ auto Parser::macro() -> const Statement {
   consume(tt(LEFT_BRACE), "expected macro block");
   auto black = block();
 
-  return Statement::create(t, StmtType::Macro, Statement::create(name), list, black);
+  return Statement::create(t, StmtType::Macro, Statement::create(name, StmtType::Identifier), list, black);
 }
 
 auto Parser::call() -> const Statement {
