@@ -1,9 +1,11 @@
 auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
+  auto scope = frames.last();
+
   walkUp({what}, [&](Statement stmt, int level) {
     if(stmt->result) return true;
     if(stmt->leaf) {
       if(stmt->type == st(Identifier)) {
-        stmt->result = identifier(stmt->value.getString());
+        stmt->result = identifier(stmt->value.getString(), scope);
       } else {
         stmt->result =  stmt->value;
       }

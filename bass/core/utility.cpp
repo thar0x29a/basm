@@ -19,34 +19,18 @@ auto Plek::walkDown(const Program& what, std::function<bool (Statement, int)> wi
   }
 }
 
-auto Plek::identifier(const string& name) -> Value {
-  if(auto res = symbolTable.find(name)) {
+auto Plek::identifier(const string& name, const Frame& scope) -> Value {
+  if(auto res = scope->symbolTable.find(name)) {
     return res().value;
   }
   return {nothing};
 }
 
-auto Plek::invoke(const string& name, Statement args) -> Value {
+auto Plek::invoke(const string& name, Statement args, const Frame& scope) -> Value {
   string id = {name, "#", args->size()};
-  notice(id, " invoked");
+  print(id, " invoked");
   //1. find or find not callable with this name
   //2. prepare custom scope with parameters
   //3. call with this scope!
   return {nothing};
-}
-
-auto Plek::setConstant(const string& name, const Value& val) -> void {
-  if(auto res = symbolTable.find(name)) {
-    if(res().type == SymbolRef::SymbolType::Const) error("constant cannot be modified");
-  }
-  symbolTable.insert(name, {SymbolRef::SymbolType::Const, val});
-}
-
-auto Plek::setVariable(const string& name, const Value& val) -> void {
-  symbolTable.insert(name, {SymbolRef::SymbolType::Var, val});
-}
-
-auto Plek::setMacro(const string& name, Statement def) -> void {
-  string id = {name, "#", def->content[1]->size()};
-  symbolTable.insert(id, {SymbolRef::SymbolType::Callable, nothing, def});
 }

@@ -6,6 +6,7 @@ namespace Bass {
   #include "execute.cpp"
   #include "evaluate.cpp"
   #include "utility.cpp"
+  #include "frame.cpp"
 
   auto Plek::load(const string& filename) -> bool {
     if(!file::exists(filename)) {

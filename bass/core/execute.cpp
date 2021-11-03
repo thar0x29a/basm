@@ -1,10 +1,10 @@
 auto Plek::execute() -> bool {
   // Init
   frames.reset();
-  frames.append(Frame{});
+  frames.append(Frame::create());
 
   for(auto& item : program) {
-    excecuteBlock(item, frames.right());
+    excecuteBlock(item, frames.last());
   }
 
   frames.removeRight();
@@ -13,6 +13,7 @@ auto Plek::execute() -> bool {
 
 auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
   if(!stmt) return false;
+  if(!scope) return false;
   
   if(!(stmt->is(st(Block)) || stmt->is(st(File)))) {
     error("AST: Block expected but got ", stmt);
@@ -47,7 +48,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       case st(DeclConst): {
         if(!item->left() || !item->right()) throw "Broken AST #36";
         evaluate(item);
-        setConstant(
+        scope->setConstant(
           item->left()->value.getString(),
           item->right()->result
         );
@@ -57,7 +58,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       case st(DeclVar): {
         if(!item->left() || !item->right()) throw "Broken AST #36";
         evaluate(item);
-        setVariable(
+        scope->setVariable(
           item->left()->value.getString(),
           item->right()->result
         );
@@ -66,14 +67,13 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
 
       case st(Macro): {
         if(!item->left()) throw "Broken AST #36";
-        setMacro(item->left()->value.getString(), item);
+        scope->setMacro(item->left()->value.getString(), item);
         break;
       }
 
       case st(Call): {
         if(!item->left()) throw "Broken AST #36";
-        //TODO: also insert on evaluate!
-        invoke(item->value, item->left());
+        invoke(item->value, item->left(), scope);
         break;
       }
 
