@@ -14,6 +14,8 @@ namespace Bass {
       return false;
     }
 
+    //TODO: only load stuff once!
+
     uint fileNumber = sourceFilenames.size();
     sourceFilenames.append(filename);
 

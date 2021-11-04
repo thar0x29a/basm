@@ -3,10 +3,11 @@ using Statement = shared_pointer<StmtNode>;
 using Program = vector<Statement>;
 
 enum class StmtType : uint {
-  File, Block,
+  File, Block, Grouped,
   Value, Identifier, Label,
+  // declarations
   DeclConst, DeclVar, DecList,
-  Expr, // Todo: subtypes
+  Expr, Negative, Banged,
     Add, Sub, Mul, Div, 
   Macro, Call, List, Assignment,
   Return,
@@ -16,10 +17,10 @@ enum class StmtType : uint {
 };
 
 const vector<string> StmtNames = {
-  "File", "Block", 
+  "File", "Block", "Grouped",
   "Value", "Identifier", "Label", 
   "DeclConst", "DeclVar", "DecList",
-  "Expr",
+  "Expr", "Negative", "Banged",
   "Add", "Sub", "Mul", "Div", 
   "Macro", "Call", "List", "Assignment",
   "Return",

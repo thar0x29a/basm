@@ -4,7 +4,8 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
     if(stmt->leaf) {
       if(stmt->type == st(Identifier)) {
         stmt->result = identifier(stmt->value.getString());
-      } else {
+      } 
+      else {
         stmt->result =  stmt->value;
       }
       return true;
@@ -20,6 +21,12 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
           break;
         case st(Call):
           stmt->result = invoke(stmt->value, stmt->left());
+          break;
+        case st(Negative):
+          stmt->result = stmt->leftResult().negate();
+          break;
+        case st(Grouped):
+          stmt->result = stmt->leftResult();
           break;
         default:
           //notice(stmt);
@@ -41,6 +48,7 @@ auto Plek::calculate(Statement stmt) -> Value {
     if(!item->result) throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", item->result};
     if(!result) { result = item->result; continue; }
 
+    // todo: handle with visitor patterns
     if(result.type() != item->result.type()) {
       throw string{"incompatible types: ", result, ":", item->result};
     }

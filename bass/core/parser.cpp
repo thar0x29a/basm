@@ -160,6 +160,8 @@ auto Parser::defList() -> const Statement {
   return expr;
 }
 
+
+
 auto Parser::argument() -> const Statement {
   if(match(tt(KW_CONST), tt(KW_VAR))) {
     return Statement::create(previous(), identifier());
@@ -270,9 +272,13 @@ auto Parser::factor() -> const Statement {
 }
 
 auto Parser::unary() -> const Statement {
-  if (match(tt(BANG), tt(MINUS))) {
+  if (match(tt(BANG))) {
     auto op = previous();
-    return Statement::create(op, StmtType::Expr, unary());
+    return Statement::create(op, StmtType::Banged, unary());
+  }
+  if (match(tt(MINUS))) {
+    auto op = previous();
+    return Statement::create(op, StmtType::Negative, unary());
   }
 
   return primary();
@@ -285,6 +291,13 @@ auto Parser::primary() -> const Statement {
 
   if(check(tt(IDENTIFIER))) {
     return symbol();
+  }
+
+  if (match(tt(LEFT_PAREN))) {
+    auto prev = previous();
+    auto expr = expression();
+    consume(tt(RIGHT_PAREN), "Expect ')' after expression.");
+    return Statement::create(prev, StmtType::Grouped, expr);
   }
 
   throw string{"not expected"};

@@ -9,6 +9,12 @@ struct Value : public any {
   auto getInt() -> int64_t { return get<int64_t>(); };
   auto getFloat() -> double { return get<double>(); };
   auto getString() -> string { return get<string>(); };
+
+  auto negate() -> Value {
+    if(isInt()) return {getInt() * -1};
+    else if(isFloat()) return {getFloat() * -1};
+    else throw string{"cannot negate ", type().name()};
+  };
 };
 
 // Components

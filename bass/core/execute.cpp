@@ -19,7 +19,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
     error("AST: Block expected but got ", stmt);
   }
 
-  /*print("BLOCK\n");
+  print("BLOCK\n");
   Parser::debug(stmt->all());
   print("___\n");/**/
 
