@@ -45,6 +45,11 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         break;
       }
 
+      case st(Label): {
+        scope->setConstant(item->value.getString(), {pc});
+        break;
+      }
+
       case st(DeclConst): {
         if(!item->left() || !item->right()) throw "Broken AST #36";
         evaluate(item);

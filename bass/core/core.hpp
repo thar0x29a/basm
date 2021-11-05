@@ -29,6 +29,8 @@ struct Plek {
     vector<string> sourceFilenames;
     Program program;
     vector<Frame> frames;
+    int64_t pc = 0;   // current offset in output file. wip
+  
 
   public:
     auto load(const string& filename) -> bool;
