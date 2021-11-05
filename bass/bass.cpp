@@ -11,6 +11,9 @@ Bass::Plek plek;
 
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {
+  string targetFilename;
+  bool create = false;
+
   if(!arguments) {
     print(stderr, "bass v20\n");
     print(stderr, "\n");
@@ -22,17 +25,20 @@ auto nall::main(Arguments arguments) -> void {
   }
 
   //todo: handle options
+  if(arguments.take("-o", targetFilename)) create = true;
+  if(arguments.take("-m", targetFilename)) create = false;
 
   vector<string> sourceFilenames;
   for(auto& argument : arguments) sourceFilenames.append(argument);
 
   clock_t clockStart = clock();
-  //plek.target(targetFilename, create);
 
-  // loat sources:
+  // core application
   for(auto& sourceFilename : sourceFilenames) {
     plek.load(sourceFilename);
   }
-
+  plek.target(targetFilename, create);
   plek.execute();
+
+  clock_t clockFinish = clock();
 }

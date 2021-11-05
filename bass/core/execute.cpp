@@ -46,7 +46,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       }
 
       case st(Label): {
-        scope->setConstant(item->value.getString(), {pc});
+        scope->setConstant(item->value.getString(), {pc()});
         break;
       }
 
@@ -92,5 +92,6 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         notice("Unhandled element ", item);
     }
   }
+
   return true;
 }

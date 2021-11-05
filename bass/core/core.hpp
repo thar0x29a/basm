@@ -24,16 +24,31 @@ struct Value : public any {
 
 struct Plek {
   enum class Evaluation : uint { Default = 0, Strict = 1 };
+  enum class Endian : uint { LSB, MSB };
+
+  struct Tracker {
+    bool enable = false;
+    set<int64_t> addresses;
+  };
 
   protected:
+    file_buffer targetFile;
     vector<string> sourceFilenames;
     Program program;
     vector<Frame> frames;
-    int64_t pc = 0;   // current offset in output file. wip
-  
+    uint origin = 0;                //file offset
+    int base = 0;                   //file offset to memory map displacement
+    Endian endian = Endian::LSB;    //used for multi-byte writes (d[bwldq], etc)
+    Tracker tracker;                //used to track writes to detect overwrites
 
   public:
     auto load(const string& filename) -> bool;
+    auto target(const string& filename, bool create) -> bool;
+    auto pc() const -> int64_t;
+    auto seek(uint offset) -> void;
+    auto track(uint length) -> void;
+    auto write(uint64_t data, uint length) -> void;
+
     template<typename... P> auto notice(P&&... p) -> void;
     template<typename... P> auto warning(P&&... p) -> void;
     template<typename... P> auto error(P&&... p) -> void;
