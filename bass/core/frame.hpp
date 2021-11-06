@@ -19,6 +19,7 @@ struct FrameElement {
   auto setConstant(const string& name, const Value& val) -> void;
   auto setVariable(const string& name, const Value& val) -> void;
   auto setMacro(const string& name, Statement def) -> void;
+  auto assign(const string& name, const Value& val) -> void;
 };
 
 using Frame = shared_pointer<FrameElement>;

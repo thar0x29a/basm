@@ -3,8 +3,14 @@ auto Plek::execute() -> bool {
   frames.reset();
   frames.append(Frame::create()); // root scope!
 
-  for(auto& item : program) {
-    excecuteBlock(item, frames.last());
+  try {
+    //todo: better errorhandling. probl somewhere else. 
+    
+    for(auto& item : program) {
+      excecuteBlock(item, frames.last());
+    }
+  } catch(string e) {
+    error(e);
   }
 
   frames.removeRight();
@@ -64,6 +70,16 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         if(!item->left() || !item->right()) throw "Broken AST #36";
         evaluate(item);
         scope->setVariable(
+          item->leftValue().getString(),
+          item->rightResult()
+        );
+        break;
+      }
+
+      case st(Assignment): {
+        if(!item->left() || !item->right()) throw "Broken AST #36";
+        evaluate(item);
+        scope->assign(
           item->leftValue().getString(),
           item->rightResult()
         );
