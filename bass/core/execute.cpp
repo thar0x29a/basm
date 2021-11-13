@@ -25,14 +25,16 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
     error("AST: Block expected but got ", stmt);
   }
 
-  print("BLOCK\n");
+  /*print("BLOCK\n");
   Parser::debug(stmt->all());
   print("___\n");/**/
+
+  bool doElse = false;  //todo: state machine ...
 
   for(auto& item : stmt->all()) {
     switch(item->type) {
       case st(Block): excecuteBlock(item, scope); break;
-      
+
       case st(CmdPrint): {
         evaluate(item);
         for(auto cnt : item->all()) {
@@ -79,7 +81,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       case st(Assignment): {
         if(!item->left() || !item->right()) throw "Broken AST #36";
         evaluate(item);
-        scope->assign(
+        assign(
           item->leftValue().getString(),
           item->rightResult()
         );
@@ -104,9 +106,63 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         break;
       }
 
+      case st(Else): {
+        if(doElse!=true) break;
+        
+        auto subscope = Frame::create();
+        frames.append(subscope);
+        excecuteBlock(item->left(), subscope);
+        frames.removeRight();
+        break;
+      }
+
+      case st(ElseIf): {
+        if(doElse!=true) break;
+        // if not, fall thought
+      }
+
+      case st(If): {
+        evaluate(item->left());
+        auto res = item->leftResult();
+        bool result = res.isTrue();
+        
+        if(result==true) {
+          // invoke
+          auto subscope = Frame::create();
+          frames.append(subscope);
+          excecuteBlock(item->right(), subscope);
+          frames.removeRight();
+        }
+        else {
+          doElse = true;
+          continue;
+        }
+        break;
+      }
+
+      case st(While): {
+        bool result = false;
+
+        do {
+          evaluate(item->left());
+          auto res = item->leftResult();
+          result = res.isTrue();
+        
+          if(result==true) {
+            auto subscope = Frame::create();
+            frames.append(subscope);
+            excecuteBlock(item->right(), subscope);
+            frames.removeRight();
+          }
+        } while(result==true);
+        break;
+      }
+
       default: 
         notice("Unhandled element ", item);
     }
+
+    doElse = false;
   }
 
   return true;

@@ -24,7 +24,6 @@ auto FrameElement::assign(const string& name, const Value& val) -> void {
     symbolTable.remove(name);
     symbolTable.insert(name, {type, val});
   }
-  else {
-    throw string{"cannot find ", name};
-  }
+  setVariable(name, val);
 }
+

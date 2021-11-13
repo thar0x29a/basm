@@ -15,6 +15,14 @@ struct Value : public any {
     else if(isFloat()) return {getFloat() * -1};
     else throw string{"cannot negate ", type().name()};
   };
+
+  auto isTrue() -> bool {
+    if(type() == typeid(nothing)) return false;
+    else if(isInt() && getInt()==0) return false;
+    else if(isFloat() && getFloat()==0) return false;
+    else if(isString() && getString().length()==0) return false;
+    return true;
+  }
 };
 
 // Components
@@ -69,6 +77,7 @@ struct Plek {
     
     auto identifier(const string& name) -> Value;
     auto findSymbol(const string& name) -> SymbolRef;
+    auto assign(const string& name, const Value& val) -> void;
     auto invoke(const string& name, Statement call) -> Value;
 };
 

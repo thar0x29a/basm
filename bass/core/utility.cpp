@@ -37,6 +37,20 @@ auto Plek::findSymbol(const string& name) -> SymbolRef {
   return {SymbolRef::nothing()};
 }
 
+auto Plek::assign(const string& name, const Value& val) -> void {
+  auto scopes = frames;
+  while(scopes.size()>0) {
+    auto scope = scopes.takeRight();
+    if(auto res = scope->symbolTable.find(name)) {
+      scope->assign(name, val);
+      return;
+    }
+  }
+
+  frames.right()->assign(name, val);
+  notice("implicit created var ", name, "\n");
+}
+
 auto Plek::invoke(const string& name, Statement args) -> Value {
   string id = {name, "#", args->size()};
   
@@ -65,3 +79,4 @@ auto Plek::invoke(const string& name, Statement args) -> Value {
   
   return {nothing};
 }
+

@@ -2,13 +2,12 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
   auto scope = frames.right();
   
   walkUp({what}, [&](Statement stmt, int level) {
-    if(stmt->result) return true;
     if(stmt->leaf) {
       if(stmt->type == st(Identifier)) {
         stmt->result = identifier(stmt->value.getString());
       }
       else {
-        stmt->result =  stmt->value;
+        stmt->result = stmt->value;
       }
       return true;
     }
@@ -38,7 +37,7 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
           break;
         case st(Assignment):
           stmt->result = stmt->rightResult();
-          scope->assign(
+          assign(
             stmt->leftValue().getString(),
             stmt->rightResult()
           );
@@ -69,9 +68,7 @@ auto Plek::calculate(Statement stmt) -> Value {
 
     if(result.isInt()) result = calculate(stmt->type, result.getInt(), item->result.getInt());
     else if(result.isFloat()) result = calculate(stmt->type, result.getFloat(), item->result.getFloat());
-    else if(result.isString()) {
-      error("String operators are not yes implemented");
-    }
+    //else if(result.isString()) { }
     else error("Type not supported"); 
   }
 
@@ -80,7 +77,7 @@ auto Plek::calculate(Statement stmt) -> Value {
 
 template <typename T>
 auto Plek::calculate(StmtType type, const T& a, const T& b) -> Value {
-  Value result;
+  Value result{nothing};
   
   if(type == st(Add))      result = Value{a+b};
   else if(type == st(Sub)) result = Value{a-b};

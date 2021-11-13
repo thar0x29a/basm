@@ -6,21 +6,19 @@ variable e = 0<=1
 variable f = 0!=1
 variable g = (f=f)
 
-variable x = 20
-
-//while x > 0 {
-  if x > 16 {
-    print x, "a "
+var x = 20
+while x > 0 {
+  if (x > 16) {
+    print x, " a\n"
   } else if x > 8 {
-    print x, "b "
+    print x, " b\n"
   } else {
-    print x, "c "
+    print x, " c\n"
   }
 
-  x = x - 1
-//}
+  x = x - 5
+}
 
-x = a - 1
 
 print "a is ", a, "\n"
 print "b is ", b, "\n"
