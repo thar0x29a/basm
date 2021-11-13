@@ -4,6 +4,7 @@ template<> struct nall::stringify<Bass::Value> {
     else if(source.isInt()) _text = { source.getInt() };
     else if(source.isFloat()) _text = { source.getFloat() };
     else if(source.isString()) _text = { source.getString() };
+    //else if(source.isBool()) _text = (source.getBool()) ? "true" : "false";
     else _text =  {"`", source.type().name(), "`"};
   }
 

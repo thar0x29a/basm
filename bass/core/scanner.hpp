@@ -13,6 +13,7 @@ enum class TokenType : uint {
   KW_GLOBAL, KW_PARENT, KW_EXIT, KW_MACRO,
   KW_CONST, KW_VAR, KW_DEF, KW_EVAL, KW_EXPR,
   KW_PRIMARY, KW_RETURN,
+  KW_WHILE, KW_IF, KW_ELSE, KW_BREAK, KW_CONTINUE,
 
   // Commands
   CMD_PRINT, CMD_INCLUDE,
@@ -59,6 +60,12 @@ protected:
       insert("define", TokenType::KW_DEF);
       insert("evaluate", TokenType::KW_EVAL);
       insert("expression", TokenType::KW_EXPR);
+
+      insert("while", TokenType::KW_WHILE);
+      insert("if", TokenType::KW_IF);
+      insert("else", TokenType::KW_ELSE);
+      insert("break", TokenType::KW_BREAK);
+      insert("continue", TokenType::KW_CONTINUE);
 
       insert("print", TokenType::CMD_PRINT);
       insert("include", TokenType::CMD_INCLUDE);

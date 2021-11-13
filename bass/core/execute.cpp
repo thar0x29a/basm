@@ -3,15 +3,15 @@ auto Plek::execute() -> bool {
   frames.reset();
   frames.append(Frame::create()); // root scope!
 
-  try {
+  //try {
     //todo: better errorhandling. probl somewhere else. 
-    
+
     for(auto& item : program) {
       excecuteBlock(item, frames.last());
     }
-  } catch(string e) {
-    error(e);
-  }
+  //} catch(string e) {
+  //  error(e);
+  //}
 
   frames.removeRight();
   return true;

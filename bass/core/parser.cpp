@@ -46,6 +46,13 @@ auto Parser::parse() -> bool {
       auto last = scopes.takeRight();
       return true;
     }
+
+    else if(t.type == tt(KW_IF)) result = _if();
+    else if(t.type == tt(KW_ELSE)) result = _else();
+    else if(t.type == tt(KW_WHILE)) result = _while();
+    else if(t.type == tt(KW_CONTINUE)) result = _continue();
+    else if(t.type == tt(KW_BREAK)) result = _break();
+
     else if(t.type == tt(IDENTIFIER) && check(tt(EQUAL))) {
       back(); // yes i know ..
       result = assignment();
@@ -56,12 +63,14 @@ auto Parser::parse() -> bool {
     else if(t.type == tt(IDENTIFIER) && check(tt(COLON))) {
       result = label();
     }
+
     else if(t.type == tt(CMD_PRINT)) {
       result = cmdPrint();
     }
     else if(t.type == tt(CMD_INCLUDE)) {
       result = cmdInclude();
     }
+    
     else {
       result = alien();
     }
@@ -176,13 +185,13 @@ auto Parser::label() -> const Statement {
 }
 
 auto Parser::assignment() -> const Statement {
-  auto name = consume(tt(IDENTIFIER), "expected name");
+  auto name = identifier();
   consume(tt(EQUAL), "expected '='");
-  
+
   return Statement::create(
-          previous(), 
+          previous(), // = token
           StmtType::Assignment,
-          Statement::create(name),
+          name,
           expression());
 }
 
@@ -190,6 +199,36 @@ auto Parser::block() -> const Statement {
   auto res = Statement::create(previous(), StmtType::Block);
   scopes.append(res);
   return res;
+}
+
+// ._."._."._."._."._."._."._."._."._."._."._."._."._."._."
+
+auto Parser::_if() -> const Statement {
+  auto expr = expression();
+  auto then = match(tt(LEFT_BRACE)) ? block() : expression();
+  return Statement::create(previous(), StmtType::If, expr, then);
+}
+auto Parser::_else() -> const Statement {
+  if(check(tt(KW_IF))) {
+    advance(); // remove 'else'
+    auto res = _if();
+    res->type = StmtType::ElseIf;
+    return res;
+  } else {
+    auto then = match(tt(LEFT_BRACE)) ? block() : expression();
+    return Statement::create(previous(), StmtType::Else, then);
+  }
+}
+auto Parser::_while() -> const Statement {
+  auto expr = expression();
+  auto then = match(tt(LEFT_BRACE)) ? block() : expression();
+  return Statement::create(previous(), StmtType::While, expr, then);
+}
+auto Parser::_break() -> const Statement {
+  return Statement::create(previous(), StmtType::Break);
+}
+auto Parser::_continue() -> const Statement {
+  return Statement::create(previous(), StmtType::Continue);
 }
 
 // ._."._."._."._."._."._."._."._."._."._."._."._."._."._."
@@ -229,7 +268,8 @@ auto Parser::equality() -> const Statement {
     
   while(match(tt(BANG_EQUAL), tt(EQUAL_EQUAL))) {
     auto op = previous();
-    expr = Statement::create(op, StmtType::Expr, expr, comparison());
+    auto type = (op.type==tt(EQUAL_EQUAL)) ? StmtType::CmpEqual : StmtType::CmpNotEqual;
+    expr = Statement::create(op, type, expr, comparison());
   }
 
   return expr;
@@ -238,9 +278,16 @@ auto Parser::equality() -> const Statement {
 auto Parser::comparison() -> const Statement {
   auto expr = term();
 
-  while(match(tt(GREATER), tt(EQUAL), tt(LESS), tt(LESS_EQUAL))) {
+  while(match(tt(EQUAL), tt(GREATER), tt(LESS), tt(LESS_EQUAL), tt(GREATER_EQUAL))) {
     auto op = previous();
-    expr = Statement::create(op, StmtType::Expr, expr, term());
+    auto type = StmtType::Assignment;
+
+    if     (op.type==tt(GREATER))       type = StmtType::CmpMore;
+    else if(op.type==tt(LESS))          type = StmtType::CmpLess;
+    else if(op.type==tt(LESS_EQUAL))    type = StmtType::CmpEqualLess;
+    else if(op.type==tt(GREATER_EQUAL)) type = StmtType::CmpEqualMore;
+
+    expr = Statement::create(op, type, expr, term());
   }
 
   return expr;

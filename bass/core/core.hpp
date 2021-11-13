@@ -60,6 +60,8 @@ struct Plek {
   // evaluate.cpp
     auto evaluate(Statement, Evaluation mode = Evaluation::Default) -> bool;
     auto calculate(Statement) -> Value;
+    template <typename T>
+    auto calculate(StmtType type, const T& a, const T& b) -> Value;
 
   // utility.cpp
     auto walkUp(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
