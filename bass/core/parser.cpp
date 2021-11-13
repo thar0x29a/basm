@@ -93,15 +93,15 @@ auto Parser::parse() -> bool {
 // ._."._."._."._."._."._."._."._."._."._."._."._."._."._."
 
 auto Parser::constant() -> const Statement {
-  auto name = consume(tt(IDENTIFIER), "expected name");
+  auto name = identifier();
   consume(tt(EQUAL), "expected '='");
-  return Statement::create(t, StmtType::DeclConst, Statement::create(name, StmtType::Identifier), expression());
+  return Statement::create(t, StmtType::DeclConst, name, expression());
 }
 
 auto Parser::variable() -> const Statement {
-  auto name = consume(tt(IDENTIFIER), "expected name");
+  auto name = identifier();
   consume(tt(EQUAL), "expected '='");
-  return Statement::create(t, StmtType::DeclVar, Statement::create(name, StmtType::Identifier), expression());
+  return Statement::create(t, StmtType::DeclVar, name, expression());
 }
 
 auto Parser::_return() -> const Statement {
@@ -126,13 +126,13 @@ auto Parser::alien() -> const Statement {
 }
 
 auto Parser::macro() -> const Statement {
-  auto name = consume(tt(IDENTIFIER), "expected macro name");
+  auto name = identifier();
   auto list = defList();
     
   consume(tt(LEFT_BRACE), "expected macro block");
   auto black = block();
 
-  return Statement::create(t, StmtType::Macro, Statement::create(name, StmtType::Identifier), list, black);
+  return Statement::create(t, StmtType::Macro, name, list, black);
 }
 
 auto Parser::call() -> const Statement {
@@ -246,8 +246,8 @@ auto Parser::_continue() -> const Statement {
       advance(); // ,
     }
 
-    if(!check(tt(TERMINAL)) && !isAtEnd() && peek().origin.line<=start.origin.line) 
-      throw string{"corrupted parameter list"};
+    //if(!check(tt(TERMINAL)) && !isAtEnd() && peek().origin.line<=start.origin.line) 
+      //throw string{"corrupted parameter list"};
 
     return res;
   }
