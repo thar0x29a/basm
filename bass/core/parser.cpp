@@ -169,8 +169,6 @@ auto Parser::defList() -> const Statement {
   return expr;
 }
 
-
-
 auto Parser::argument() -> const Statement {
   if(match(tt(KW_CONST), tt(KW_VAR))) {
     return Statement::create(previous(), identifier());
