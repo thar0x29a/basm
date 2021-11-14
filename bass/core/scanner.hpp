@@ -16,7 +16,7 @@ enum class TokenType : uint {
   KW_WHILE, KW_IF, KW_ELSE, KW_BREAK, KW_CONTINUE,
 
   // Commands
-  CMD_PRINT, CMD_INCLUDE,
+  CMD_PRINT, CMD_ARCH, CMD_INCLUDE,
 
   // Literals.
   IDENTIFIER, STRING, INTEGER, FLOAT,
@@ -68,6 +68,7 @@ protected:
       insert("continue", TokenType::KW_CONTINUE);
 
       insert("print", TokenType::CMD_PRINT);
+      insert("arch", TokenType::CMD_ARCH);
       insert("include", TokenType::CMD_INCLUDE);
     }
   };

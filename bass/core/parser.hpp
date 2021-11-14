@@ -14,7 +14,9 @@ enum class StmtType : uint {
   While, If, ElseIf, Else, Break, Continue,
   
   CmpEqual, CmpLess, CmpMore, CmpEqualLess, CmpEqualMore, CmpNotEqual,
-  CmdInclude, CmdPrint,
+  
+  CmdInclude, CmdPrint, CmdArch,
+  
   Raw
 };
 
@@ -29,7 +31,7 @@ const vector<string> StmtNames = {
   "While", "If", "ElseIf", "Else", "Break", "Continue",
 
   "CmpEqual", "CmpLess", "CmpMore", "CmpEqualLess", "CmpEqualMore", "CmpNotEqual",
-  "CmdInclude", "CmdPrint",
+  "CmdInclude", "CmdPrint", "CmdArch",
   "Raw"
 };
 
@@ -116,6 +118,7 @@ protected:
   auto _continue() -> const Statement;
 
   auto cmdPrint() -> const Statement;
+  auto cmdArch() -> const Statement;
   auto cmdInclude() -> const Statement;
 
   auto expression() -> const Statement;

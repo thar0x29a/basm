@@ -181,7 +181,7 @@ auto Scanner::anNumber() -> void {
 }
 
 auto Scanner::anIdentifier() -> void {
-  while (isAlphaNumeric(peek())) advance();
+  while (isAlphaNumeric(peek()) || peek()=='.') advance();
 
   string text = source.slice(start, current-start);
   if(auto type = keywords.find(text)) addToken(type());

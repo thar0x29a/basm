@@ -15,12 +15,15 @@ auto nall::main(Arguments arguments) -> void {
   bool create = false;
 
   if(!arguments) {
-    print(stderr, "bass v20\n");
+    print(stderr, "bass v20 - plek\n");
     print(stderr, "\n");
     print(stderr, "usage:\n");
     print(stderr, "  bass [options] source [source ...]\n");
     print(stderr, "\n");
     print(stderr, "options:\n");
+    print(stderr, "  -o target        specify default output filename [overwrite]\n");
+    print(stderr, "  -m target        specify default output filename [modify]\n");
+    print(stderr, "  -c name[=value]  create constant with optional value\n");
     exit(EXIT_FAILURE);
   }
 
@@ -31,6 +34,10 @@ auto nall::main(Arguments arguments) -> void {
   vector<string> sourceFilenames;
   for(auto& argument : arguments) sourceFilenames.append(argument);
 
+  vector<string> constants;
+  string constant;
+  while(arguments.take("-c", constant)) constants.append(constant);
+
   clock_t clockStart = clock();
 
   // core application
@@ -38,6 +45,7 @@ auto nall::main(Arguments arguments) -> void {
     plek.load(sourceFilename);
   }
   plek.target(targetFilename, create);
+  
   plek.execute();
 
   clock_t clockFinish = clock();

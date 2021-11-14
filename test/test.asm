@@ -1,7 +1,12 @@
-const a = 12
-var b = 1
+arch snes.cpu
 
-macro test() { print "Hello world\n" }
-test()
+macro test() { 
+  print "Hello world\n"
+  print main, ":  ", a, ",", b,"\n"
+}
 
-print a,b,"\n"
+main:
+  const a = 12
+  var b = 1
+
+  test()

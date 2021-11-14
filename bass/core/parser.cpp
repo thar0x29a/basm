@@ -53,19 +53,27 @@ auto Parser::parse() -> bool {
     else if(t.type == tt(KW_CONTINUE)) result = _continue();
     else if(t.type == tt(KW_BREAK)) result = _break();
 
-    else if(t.type == tt(IDENTIFIER) && check(tt(EQUAL))) {
-      back(); // yes i know ..
-      result = assignment();
-    }
-    else if(t.type == tt(IDENTIFIER) && check(tt(LEFT_PAREN))) {
-      result = call();
-    }
-    else if(t.type == tt(IDENTIFIER) && check(tt(COLON))) {
-      result = label();
+    else if(t.type == tt(IDENTIFIER)) {
+      if(check(tt(EQUAL))) {
+        back(); // yes i know ..
+        result = assignment();
+      }
+      else if(check(tt(LEFT_PAREN))) {
+        result = call();
+      }
+      else if(check(tt(COLON))) {
+        result = label();
+      }
+      else {
+        result = identifier();
+      }
     }
 
     else if(t.type == tt(CMD_PRINT)) {
       result = cmdPrint();
+    }
+    else if(t.type == tt(CMD_ARCH)) {
+      result = cmdArch();
     }
     else if(t.type == tt(CMD_INCLUDE)) {
       result = cmdInclude();
@@ -248,6 +256,10 @@ auto Parser::_continue() -> const Statement {
       //throw string{"corrupted parameter list"};
 
     return res;
+  }
+
+  auto Parser::cmdArch() -> const Statement {
+    return Statement::create(previous(), StmtType::CmdArch, identifier());
   }
 
   auto Parser::cmdInclude() -> const Statement {
