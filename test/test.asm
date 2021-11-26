@@ -1,5 +1,3 @@
-arch snes.cpu
-
 var a = 1
 var b = 1
 var c = 1
@@ -16,14 +14,14 @@ namespace foo {
 
     macro shout(e) {
       var d = 4
-
+      b = b + e
       print a, ".", b, ".", c, ".", d, ".", e, "\n"
     }
 
-    shout("a")
+    shout(1)
   }
   
-  baa.shout("b")
+  baa.shout(10)
 }
 
-foo.baa.shout("c")
+foo.baa.shout(100)

@@ -38,14 +38,17 @@ auto Plek::findSymbol(const string& symbolName) -> SymbolRef {
 }
 
 auto Plek::assign(const string& name, const Value& val) -> void {
-  auto scopes = frames;
-  while(scopes.size()>0) {
-    auto scope = scopes.takeRight();
+  auto scope = frames.right();
+
+  do {
     if(auto res = scope->symbolTable.find(name)) {
       scope->assign(name, val);
       return;
     }
-  }
+
+    scope = scope->parent;
+  } while(scope);
+
 
   frames.right()->assign(name, val);
   notice("implicit created var ", name);
@@ -88,7 +91,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
 
   // finally invoke!
   auto padef = fun.ref->content[1];
-  auto fscope = Frame::create(scope);
+  auto fscope = Frame::create(scope); // bug here - we use the wrong scope
 
   for(int i=0; i<args->size(); i++) {
     auto t = padef->content[i];

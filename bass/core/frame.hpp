@@ -35,7 +35,6 @@ struct FrameElement {
   auto setMacro(const string& name, Statement def) -> void;
 
   auto assign(const string& name, const Value& val) -> void;
-  auto invoke(const string& name, Statement args) -> Value;
 
   auto addScope(const Frame frm) -> void;
 };

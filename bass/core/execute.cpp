@@ -13,10 +13,6 @@ auto Plek::execute() -> bool {
   //  error(e);
   //}
 
-  for(auto frm : frames) {
-    print(frm);
-  }
-
   frames.removeRight();
   return true;
 }
