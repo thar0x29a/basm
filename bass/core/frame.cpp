@@ -27,3 +27,34 @@ auto FrameElement::assign(const string& name, const Value& val) -> void {
   setVariable(name, val);
 }
 
+auto FrameElement::invoke(const string& fullName, Statement args) -> Value {
+  Value result{nothing};
+  string id = {fullName, "#", args->size()};
+
+  print("invoced ", id, " in ", name, "\n");
+
+  //1. is this ours?
+  if(auto res = symbolTable.find(id)) {
+    print("We found it!\n");
+    result = {"OK"};
+  }
+
+  //2. try find downstream + invoke there!
+  auto parts = fullName.split(".");
+  auto left = parts.takeLeft();
+  if(auto res = children.find(left)) {
+    result = res()->invoke(parts.merge("."), args);
+  }
+
+  //3. ask parent
+  if(parent && !result) {
+    result = parent->invoke(fullName, args);
+  }
+
+  return result;
+}
+
+auto FrameElement::addScope(const Frame frm) -> void {
+  children.insert(frm->name, frm);
+}
+

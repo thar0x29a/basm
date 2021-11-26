@@ -24,22 +24,16 @@ auto Plek::identifier(const string& name) -> Value {
 }
 
 auto Plek::findSymbol(const string& symbolName) -> SymbolRef {
-  auto scopes = frames;
-  string name = symbolName;
+  auto scope = frames.right();
 
   do {
-    auto scope = scopes.takeRight();
-
-    if(scope->temporary == false) {
-      if(scope->name.size()>0) name = {scope->name, ".", name};
-    }
-
-    // priosize sub-scopes down the road
-    if(auto res = scope->symbolTable.find(name)) return res();
+    //notice("search ", symbolName, " in ", scope->name);
     if(auto res = scope->symbolTable.find(symbolName)) return res();
-  } while(scopes.size()>0);
 
-  notice("could not (even) find ", name, " (", symbolName, ") \n");
+    scope = scope->parent;
+  } while(scope);
+
+  //notice("could not find ", symbolName, "\n");
   return {SymbolRef::nothing()};
 }
 
@@ -54,37 +48,60 @@ auto Plek::assign(const string& name, const Value& val) -> void {
   }
 
   frames.right()->assign(name, val);
-  notice("implicit created var ", name, "\n");
+  notice("implicit created var ", name);
 }
 
-auto Plek::invoke(const string& name, Statement args) -> Value {
-  string id = {name, "#", args->size()};
-  
-  //1. find or find not callable with this name
-  auto fun = findSymbol(id);
-  if(fun.ref && fun.ref->is(st(Macro))) {
-    auto padef = fun.ref->content[1]; // it would be nice to cast this somehow ..
+auto Plek::invoke(const string& fullName, Statement args) -> Value {
+  string id = {fullName, "#", args->size()};
+  auto parts = id.split(".");
+  auto lastId = parts.takeRight();
+  SymbolRef fun{};
+  bool found = false;
 
-    //2. prepare custom scope with parameters
-    auto scope = Frame::create();
+  Frame scope = frames.last();
+  //notice("invoced ", id, " in ", scope->name);
+
+  do {
+    // try to walk upstream
+    auto upScope = scope;
+    for(auto el : parts) {
+      if(auto nextScope = upScope->children.find(el)) {
+        upScope = nextScope();
+      }
+    }
     
-    for(int i=0; i<args->size(); i++) {
-      auto t = padef->content[i];
-      auto v = args->content[i];
-
-      //todo: handle decl types
-      scope->setVariable(t->value, v->value);
+    // end of the road. do we find it?
+    if(auto res = upScope->symbolTable.find(lastId)) {
+      fun = res();
+      scope = upScope;
+      found = true;
+      break;
     }
 
-    //3. call with this scope!
-    frames.append(scope);
-    excecuteBlock(fun.ref->content[2], scope);
-    frames.removeRight();
-    return scope->result;
-  }
+    // walk downstream
+    scope = scope->parent;
+  } while(scope);  
   
-  error("cannot call unknown symbol ", name);
-  return {nothing};
+  if(!found) error("cannot call unknown ", id);
+
+  //notice("we found ", id, " in ", scope->name);
+
+  // finally invoke!
+  auto padef = fun.ref->content[1];
+  auto fscope = Frame::create(scope);
+
+  for(int i=0; i<args->size(); i++) {
+    auto t = padef->content[i];
+    auto v = args->content[i];
+
+    //todo: handle decl types
+    fscope->setVariable(t->value, v->value);
+  }
+
+  frames.append(fscope);
+  excecuteBlock(fun.ref->content[2], fscope);
+  frames.removeRight();
+  return scope->result;
 }
 
 auto Plek::scopePath() -> string {
@@ -96,4 +113,3 @@ auto Plek::scopePath() -> string {
   }
   return res.slice(1);
 }
-

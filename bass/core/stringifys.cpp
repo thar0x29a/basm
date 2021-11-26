@@ -38,7 +38,7 @@ template<> struct nall::stringify<Bass::Frame> {
           };
 
     for(auto el : data.symbolTable) {
-      _text.append("  - ", el.key ,"\n");
+      _text.append("  - ", el.key, "\n");
     }
     _text.append("}");
   }

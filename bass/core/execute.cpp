@@ -1,7 +1,7 @@
 auto Plek::execute() -> bool {
   // Init
   frames.reset();
-  frames.append(Frame::create("")); // root scope!
+  frames.append(Frame::create(nullptr, "")); // root scope!
 
   //try {
     //todo: better errorhandling. probl somewhere else. 
@@ -40,7 +40,10 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
 
   for(auto& item : stmt->all()) {
     switch(item->type) {
-      case st(Block): excecuteBlock(item, scope); break;
+      case st(Block): {
+        excecuteBlock(item, scope); 
+        break;
+      }
 
       case st(CmdPrint): {
         evaluate(item);
@@ -63,8 +66,9 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       case st(Namespace): {
         if(!item->left() || !item->right()) throw "Broken AST #57";
         string name = item->leftValue().getString();
-        auto subscope = Frame::create(name);
-        frames.append(subscope);
+        auto subscope = Frame::create(scope, name);
+          scope->addScope(subscope);
+          frames.append(subscope);
         excecuteBlock(item->right(), subscope);
         frames.removeRight();        
         break;
@@ -77,40 +81,28 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
 
       case st(DeclConst): {
         if(!item->left() || !item->right()) throw "Broken AST #71";
-        evaluate(item);
+        evaluate(item->right());
         
         string name = item->leftValue().getString();
-        if(scope->temporary==true) {
-          scope->setConstant(name, item->rightResult());
-        }
-        else {
-          if(path.size()>0) name = {path, ".", name};
-          root->setConstant(name, item->rightResult());
-        }
+        scope->setConstant(name, item->rightResult());
 
         break;
       }
 
       case st(DeclVar): {
         if(!item->left() || !item->right()) throw "Broken AST #81";
-        evaluate(item);
+        evaluate(item->right());
 
         string name = item->leftValue().getString();
-        if(scope->temporary==true) {
-          scope->setVariable(name, item->rightResult());
-        }
-        else {
-          if(path.size()>0) name = {path, ".", name};
-          root->setVariable(name, item->rightResult());
-        }
+        scope->setVariable(name, item->rightResult());
 
         break;
       }
 
       case st(Assignment): {
         if(!item->left() || !item->right()) throw "Broken AST #91";
-        evaluate(item);
-        //todo: find the right one !
+        evaluate(item->right());
+        //todo: find the right one ! TEST
 
         assign(
           item->leftValue().getString(),
@@ -123,9 +115,11 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         if(!item->left()) throw "Broken AST #101";
 
         auto name = item->left()->value.getString();
-        if(path.size()>0) name = {path, ".", name};
+        scope->setMacro(name, item);
 
-        root->setMacro(name, item);
+        //todo: only if macro is in permament naming scope add it to root
+        if(path.size()>0) name = {path, ".", name};
+        //todo removed for now root->setMacro(name, item);
         break;
       }
 
@@ -144,7 +138,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       case st(Else): {
         if(doElse!=true) break;
         
-        auto subscope = Frame::create();
+        auto subscope = Frame::create(scope);
         frames.append(subscope);
         excecuteBlock(item->left(), subscope);
         frames.removeRight();
@@ -163,7 +157,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         
         if(result==true) {
           // invoke
-          auto subscope = Frame::create();
+          auto subscope = Frame::create(scope);
           frames.append(subscope);
           excecuteBlock(item->right(), subscope);
           frames.removeRight();
@@ -184,7 +178,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
           result = res.isTrue();
         
           if(result==true) {
-            auto subscope = Frame::create();
+            auto subscope = Frame::create(scope);
             frames.append(subscope);
             excecuteBlock(item->right(), subscope);
             frames.removeRight();

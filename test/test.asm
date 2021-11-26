@@ -14,17 +14,16 @@ namespace foo {
     var c = 3
     var d = 3
 
-    macro shout() {
+    macro shout(e) {
       var d = 4
 
-      print a, ".", b, ".", c, ".", d, "\n"
+      print a, ".", b, ".", c, ".", d, ".", e, "\n"
     }
 
-    shout()
+    shout("a")
   }
   
-
-  //baa.shout()
+  baa.shout("b")
 }
 
-//foo.baa.shout()
+foo.baa.shout("c")
