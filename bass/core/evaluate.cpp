@@ -37,6 +37,7 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
           break;
         case st(Assignment):
           stmt->result = stmt->rightResult();
+          //todo: fint the right one!
           assign(
             stmt->leftValue().getString(),
             stmt->rightResult()

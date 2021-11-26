@@ -46,7 +46,11 @@ auto nall::main(Arguments arguments) -> void {
   }
   plek.target(targetFilename, create);
   
-  plek.execute();
+  try {
+    plek.execute();
+  } catch(...) {
+    
+  }
 
   clock_t clockFinish = clock();
 }

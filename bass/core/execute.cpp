@@ -1,7 +1,7 @@
 auto Plek::execute() -> bool {
   // Init
   frames.reset();
-  frames.append(Frame::create()); // root scope!
+  frames.append(Frame::create("")); // root scope!
 
   //try {
     //todo: better errorhandling. probl somewhere else. 
@@ -13,11 +13,18 @@ auto Plek::execute() -> bool {
   //  error(e);
   //}
 
+  for(auto frm : frames) {
+    print(frm);
+  }
+
   frames.removeRight();
   return true;
 }
 
 auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
+  auto root = frames.first();
+  auto path = scopePath();
+
   if(!stmt) return false;
   if(!scope) return false;
   
@@ -25,7 +32,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
     error("AST: Block expected but got ", stmt);
   }
 
-  print("BLOCK\n");
+  /*print("Execute block -> ", scopePath(), "\n");
   Parser::debug(stmt->all());
   print("___\n");/**/
 
@@ -53,34 +60,58 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         break;
       }
 
+      case st(Namespace): {
+        if(!item->left() || !item->right()) throw "Broken AST #57";
+        string name = item->leftValue().getString();
+        auto subscope = Frame::create(name);
+        frames.append(subscope);
+        excecuteBlock(item->right(), subscope);
+        frames.removeRight();        
+        break;
+      }
+
       case st(Label): {
         scope->setConstant(item->value.getString(), {pc()});
         break;
       }
 
       case st(DeclConst): {
-        if(!item->left() || !item->right()) throw "Broken AST #36";
+        if(!item->left() || !item->right()) throw "Broken AST #71";
         evaluate(item);
-        scope->setConstant(
-          item->leftValue().getString(),
-          item->rightResult()
-        );
+        
+        string name = item->leftValue().getString();
+        if(scope->temporary==true) {
+          scope->setConstant(name, item->rightResult());
+        }
+        else {
+          if(path.size()>0) name = {path, ".", name};
+          root->setConstant(name, item->rightResult());
+        }
+
         break;
       }
 
       case st(DeclVar): {
-        if(!item->left() || !item->right()) throw "Broken AST #36";
+        if(!item->left() || !item->right()) throw "Broken AST #81";
         evaluate(item);
-        scope->setVariable(
-          item->leftValue().getString(),
-          item->rightResult()
-        );
+
+        string name = item->leftValue().getString();
+        if(scope->temporary==true) {
+          scope->setVariable(name, item->rightResult());
+        }
+        else {
+          if(path.size()>0) name = {path, ".", name};
+          root->setVariable(name, item->rightResult());
+        }
+
         break;
       }
 
       case st(Assignment): {
-        if(!item->left() || !item->right()) throw "Broken AST #36";
+        if(!item->left() || !item->right()) throw "Broken AST #91";
         evaluate(item);
+        //todo: find the right one !
+
         assign(
           item->leftValue().getString(),
           item->rightResult()
@@ -89,8 +120,12 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       }
 
       case st(Macro): {
-        if(!item->left()) throw "Broken AST #36";
-        scope->setMacro(item->left()->value.getString(), item);
+        if(!item->left()) throw "Broken AST #101";
+
+        auto name = item->left()->value.getString();
+        if(path.size()>0) name = {path, ".", name};
+
+        root->setMacro(name, item);
         break;
       }
 

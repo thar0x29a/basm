@@ -79,6 +79,8 @@ struct Plek {
     auto findSymbol(const string& name) -> SymbolRef;
     auto assign(const string& name, const Value& val) -> void;
     auto invoke(const string& name, Statement call) -> Value;
+
+    auto scopePath() -> string;
 };
 
 };

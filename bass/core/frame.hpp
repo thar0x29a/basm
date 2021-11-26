@@ -15,6 +15,11 @@ struct FrameElement {
   // content
   map<string, SymbolRef> symbolTable;
   Value result;
+  const string name;
+  bool temporary;
+
+  FrameElement() : name("#"), temporary(true) {};
+  FrameElement(const string& name) : name(name), temporary(false) {};
   
   auto setConstant(const string& name, const Value& val) -> void;
   auto setVariable(const string& name, const Value& val) -> void;

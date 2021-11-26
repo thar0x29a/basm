@@ -52,6 +52,7 @@ auto Parser::parse() -> bool {
     else if(t.type == tt(KW_WHILE)) result = _while();
     else if(t.type == tt(KW_CONTINUE)) result = _continue();
     else if(t.type == tt(KW_BREAK)) result = _break();
+    else if(t.type == tt(KW_NAMESPACE)) result = _namespace();
 
     else if(t.type == tt(IDENTIFIER)) {
       if(check(tt(EQUAL))) {
@@ -235,6 +236,13 @@ auto Parser::_break() -> const Statement {
 }
 auto Parser::_continue() -> const Statement {
   return Statement::create(previous(), StmtType::Continue);
+}
+
+auto Parser::_namespace() -> const Statement {
+  auto start = previous();
+  auto name = identifier();
+  if(!match(tt(LEFT_BRACE))) return nullptr;
+  return Statement::create(start, StmtType::Namespace, name, block());
 }
 
 // ._."._."._."._."._."._."._."._."._."._."._."._."._."._."

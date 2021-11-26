@@ -28,3 +28,23 @@ template<> struct nall::stringify<Bass::Statement> {
   
   string _text;
 };
+
+template<> struct nall::stringify<Bass::Frame> {
+  stringify(Bass::Frame source) {
+    auto data = source();
+    _text = { "Scope: ", data.name, 
+            (data.temporary) ? "tmp" : "", 
+            "(", data.symbolTable.size(),") {\n" 
+          };
+
+    for(auto el : data.symbolTable) {
+      _text.append("  - ", el.key ,"\n");
+    }
+    _text.append("}");
+  }
+
+  auto data() const -> const char* { return _text.data(); }
+  auto size() const -> uint { return _text.size(); }
+  
+  string _text;
+};

@@ -35,7 +35,10 @@ auto Scanner::scanToken() -> void {
       addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG);
       break;
     case '=':
-      addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL);
+      if(match('=')) addToken(TokenType::EQUAL_EQUAL);
+      else if(match('>')) addToken(TokenType::GREATER_EQUAL);
+      else if(match('<')) addToken(TokenType::LESS_EQUAL);
+      else addToken(TokenType::EQUAL);
       break;
     case '<':
       addToken(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS);

@@ -14,6 +14,7 @@ enum class TokenType : uint {
   KW_CONST, KW_VAR, KW_DEF, KW_EVAL, KW_EXPR,
   KW_PRIMARY, KW_RETURN,
   KW_WHILE, KW_IF, KW_ELSE, KW_BREAK, KW_CONTINUE,
+  KW_NAMESPACE,
 
   // Commands
   CMD_PRINT, CMD_ARCH, CMD_INCLUDE,
@@ -66,6 +67,7 @@ protected:
       insert("else", TokenType::KW_ELSE);
       insert("break", TokenType::KW_BREAK);
       insert("continue", TokenType::KW_CONTINUE);
+      insert("namespace", TokenType::KW_NAMESPACE);
 
       insert("print", TokenType::CMD_PRINT);
       insert("arch", TokenType::CMD_ARCH);

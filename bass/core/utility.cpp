@@ -23,17 +23,23 @@ auto Plek::identifier(const string& name) -> Value {
   return findSymbol(name).value;
 }
 
-auto Plek::findSymbol(const string& name) -> SymbolRef {
+auto Plek::findSymbol(const string& symbolName) -> SymbolRef {
   auto scopes = frames;
+  string name = symbolName;
 
-  // hunt in this and parent scopes
-  while(scopes.size()>0) {
+  do {
     auto scope = scopes.takeRight();
-    if(auto res = scope->symbolTable.find(name)) {
-      return res();
-    }
-  }
 
+    if(scope->temporary == false) {
+      if(scope->name.size()>0) name = {scope->name, ".", name};
+    }
+
+    // priosize sub-scopes down the road
+    if(auto res = scope->symbolTable.find(name)) return res();
+    if(auto res = scope->symbolTable.find(symbolName)) return res();
+  } while(scopes.size()>0);
+
+  notice("could not (even) find ", name, " (", symbolName, ") \n");
   return {SymbolRef::nothing()};
 }
 
@@ -56,7 +62,7 @@ auto Plek::invoke(const string& name, Statement args) -> Value {
   
   //1. find or find not callable with this name
   auto fun = findSymbol(id);
-  if(fun.ref) {
+  if(fun.ref && fun.ref->is(st(Macro))) {
     auto padef = fun.ref->content[1]; // it would be nice to cast this somehow ..
 
     //2. prepare custom scope with parameters
@@ -77,6 +83,17 @@ auto Plek::invoke(const string& name, Statement args) -> Value {
     return scope->result;
   }
   
+  error("cannot call unknown symbol ", name);
   return {nothing};
+}
+
+auto Plek::scopePath() -> string {
+  string res{""};
+
+  for(auto f : frames) {
+    if(f->name.size()>0)
+      res.append('.').append(f->name);
+  }
+  return res.slice(1);
 }
 
