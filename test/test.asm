@@ -8,6 +8,10 @@ namespace foo {
   var c = 2
   var d = 2
 
+  macro it() {
+    return " yay!!\n"
+  }
+
   namespace baa {
     var c = 3
     var d = 3
@@ -15,7 +19,7 @@ namespace foo {
     macro shout(e) {
       var d = 4
       b = b + e
-      print a, ".", b, ".", c, ".", d, ".", e, "\n"
+      print a, ".", b, ".", c, ".", d, ".", e, it()
     }
 
     shout(1)

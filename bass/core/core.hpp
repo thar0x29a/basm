@@ -1,3 +1,5 @@
+#include <tuple>
+
 namespace Bass {
 
 // General
@@ -74,9 +76,10 @@ struct Plek {
   // utility.cpp
     auto walkUp(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
     auto walkDown(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
-    
+
     auto identifier(const string& name) -> Value;
-    auto findSymbol(const string& name) -> SymbolRef;
+    auto find(const string& symbolName) -> std::tuple<bool, Frame, string>;
+
     auto assign(const string& name, const Value& val) -> void;
     auto invoke(const string& name, Statement call) -> Value;
 
