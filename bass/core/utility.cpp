@@ -104,7 +104,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
   frames.append(fscope);
   excecuteBlock(fun.ref->content[2], fscope);
   frames.removeRight();
-  return scope->result;
+  return fscope->result;
 }
 
 auto Plek::scopePath() -> string {
