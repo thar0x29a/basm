@@ -69,7 +69,13 @@ auto Plek::calculate(Statement stmt) -> Value {
 
     if(result.isInt()) result = calculate(stmt->type, result.getInt(), item->result.getInt());
     else if(result.isFloat()) result = calculate(stmt->type, result.getFloat(), item->result.getFloat());
-    //else if(result.isString()) { }
+    else if(result.isString()) { 
+      string a = result.getString();
+      string b = item->result.getString();
+
+      if(stmt->type == st(Add)) result = {string{a,b}};
+      else error("Type not supported");
+    }
     else error("Type not supported"); 
   }
 

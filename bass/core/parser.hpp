@@ -15,7 +15,6 @@ enum class StmtType : uint {
   Namespace,
   
   CmpEqual, CmpLess, CmpMore, CmpEqualLess, CmpEqualMore, CmpNotEqual,
-  
   CmdInclude, CmdPrint, CmdArch,
   
   Raw
@@ -34,6 +33,7 @@ const vector<string> StmtNames = {
 
   "CmpEqual", "CmpLess", "CmpMore", "CmpEqualLess", "CmpEqualMore", "CmpNotEqual",
   "CmdInclude", "CmdPrint", "CmdArch",
+
   "Raw"
 };
 

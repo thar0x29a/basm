@@ -9,7 +9,7 @@ namespace foo {
   var d = 2
 
   macro it() {
-    return " yay!!\n"
+    return (" yay!!" + "\n")
   }
 
   namespace baa {
