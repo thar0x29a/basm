@@ -51,6 +51,7 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
         case st(CmdPrint):
         case st(CmdArch):
         case st(CmdInclude):
+        case st(Return):
           // handled in excecuteBlock
           break;
         default:

@@ -1,31 +1,16 @@
-var a = 1
-var b = 1
-var c = 1
-var d = 1
+const c = "caramel"
+const {c} = "Vi undrar är ni redo att vara med"
+var {"dansen"} = "Armarna upp nu ska ni få se"
+var {(c+"_03")} = "Kom igen"
+var {(c+4)} = "Vem som helst kan vara med"
 
-namespace foo {
-  var b = 2
-  var c = 2
-  var d = 2
+const stuff = {c}
 
-  macro it() {
-    return (" yay!!" + "\n")
-  }
+// ---------------------
 
-  namespace baa {
-    var c = 3
-    var d = 3
+print caramel, "\n"
+print dansen, "\n"
+print caramel_03, "\n"
+print caramel4, "\n"
 
-    macro shout(e) {
-      var d = 4
-      b = b + e
-      print a, ".", b, ".", c, ".", d, ".", e, it()
-    }
-
-    shout(1)
-  }
-  
-  baa.shout(10)
-}
-
-foo.baa.shout(100)
+print stuff, "\n"
