@@ -71,15 +71,20 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       }
 
       case st(Label): {
-        scope->setConstant(item->value.getString(), {pc()});
+        evaluate(item);
+        scope->setConstant(item->result.getString(), {pc()});
         break;
       }
 
       case st(DeclConst): {
         if(!item->left() || !item->right()) throw "Broken AST #71";
-        evaluate(item->right());
         
-        string name = item->leftValue().getString();
+        evaluate(item->right());
+        if(item->left()->type == st(Evaluation)) {
+          evaluate(item->left());
+        }
+
+        string name = item->leftResult().getString();
         scope->setConstant(name, item->rightResult());
 
         break;
@@ -87,9 +92,13 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
 
       case st(DeclVar): {
         if(!item->left() || !item->right()) throw "Broken AST #81";
+        
         evaluate(item->right());
+        if(item->left()->type == st(Evaluation)) {
+          evaluate(item->left());
+        }
 
-        string name = item->leftValue().getString();
+        string name = item->leftResult().getString();
         scope->setVariable(name, item->rightResult());
 
         break;

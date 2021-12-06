@@ -7,10 +7,17 @@ struct Value : public any {
   auto isInt() -> bool { return type() == typeid(int64_t); };
   auto isFloat() -> bool { return type() == typeid(double); };
   auto isString() -> bool { return type() == typeid(string); };
+  auto isNothing() -> bool { return type() == typeid(nothing); };
 
   auto getInt() -> int64_t { return get<int64_t>(); };
   auto getFloat() -> double { return get<double>(); };
-  auto getString() -> string { return get<string>(); };
+  auto getString() -> string { 
+    if(isString()) return get<string>(); 
+    else if(isInt()) return { getInt() };
+    else if(isFloat()) return { getFloat() };
+    else if(isNothing()) return { "null" };
+    else throw "unknown state";
+  };
 
   auto negate() -> Value {
     if(isInt()) return {getInt() * -1};

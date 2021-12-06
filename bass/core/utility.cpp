@@ -21,7 +21,7 @@ auto Plek::walkDown(const Program& what, std::function<bool (Statement, int)> wi
 
 auto Plek::identifier(const string& identName) -> Value {
   auto [found, scope, name] = find(identName);
-  if(!found) error("cannot find identifier", identName);
+  if(!found) error("cannot find identifier ", identName);
 
   auto res = scope->symbolTable.find(name)();
   return res.value;

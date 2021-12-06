@@ -4,9 +4,12 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
   walkUp({what}, [&](Statement stmt, int level) {
     if(stmt->leaf) {
       if(stmt->type == st(Identifier)) {
+        // final identifier -> to be solved
         stmt->result = identifier(stmt->value.getString());
       }
       else {
+        // should not be needed due on leafs result should be value allready.
+        // but we make sure.
         stmt->result = stmt->value;
       }
       return true;
@@ -32,6 +35,7 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
         case st(Negative):
           stmt->result = stmt->leftResult().negate();
           break;
+        case st(Evaluation):
         case st(Grouped):
           stmt->result = stmt->leftResult();
           break;
@@ -42,8 +46,15 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
             stmt->leftValue().getString(),
             stmt->rightResult()
           );
+        case st(DeclVar):
+        case st(DeclConst):
+        case st(CmdPrint):
+        case st(CmdArch):
+        case st(CmdInclude):
+          // handled in excecuteBlock
+          break;
         default:
-          //notice(stmt);
+          notice("unknown: ", stmt);
           break;
       }
     } catch(string e) {
@@ -63,7 +74,10 @@ auto Plek::calculate(Statement stmt) -> Value {
     if(!result) { result = item->result; continue; }
 
     // todo: handle with visitor patterns
-    if(result.type() != item->result.type()) {
+    if(result.isString()) {
+      // as long the target is a string, value can handle it.
+    }
+    else if(result.type() != item->result.type()) {
       throw string{"incompatible types: ", result, ":", item->result};
     }
 

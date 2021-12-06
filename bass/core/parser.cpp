@@ -102,13 +102,13 @@ auto Parser::parse() -> bool {
 // ._."._."._."._."._."._."._."._."._."._."._."._."._."._."
 
 auto Parser::constant() -> const Statement {
-  auto name = identifier();
+  auto name = identOrEval();
   consume(tt(EQUAL), "expected '='");
   return Statement::create(t, StmtType::DeclConst, name, expression());
 }
 
 auto Parser::variable() -> const Statement {
-  auto name = identifier();
+  auto name = identOrEval();
   consume(tt(EQUAL), "expected '='");
   return Statement::create(t, StmtType::DeclVar, name, expression());
 }
@@ -358,11 +358,15 @@ auto Parser::primary() -> const Statement {
     return symbol();
   }
 
-  if (match(tt(LEFT_PAREN))) {
+  if(match(tt(LEFT_PAREN))) {
     auto prev = previous();
     auto expr = expression();
     consume(tt(RIGHT_PAREN), "Expect ')' after expression.");
     return Statement::create(prev, StmtType::Grouped, expr);
+  }
+
+  if(check(tt(LEFT_BRACE))) {
+    return evaluation();
   }
 
   throw string{"not expected"};
@@ -381,11 +385,26 @@ auto Parser::symbol() -> const Statement {
   }
 }
 
+auto Parser::identOrEval() -> const Statement {
+  if(check(tt(LEFT_BRACE))) {
+    return evaluation();
+  }
+  else return identifier();
+}
+
 auto Parser::identifier() -> const Statement {
   return Statement::create(
     consume(tt(IDENTIFIER), "expected identifier"),
     StmtType::Identifier
   );
+}
+
+auto Parser::evaluation() -> const Statement {
+  auto start = consume(tt(LEFT_BRACE), "expected {");
+  auto sub = primary();
+  consume(tt(RIGHT_BRACE), "expected }");
+
+  return Statement::create(start, StmtType::Evaluation, sub);
 }
 
 // ._."._."._."._."._."._."._."._."._."._."._."._."._."._."
@@ -412,7 +431,7 @@ inline auto Parser::advance() -> const Token& {
 
 inline auto Parser::check(const TokenType& type) -> bool {
   if(isAtEnd()) return false; 
-  return peek().type == type; 
+  return peek().type == type;
 }
 
 inline auto Parser::consume(const TokenType& type, const string& msg) -> const Token& {

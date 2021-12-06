@@ -4,7 +4,8 @@ using Program = vector<Statement>;
 
 enum class StmtType : uint {
   File, Block, Grouped,
-  Value, Identifier, Label,
+  Value, Identifier, Label, Evaluation,
+
   // declarations
   DeclConst, DeclVar, DecList,
   Expr, Negative, Banged,
@@ -15,6 +16,7 @@ enum class StmtType : uint {
   Namespace,
   
   CmpEqual, CmpLess, CmpMore, CmpEqualLess, CmpEqualMore, CmpNotEqual,
+  
   CmdInclude, CmdPrint, CmdArch,
   
   Raw
@@ -22,7 +24,7 @@ enum class StmtType : uint {
 
 const vector<string> StmtNames = {
   "File", "Block", "Grouped",
-  "Value", "Identifier", "Label", 
+  "Value", "Identifier", "Label", "Evaluation",
   "DeclConst", "DeclVar", "DecList",
   "Expr", "Negative", "Banged",
   "Add", "Sub", "Mul", "Div", 
@@ -49,18 +51,18 @@ struct StmtNode {
   bool strict = true;
 
   StmtNode(const StmtType t) : type(t) {};
-  StmtNode(const Token& op) : value(op.literal), origin(op.origin), type(StmtType::Raw) {};
-  StmtNode(const Token& op, const StmtType t) : value(op.literal), origin(op.origin), type(t) {};
+  StmtNode(const Token& op) : value(op.literal), result(op.literal), origin(op.origin), type(StmtType::Raw) {};
+  StmtNode(const Token& op, const StmtType t) : value(op.literal), result(op.literal), origin(op.origin), type(t) {};
   
   template <typename... Ts>
   StmtNode(const Token& op, const StmtType t, Ts... xs) 
-  : value(op.literal), origin(op.origin), type(t), leaf(false) {
+  : value(op.literal), result(op.literal), origin(op.origin), type(t), leaf(false) {
     content.append(Program{xs...});
   };
 
   template <typename... Ts>
   StmtNode(const Token& op, Ts... xs) 
-  : value(op.literal), origin(op.origin), type(StmtType::Raw), leaf(false) {
+  : value(op.literal), result(op.literal), origin(op.origin), type(StmtType::Raw), leaf(false) {
     content.append(Program{xs...});
   };
 
@@ -133,6 +135,8 @@ protected:
   auto primary() -> const Statement;
   auto symbol() -> const Statement;
   auto identifier() -> const Statement;
+  auto evaluation() -> const Statement;
+  auto identOrEval() -> const Statement;
 
   inline auto peek() -> const Token&;
   inline auto back() -> void;
