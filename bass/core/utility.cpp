@@ -91,8 +91,22 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
     auto t = padef->content[i];
     auto v = args->content[i];
 
-    //todo: handle decl types
-    fscope->setVariable(t->value, v->value);
+    if(v->type == st(Identifier)) {
+      if(t->type == st(EvalArgument)) {
+        v->result = v->value;
+      } else {
+        evaluate(v);
+      }
+    }
+
+    if(!v->result || v->result.isNothing()) warning("Parameter ", i+1, " is not set");
+    
+    if(t->type == st(ConstArgument)) {
+      fscope->setConstant(t->result, v->result);
+    }
+    else {
+      fscope->setVariable(t->result, v->result);
+    }
   }
 
   frames.append(fscope);

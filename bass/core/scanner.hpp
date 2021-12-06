@@ -58,8 +58,10 @@ protected:
       insert("variable", TokenType::KW_VAR);
       insert("var", TokenType::KW_VAR);
 
-      insert("define", TokenType::KW_DEF);
       insert("evaluate", TokenType::KW_EVAL);
+      insert("eval", TokenType::KW_EVAL);
+
+      insert("define", TokenType::KW_DEF);
       insert("expression", TokenType::KW_EXPR);
 
       insert("while", TokenType::KW_WHILE);

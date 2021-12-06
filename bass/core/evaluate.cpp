@@ -36,6 +36,8 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
           stmt->result = stmt->leftResult().negate();
           break;
         case st(Evaluation):
+          stmt->result = identifier(stmt->leftResult().getString());
+          break;
         case st(Grouped):
           stmt->result = stmt->leftResult();
           break;

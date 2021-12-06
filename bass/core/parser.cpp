@@ -169,7 +169,7 @@ auto Parser::defList() -> const Statement {
   auto expr = Statement::create(start, StmtType::DecList);
     
   while(!check(tt(RIGHT_PAREN))) {
-    expr().append(argument());
+    expr->append(argument());
     if(!check(tt(COMMA))) break;
     advance(); // ,
   }
@@ -179,10 +179,17 @@ auto Parser::defList() -> const Statement {
 }
 
 auto Parser::argument() -> const Statement {
-  if(match(tt(KW_CONST), tt(KW_VAR))) {
-    return Statement::create(previous(), identifier());
+  if(match(tt(KW_CONST))) {
+    return Statement::create(previous(), StmtType::ConstArgument, identifier());
   }
-  return symbol();
+  if(match(tt(KW_VAR))) {
+    return Statement::create(previous(), StmtType::VarArgument, identifier());
+  }
+  if(match(tt(KW_EVAL))) {
+    return Statement::create(previous(), StmtType::EvalArgument, identifier());
+  }
+  
+  return Statement::create(previous(), StmtType::VarArgument, identifier());
 }
 
 auto Parser::label() -> const Statement {
