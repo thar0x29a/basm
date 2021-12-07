@@ -42,8 +42,8 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       }
 
       case st(CmdPrint): {
-        evaluate(item);
         for(auto cnt : item->all()) {
+          evaluate(cnt);
           if(cnt->result) print(cnt->result);
         }
         break;
@@ -74,7 +74,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       }
 
       case st(Label): {
-        evaluate(item);
+        evaluate(item, EvaluationMode::LeftSide);
         scope->setConstant(item->result.getString(), {pc()});
         break;
       }
@@ -106,29 +106,27 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       case st(Assignment): {
         if(!item->left() || !item->right()) throw "Broken AST #91";
         evaluate(item->right());
-        //todo: find the right one ! TEST
+        evaluate(item->left(), EvaluationMode::LeftSide);
 
         assign(
-          item->leftValue().getString(),
+          item->leftResult().getString(),
           item->rightResult()
         );
         break;
       }
 
       case st(Macro): {
-        if(!item->left()) throw "Broken AST #101";
+        if(!item->left()) throw "Broken AST #118";
 
         auto name = item->left()->value.getString();
         scope->setMacro(name, item);
 
-        //todo: only if macro is in permament naming scope add it to root
         if(path.size()>0) name = {path, ".", name};
-        //todo removed for now root->setMacro(name, item);
         break;
       }
 
       case st(Call): {
-        if(!item->left()) throw "Broken AST #36";
+        if(!item->left()) throw "Broken AST #129";
         invoke(item->value, item->left());
         break;
       }

@@ -95,13 +95,14 @@ struct Parser {
   static auto debug(const Program&) -> void;
 
 protected:
-  Token t;
   uint ip = 0;
   const vector<Token>& tokens;
   Program scopes;
 
   auto parse() -> bool;
   static auto debug(const Statement) -> void;
+
+  auto statement() -> const Statement;
 
   auto constant() -> const Statement;
   auto variable() -> const Statement;
@@ -116,6 +117,7 @@ protected:
   auto label() -> const Statement;
   auto assignment() -> const Statement;
   auto block() -> const Statement;
+  auto blockOrEval() -> const Statement;
 
   auto _if() -> const Statement;
   auto _else() -> const Statement;

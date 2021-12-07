@@ -44,17 +44,18 @@ auto Plek::evaluate(Statement what, EvaluationMode mode) -> bool {
             break;
           }
         case st(Grouped):
+        case st(Label):
           stmt->result = stmt->leftResult();
           break;
         case st(Assignment):
           stmt->result = stmt->rightResult();
-          //todo: fint the right one!
           assign(
             stmt->leftValue().getString(),
             stmt->rightResult()
           );
         case st(DeclVar):
         case st(DeclConst):
+        case st(List):
         case st(CmdPrint):
         case st(CmdArch):
         case st(CmdInclude):

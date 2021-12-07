@@ -17,74 +17,11 @@ auto Parser::parseAll() -> bool {
 }
 
 auto Parser::parse() -> bool {
-  t = advance();
+  Token t = advance();
 
   try {
-    Statement result = nullptr;
-    Statement curr_scope = scopes.right();
-
-    if(t.type == tt(TERMINAL)) {
-      return true;
-    }
-    else if(t.type == tt(KW_CONST)) {
-      result = constant();
-    }
-    else if(t.type == tt(KW_VAR)) {
-      result = variable();
-    }
-    else if(t.type == tt(KW_MACRO)) {
-      result = macro();
-    }
-    else if(t.type == tt(KW_RETURN)) {
-      result = _return();
-    }
-    else if(t.type == tt(LEFT_BRACE)) {
-      result = block();
-    }
-    else if(t.type == tt(RIGHT_BRACE)) {
-      if(scopes.size()<=1) throw string{"you cannot close non existent blocks"};
-      auto last = scopes.takeRight();
-      return true;
-    }
-
-    else if(t.type == tt(KW_IF)) result = _if();
-    else if(t.type == tt(KW_ELSE)) result = _else();
-    else if(t.type == tt(KW_WHILE)) result = _while();
-    else if(t.type == tt(KW_CONTINUE)) result = _continue();
-    else if(t.type == tt(KW_BREAK)) result = _break();
-    else if(t.type == tt(KW_NAMESPACE)) result = _namespace();
-
-    else if(t.type == tt(IDENTIFIER)) {
-      if(check(tt(EQUAL))) {
-        back(); // yes i know ..
-        result = assignment();
-      }
-      else if(check(tt(LEFT_PAREN))) {
-        result = call();
-      }
-      else if(check(tt(COLON))) {
-        result = label();
-      }
-      else {
-        result = identifier();
-      }
-    }
-
-    else if(t.type == tt(CMD_PRINT)) {
-      result = cmdPrint();
-    }
-    else if(t.type == tt(CMD_ARCH)) {
-      result = cmdArch();
-    }
-    else if(t.type == tt(CMD_INCLUDE)) {
-      result = cmdInclude();
-    }
-    
-    else {
-      result = alien();
-    }
-
-    if(result) curr_scope().append(result);
+    Statement result = statement();
+    if(result) scopes.right()->append(result);
     return true;
   }
   catch(const string& msg) {
@@ -99,15 +36,64 @@ auto Parser::parse() -> bool {
   return false;
 }
 
+auto Parser::statement() -> const Statement {
+  auto t = previous();
+
+  if(t.type == tt(TERMINAL)) return nullptr;
+  else if(t.type == tt(KW_CONST)) return constant();
+  else if(t.type == tt(KW_VAR)) return variable();
+  else if(t.type == tt(KW_MACRO)) return macro();
+  
+  else if(t.type == tt(LEFT_BRACE)) return blockOrEval();
+
+  else if(t.type == tt(KW_RETURN)) return _return();
+  else if(t.type == tt(KW_IF)) return _if();
+  else if(t.type == tt(KW_ELSE)) return _else();
+  else if(t.type == tt(KW_WHILE)) return _while();
+  else if(t.type == tt(KW_CONTINUE)) return _continue();
+  else if(t.type == tt(KW_BREAK)) return _break();
+  else if(t.type == tt(KW_NAMESPACE)) return _namespace();
+
+  else if(t.type == tt(IDENTIFIER)) {
+    if(check(tt(EQUAL))) {
+      back(); // yes i know ..
+      return assignment();
+    }
+    else if(check(tt(LEFT_PAREN))) {
+      return call();
+    }
+    else if(check(tt(COLON))) {
+      return label();
+    }
+    else {
+      return identifier();
+    }
+  }
+
+  else if(t.type == tt(CMD_PRINT)) {
+    return cmdPrint();
+  }
+  else if(t.type == tt(CMD_ARCH)) {
+    return cmdArch();
+  }
+  else if(t.type == tt(CMD_INCLUDE)) {
+    return cmdInclude();
+  }
+
+  return alien();
+}
+
 // ._."._."._."._."._."._."._."._."._."._."._."._."._."._."
 
 auto Parser::constant() -> const Statement {
+  auto t = previous();
   auto name = identOrEval();
   consume(tt(EQUAL), "expected '='");
   return Statement::create(t, StmtType::DeclConst, name, expression());
 }
 
 auto Parser::variable() -> const Statement {
+  auto t = previous();
   auto name = identOrEval();
   consume(tt(EQUAL), "expected '='");
   return Statement::create(t, StmtType::DeclVar, name, expression());
@@ -135,6 +121,7 @@ auto Parser::alien() -> const Statement {
 }
 
 auto Parser::macro() -> const Statement {
+  auto t = previous();
   auto name = identifier();
   auto list = defList();
     
@@ -209,10 +196,64 @@ auto Parser::assignment() -> const Statement {
           expression());
 }
 
+/**
+ * It's difficult to see if something is an evaluation
+ * or not. The only way to find out is to start parsing
+ * and when it fails, its obviously not an evaluation :/
+ *
+ * This is the worst case of parsing. I know. But ppl want it.
+ *
+**/
+auto Parser::blockOrEval() -> const Statement {
+  auto p = ip;
+  Statement eva{};
+
+  try {
+    back();
+    eva = evaluation();
+  } catch(...) {
+    print("No eval\n");
+  }
+
+  if(eva) {
+    if(check(tt(COLON))) {
+      return Statement::create(advance(), StmtType::Label, eva);
+    }
+    else if(check(tt(EQUAL))) {
+      auto eq = advance(); // = 
+      return Statement::create(eq, StmtType::Assignment,
+              eva, expression());
+    }
+      
+    throw string{"unbound evaluation found."};
+  }
+  else {
+    // it was not an evaluation.
+    ip = p;
+    return block();
+  }
+}
+
 auto Parser::block() -> const Statement {
-  auto res = Statement::create(previous(), StmtType::Block);
-  scopes.append(res);
-  return res;
+  auto block = Statement::create(previous(), StmtType::Block);
+  scopes.append(block);
+
+  try {
+    while(!check(tt(RIGHT_BRACE))) {
+      advance();
+      auto more = statement();
+      if(more) block->append(more);
+    }
+  }
+  catch(string e) {
+    scopes.removeRight();
+    throw e;
+  }
+
+  scopes.removeRight();
+  advance(); // }
+
+  return block;
 }
 
 // ._."._."._."._."._."._."._."._."._."._."._."._."._."._."
@@ -460,9 +501,10 @@ auto Parser::synchronize() -> void {
 
   while (!isAtEnd()) {
     if (previous().type == tt(TERMINAL)) return;
-    if (previous().origin.line<peek().origin.line) return;
+    if (previous().origin.line < peek().origin.line) return;
 
     //TODO: more smart ways to find the new start of an statement
+    // including scopes!
     advance();
   }
 }
