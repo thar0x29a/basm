@@ -97,10 +97,14 @@ protected:
 
   auto anString() -> void;
   auto anNumber() -> void;
+  auto anHex() -> void;
+  auto anBinary() -> void;
   auto anIdentifier() -> void;
 
   auto isDigit(char c) -> bool;
   auto isNumber(char c) -> bool;
+  auto isHexNumber(char c) -> bool;
+  auto isBinNumber(char c) -> bool;
   auto isAlpha(char c) -> bool;
   auto isAlphaNumeric(char c) -> bool;
 

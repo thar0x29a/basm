@@ -65,14 +65,14 @@ auto Scanner::scanToken() -> void {
 
     case '"': anString(); break;
 
-    case '%': 
-      //if(isDigit(peek())) anBinary();
-      addToken(TokenType::PERCENT);
+    case '%':
+      if(isBinNumber(peek())) anBinary();
+      else addToken(TokenType::PERCENT);
       break;
 
-    case '$': 
-      //if(isDigit(peek())) anHex();
-      addToken(TokenType::DOLLAR);
+    case '$':
+      if(isHexNumber(peek())) anHex();
+      else addToken(TokenType::DOLLAR);
       break;
 
     default:
@@ -101,7 +101,8 @@ auto Scanner::advance() -> char {
 }
 
 auto Scanner::addToken(TokenType type) -> void {
-  addToken(type, nothing);
+  string text = source.slice(start, current-start);
+  tokens.append({{uid,line}, type, text, text});
 }
 
 auto Scanner::addToken(TokenType type, any literal) -> void {
@@ -154,9 +155,24 @@ auto Scanner::anString() -> void {
   addToken(TokenType::STRING, value);
 }
 
+auto Scanner::anHex() -> void {
+  while (isHexNumber(peek())) advance();
+
+  string lit = source.slice(start, current-start).replace("'", "");
+  addToken(TokenType::INTEGER, (int64_t)toHex(lit));
+}
+
+auto Scanner::anBinary() -> void {
+  while (isBinNumber(peek())) advance();
+
+  string lit = source.slice(start, current-start).replace("'", "");
+  addToken(TokenType::INTEGER, (int64_t)toBinary(lit));
+}
+
 auto Scanner::anNumber() -> void {
   char type = 'i';
 
+  //todo: fix that. given from main switch case we will never reach this!
   if(match('b') || match('o') || match('x')) {
     type = advance();
   }
@@ -197,6 +213,18 @@ auto Scanner::isDigit(char c) -> bool {
 
 auto Scanner::isNumber(char c) -> bool {
   return c == '\'' || isDigit(c);
+}
+
+auto Scanner::isHexNumber(char c) -> bool {
+  return isDigit(c) || 
+        (c >= 'a' && c <= 'f') || 
+        (c >= 'A' && c <= 'F') ||
+        c == '\'';
+}
+
+auto Scanner::isBinNumber(char c) -> bool {
+  return (c >= '0' && c <= '1') ||
+        c == '\'';
 }
 
 auto Scanner::isAlpha(char c) -> bool {

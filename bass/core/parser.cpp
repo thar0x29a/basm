@@ -1,6 +1,6 @@
 Parser::Parser(Scanner& scanner) 
 : tokens(scanner.getTokens()) {
-  scopes.append( Statement::create(StmtType::File) );
+  scopes.append(Statement::create(peek(), StmtType::File));
 }
 
 auto Parser::parseAll() -> bool {
@@ -64,9 +64,6 @@ auto Parser::statement() -> const Statement {
     }
     else if(check(tt(COLON))) {
       return label();
-    }
-    else {
-      return identifier();
     }
   }
 

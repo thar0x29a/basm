@@ -52,7 +52,6 @@ struct StmtNode {
   bool leaf = true;
   bool strict = true;
 
-  StmtNode(const StmtType t) : type(t) {};
   StmtNode(const Token& op) : value(op.literal), result(op.literal), origin(op.origin), type(StmtType::Raw) {};
   StmtNode(const Token& op, const StmtType t) : value(op.literal), result(op.literal), origin(op.origin), type(t) {};
   

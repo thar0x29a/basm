@@ -39,6 +39,7 @@ namespace Bass {
 
     Scanner scanner(fileNumber, data);
     auto tokens = scanner.scanTokens();
+    scanner.debug(tokens);
 
     Parser parser(scanner);
     parser.parseAll();

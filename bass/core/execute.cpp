@@ -28,7 +28,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
     error("AST: Block expected but got ", stmt);
   }
 
-  /*print("Execute block -> ", scopePath(), "\n");
+  print("Execute block -> ", scopePath(), "\n");
   Parser::debug(stmt->all());
   print("___\n");/**/
 
@@ -186,6 +186,22 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
             frames.removeRight();
           }
         } while(result==true);
+        break;
+      }
+
+      case st(Raw): {
+        // it took me 3 months to reach this point.
+        string text{};
+
+        print(item->value, "^");
+
+        for(auto el : item->content) {
+          print(el->value, "^");
+          //text.append(el->value.getString());
+        }
+
+        //notice("assembly:", text);
+        print("\n");
         break;
       }
 
