@@ -61,7 +61,10 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
 
       case st(Namespace): {
         if(!item->left() || !item->right()) throw "Broken AST #57";
-        string name = item->leftValue().getString();
+
+        evaluate(item->left(), EvaluationMode::LeftSide);
+        string name = item->leftResult().getString();
+
         auto subscope = Frame::create(scope, name);
           scope->addScope(subscope);
           frames.append(subscope);
@@ -80,9 +83,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         if(!item->left() || !item->right()) throw "Broken AST #71";
         
         evaluate(item->right());
-        if(item->left()->type == st(Evaluation)) {
-          evaluate(item->left());
-        }
+        evaluate(item->left(), EvaluationMode::LeftSide);
 
         string name = item->leftResult().getString();
         scope->setConstant(name, item->rightResult());
@@ -94,9 +95,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         if(!item->left() || !item->right()) throw "Broken AST #81";
         
         evaluate(item->right());
-        if(item->left()->type == st(Evaluation)) {
-          evaluate(item->left());
-        }
+        evaluate(item->left(), EvaluationMode::LeftSide);
 
         string name = item->leftResult().getString();
         scope->setVariable(name, item->rightResult());

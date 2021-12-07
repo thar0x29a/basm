@@ -40,7 +40,7 @@ struct Value : public any {
 #include "frame.hpp"
 
 struct Plek {
-  enum class Evaluation : uint { Default = 0, Strict = 1 };
+  enum class EvaluationMode : uint { Default = 0, Strict, LeftSide };
   enum class Endian : uint { LSB, MSB };
 
   struct Tracker {
@@ -75,7 +75,7 @@ struct Plek {
     auto excecuteBlock(Statement, Frame scope) -> bool;
   
   // evaluate.cpp
-    auto evaluate(Statement, Evaluation mode = Evaluation::Default) -> bool;
+    auto evaluate(Statement, EvaluationMode mode = EvaluationMode::Default) -> bool;
     auto calculate(Statement) -> Value;
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Value;

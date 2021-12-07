@@ -247,7 +247,7 @@ auto Parser::_continue() -> const Statement {
 
 auto Parser::_namespace() -> const Statement {
   auto start = previous();
-  auto name = identifier();
+  auto name = identOrEval();
   if(!match(tt(LEFT_BRACE))) return nullptr;
   return Statement::create(start, StmtType::Namespace, name, block());
 }

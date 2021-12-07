@@ -1,11 +1,14 @@
-auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
+auto Plek::evaluate(Statement what, EvaluationMode mode) -> bool {
   auto scope = frames.right();
   
   walkUp({what}, [&](Statement stmt, int level) {
     if(stmt->leaf) {
       if(stmt->type == st(Identifier)) {
-        // final identifier -> to be solved
-        stmt->result = identifier(stmt->value.getString());
+        if(mode != EvaluationMode::LeftSide) {
+          stmt->result = identifier(stmt->value.getString());
+        } else {
+          stmt->result = stmt->value;  
+        }
       }
       else {
         // should not be needed due on leafs result should be value allready.
@@ -36,8 +39,10 @@ auto Plek::evaluate(Statement what, Evaluation mode) -> bool {
           stmt->result = stmt->leftResult().negate();
           break;
         case st(Evaluation):
-          stmt->result = identifier(stmt->leftResult().getString());
-          break;
+          if(mode != EvaluationMode::LeftSide) {
+            stmt->result = identifier(stmt->leftResult().getString());
+            break;
+          }
         case st(Grouped):
           stmt->result = stmt->leftResult();
           break;
