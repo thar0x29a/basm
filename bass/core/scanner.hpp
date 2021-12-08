@@ -11,7 +11,7 @@ enum class TokenType : uint {
 
   // Keywords
   KW_GLOBAL, KW_PARENT, KW_EXIT, KW_MACRO,
-  KW_CONST, KW_VAR, KW_DEF, KW_EVAL, KW_EXPR,
+  KW_CONST, KW_VAR, KW_DEF, KW_REF, KW_EXPR,
   KW_PRIMARY, KW_RETURN,
   KW_WHILE, KW_IF, KW_ELSE, KW_BREAK, KW_CONTINUE,
   KW_NAMESPACE,
@@ -58,8 +58,8 @@ protected:
       insert("variable", TokenType::KW_VAR);
       insert("var", TokenType::KW_VAR);
 
-      insert("evaluate", TokenType::KW_EVAL);
-      insert("eval", TokenType::KW_EVAL);
+      insert("reference", TokenType::KW_REF);
+      insert("ref", TokenType::KW_REF);
 
       insert("define", TokenType::KW_DEF);
       insert("expression", TokenType::KW_EXPR);

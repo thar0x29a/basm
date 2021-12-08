@@ -92,7 +92,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
     auto v = args->content[i];
 
     if(v->type == st(Identifier)) {
-      if(t->type == st(EvalArgument)) {
+      if(t->type == st(RefArgument)) {
         v->result = v->value;
       } else {
         evaluate(v);

@@ -169,8 +169,8 @@ auto Parser::argument() -> const Statement {
   if(match(tt(KW_VAR))) {
     return Statement::create(previous(), StmtType::VarArgument, identifier());
   }
-  if(match(tt(KW_EVAL))) {
-    return Statement::create(previous(), StmtType::EvalArgument, identifier());
+  if(match(tt(KW_REF))) {
+    return Statement::create(previous(), StmtType::RefArgument, identifier());
   }
   
   return Statement::create(previous(), StmtType::VarArgument, identifier());
