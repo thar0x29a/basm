@@ -4,7 +4,7 @@ using Program = vector<Statement>;
 
 enum class StmtType : uint {
   File, Block, Grouped,
-  Value, Identifier, Label, Evaluation,
+  Value, Identifier, Label, Evaluation, Reference,
 
   // declarations
   DeclConst, DeclVar, DecList,
@@ -25,7 +25,7 @@ enum class StmtType : uint {
 
 const vector<string> StmtNames = {
   "File", "Block", "Grouped",
-  "Value", "Identifier", "Label", "Evaluation",
+  "Value", "Identifier", "Label", "Evaluation", "Reference",
   "DeclConst", "DeclVar", "DecList",
   "ConstArgument", "VarArgument", "RefArgument",
   "Expr", "Negative", "Banged",
@@ -139,6 +139,7 @@ protected:
   auto symbol() -> const Statement;
   auto identifier() -> const Statement;
   auto evaluation() -> const Statement;
+  auto reference() -> const Statement;
   auto identOrEval() -> const Statement;
 
   inline auto peek() -> const Token&;

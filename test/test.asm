@@ -8,7 +8,7 @@ namespace {("f"+"oo")} {
     const POWER = 0x2
     const RAINBOW = 0xA
 
-    return (" "+a+", "+b+", "+{c}+" ("+c+") "+label+", "+leftside+"\n")
+    return (" "+a+", "+b+", "+[c]+" ("+c+") "+label+", "+leftside+"\n")
   }
 }
 

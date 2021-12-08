@@ -410,8 +410,8 @@ auto Parser::primary() -> const Statement {
     return Statement::create(prev, StmtType::Grouped, expr);
   }
 
-  if(check(tt(LEFT_BRACE))) {
-    return evaluation();
+  if(check(tt(LEFT_BRACKET))) {
+    return reference();
   }
 
   throw string{"not expected"};
@@ -450,6 +450,14 @@ auto Parser::evaluation() -> const Statement {
   consume(tt(RIGHT_BRACE), "expected }");
 
   return Statement::create(start, StmtType::Evaluation, sub);
+}
+
+auto Parser::reference() -> const Statement {
+  auto start = consume(tt(LEFT_BRACKET), "expected {");
+  auto sub = primary();
+  consume(tt(RIGHT_BRACKET), "expected }");
+
+  return Statement::create(start, StmtType::Reference, sub);
 }
 
 // ._."._."._."._."._."._."._."._."._."._."._."._."._."._."

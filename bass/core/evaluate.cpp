@@ -38,11 +38,10 @@ auto Plek::evaluate(Statement what, EvaluationMode mode) -> bool {
         case st(Negative):
           stmt->result = stmt->leftResult().negate();
           break;
+        case st(Reference):
+          stmt->result = identifier(stmt->leftResult().getString());
+          break;
         case st(Evaluation):
-          if(mode != EvaluationMode::LeftSide) {
-            stmt->result = identifier(stmt->leftResult().getString());
-            break;
-          }
         case st(Grouped):
         case st(Label):
           stmt->result = stmt->leftResult();
