@@ -31,12 +31,12 @@ auto nall::main(Arguments arguments) -> void {
   if(arguments.take("-o", targetFilename)) create = true;
   if(arguments.take("-m", targetFilename)) create = false;
 
-  vector<string> sourceFilenames;
-  for(auto& argument : arguments) sourceFilenames.append(argument);
-
   vector<string> constants;
   string constant;
   while(arguments.take("-c", constant)) constants.append(constant);
+
+  vector<string> sourceFilenames;
+  for(auto& argument : arguments) sourceFilenames.append(argument);
 
   clock_t clockStart = clock();
 

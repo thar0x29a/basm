@@ -4,7 +4,29 @@ auto Plek::initFunctions() -> void {
     return Value{appVersion};
   });
 
-  
+  auto arch = [&](Statement args) {  
+    string name{};
+    evaluate(args);
+
+    if(args->left()) {
+      name = args->leftResult().getString();
+    }
+
+    if(name=="" || name=="none") {
+      architecture = new Architecture{*this};
+      notice("architecture reseted");
+    } else {
+      notice("switch architecture to ", name);
+    }
+
+    return Value{nothing};
+  };
+  coreFunctions.insert("arch#1", arch);
+  coreFunctions.insert("architecture#1", arch);
+
+  coreFunctions.insert("pc#0", [&](Statement args) {
+    return Value{pc()};
+  });
 
   // main print command
   coreFunctions.insert("print#*", [&](Statement args) {
