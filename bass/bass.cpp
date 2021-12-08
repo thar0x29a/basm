@@ -15,7 +15,7 @@ auto nall::main(Arguments arguments) -> void {
   bool create = false;
 
   if(!arguments) {
-    print(stderr, "bass v20 - plek\n");
+    print(stderr, "bass ", plek.appLabel,"\n");
     print(stderr, "\n");
     print(stderr, "usage:\n");
     print(stderr, "  bass [options] source [source ...]\n");
@@ -47,6 +47,7 @@ auto nall::main(Arguments arguments) -> void {
   plek.target(targetFilename, create);
   
   try {
+    plek.initFunctions();
     plek.execute();
   } catch(...) {
     

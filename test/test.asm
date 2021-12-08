@@ -24,3 +24,5 @@ const REG_BG1HOFS = $210D
 
 Loop:
   jmp Loop
+
+  print version()

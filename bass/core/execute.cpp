@@ -1,8 +1,14 @@
-auto Plek::execute() -> bool {
-  // Init
+auto Plek::initExecution() -> void {
+  // init scopes and rootscope
   frames.reset();
-  frames.append(Frame::create(nullptr, "")); // root scope!
+  frames.append(Frame::create(nullptr, ""));
+
+  // prepare architecture
   architecture = new Architecture(*this);
+}
+
+auto Plek::execute() -> bool {
+  initExecution();
 
   //try {
     //todo: better errorhandling. probl somewhere else. 

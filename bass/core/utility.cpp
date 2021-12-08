@@ -76,8 +76,18 @@ auto Plek::assign(const string& assName, const Value& val) -> void {
 
 auto Plek::invoke(const string& fullName, Statement args) -> Value {
   string id = {fullName, "#", args->size()};
-  auto [found, scope, name] = find(id);
+  string gId = {fullName, "#*"};
 
+  // fitting or general build in function?
+  if(auto fun = coreFunctions.find(id)) {
+    return fun()(args);
+  }
+  else if(auto fun = coreFunctions.find(gId)) {
+    return fun()(args);
+  }
+
+  // incode function?
+  auto [found, scope, name] = find(id);
   if(!found) error("cannot call unknown ", id);
 
   // get function handle

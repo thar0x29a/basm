@@ -61,11 +61,14 @@ public:
   }
 };
 
+
 // Components
 #include "../scanner/scanner.hpp"
 #include "../parser/parser.hpp"
 #include "../frame/frame.hpp"
+
 struct Architecture;
+using CoreFunction = std::function<Value (Statement)>;
 
 struct Plek {
   protected:
@@ -73,6 +76,7 @@ struct Plek {
     vector<string> sourceFilenames;
     Program program;
     vector<Frame> frames;
+    map<string, CoreFunction> coreFunctions;
     uint origin = 0;                //file offset
     int base = 0;                   //file offset to memory map displacement
     Endian endian = Endian::LSB;    //used for multi-byte writes (d[bwldq], etc)
@@ -82,6 +86,9 @@ struct Plek {
     friend class Architecture;
 
   public:
+    const int64_t appVersion = 20;
+    const string appLabel = {"v", appVersion, " plek 0"};
+
     auto load(const string& filename) -> bool;
     auto readArchitecture(const string& name) -> string;
     auto target(const string& filename, bool create) -> bool;
@@ -95,9 +102,13 @@ struct Plek {
     template<typename... P> auto error(P&&... p) -> void;
 
   // execute.cpp
+    auto initExecution() -> void;
     auto execute() -> bool;
     auto excecuteBlock(Statement, Frame scope) -> bool;
   
+  // functions.cpp
+    auto initFunctions() -> void;
+
   // evaluate.cpp
     auto evaluate(Statement, EvaluationMode mode = EvaluationMode::Default) -> bool;
     auto calculate(Statement) -> Value;

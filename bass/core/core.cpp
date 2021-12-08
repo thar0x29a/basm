@@ -4,6 +4,7 @@ namespace Bass {
   #include "../scanner/scanner.cpp"
   #include "../parser/parser.cpp"
   #include "execute.cpp"
+  #include "functions.cpp"
   #include "evaluate.cpp"
   #include "utility.cpp"
   #include "../frame/frame.cpp"
