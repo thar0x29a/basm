@@ -50,6 +50,10 @@ namespace Bass {
     return true;
   }
 
+  auto Plek::readArchitecture(const string& name) -> string {
+    return {};
+  }
+
   auto Plek::pc() const -> int64_t {
     return origin + base;
   }

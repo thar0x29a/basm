@@ -34,20 +34,40 @@ struct Value : public any {
   }
 };
 
+enum class EvaluationMode : uint { Default = 0, Strict, LeftSide };
+enum class Endian : uint { LSB, MSB };
+
+struct Tracker {
+  bool enable = false;
+  set<int64_t> addresses;
+};
+
+struct Directives {
+private:
+  struct _EmitBytesOp {
+    string token;
+    uint dataLength;
+  };
+
+public:
+  vector<_EmitBytesOp> EmitBytes;
+
+  Directives()
+  : EmitBytes ({ {"db ", 1}, {"dw ", 2}, {"dl ", 3}, {"dd ", 4}, {"dq ", 8}})
+  {}
+    
+  void add(string token, uint dataLength) {
+    EmitBytes.append( {token, dataLength} );
+  }
+};
+
 // Components
 #include "../scanner/scanner.hpp"
 #include "../parser/parser.hpp"
 #include "../frame/frame.hpp"
+struct Architecture;
 
 struct Plek {
-  enum class EvaluationMode : uint { Default = 0, Strict, LeftSide };
-  enum class Endian : uint { LSB, MSB };
-
-  struct Tracker {
-    bool enable = false;
-    set<int64_t> addresses;
-  };
-
   protected:
     file_buffer targetFile;
     vector<string> sourceFilenames;
@@ -56,10 +76,14 @@ struct Plek {
     uint origin = 0;                //file offset
     int base = 0;                   //file offset to memory map displacement
     Endian endian = Endian::LSB;    //used for multi-byte writes (d[bwldq], etc)
+    Directives directives;          //active directives
     Tracker tracker;                //used to track writes to detect overwrites
+    shared_pointer<Architecture> architecture;
+    friend class Architecture;
 
   public:
     auto load(const string& filename) -> bool;
+    auto readArchitecture(const string& name) -> string;
     auto target(const string& filename, bool create) -> bool;
     auto pc() const -> int64_t;
     auto seek(uint offset) -> void;
@@ -95,5 +119,8 @@ struct Plek {
   // assemble.cpp
     auto assemble(Statement stmt) -> bool;
 };
+
+// loaded here because of high dependencys
+#include "../architecture/architecture.hpp"
 
 };

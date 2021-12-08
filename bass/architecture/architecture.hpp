@@ -1,5 +1,5 @@
 struct Architecture {
-  Architecture(Bass& self) : self(self) {
+  Architecture(Plek& self) : self(self) {
   }
 
   virtual ~Architecture() {
@@ -10,20 +10,19 @@ struct Architecture {
   }
 
   //
-
-  auto pc() const -> uint {
+  auto pc() const -> int64_t {
     return self.pc();
   }
 
-  auto endian() const -> Bass::Endian {
+  auto endian() const -> Endian {
     return self.endian;
   }
 
-  auto setEndian(Bass::Endian endian) -> void {
+  auto setEndian(Endian endian) -> void {
     self.endian = endian;
   }
 
-  auto directives() -> Bass::Directives& {
+  auto directives() -> Directives& {
     return self.directives;
   }
 
@@ -31,9 +30,9 @@ struct Architecture {
     return self.readArchitecture(s);
   }
 
-  auto evaluate(const string& expression, Bass::Evaluation mode = Bass::Evaluation::Default) -> int64_t {
+  /*auto evaluate(const string& expression, Bass::Evaluation mode = Bass::Evaluation::Default) -> int64_t {
     return self.evaluate(expression, mode);
-  }
+  }/**/
 
   auto write(uint64_t data, uint length = 1) -> void {
     return self.write(data, length);
@@ -51,5 +50,5 @@ struct Architecture {
     return self.error(forward<P>(p)...);
   }
 
-  Bass& self;
+  Plek& self;
 };

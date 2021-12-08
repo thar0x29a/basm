@@ -2,6 +2,7 @@ auto Plek::execute() -> bool {
   // Init
   frames.reset();
   frames.append(Frame::create(nullptr, "")); // root scope!
+  architecture = new Architecture(*this);
 
   //try {
     //todo: better errorhandling. probl somewhere else. 
