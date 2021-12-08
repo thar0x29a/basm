@@ -1,2 +1,2 @@
-var c = "C"
-return a + b + c
+var a = "Hello"
+var b = "World"

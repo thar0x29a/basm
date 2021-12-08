@@ -35,14 +35,18 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
     error("AST: Block expected but got ", stmt);
   }
 
-  /*print("Execute block -> ", scopePath(), "\n");
+  print("Execute block -> ", scopePath(), "\n");
   Parser::debug(stmt->all());
   print("___\n");/**/
 
   bool doElse = false;  //todo: state machine ...
 
-  for(auto& item : stmt->all()) {
+  //for(auto& item : stmt->all()) {
+  for(uint i=0; i<stmt->all().size(); i++) {
+    auto item = stmt->all()[i];
+
     switch(item->type) {
+      case st(File):
       case st(Block): {
         excecuteBlock(item, scope); 
         break;
@@ -57,11 +61,11 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       }
 
       case st(CmdInclude): {
-        auto file = item->leftValue().getString();
+        auto file = item->leftResult().getString();
         if(!file) return true;
         if(load(file)) {
-          stmt().append(program.takeRight());
-          excecuteBlock(stmt().content.last(), scope);
+          stmt->content[i] = program.takeRight();
+          excecuteBlock(stmt->content[i], scope);
         }
         break;
       }
