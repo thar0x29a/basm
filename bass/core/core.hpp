@@ -35,9 +35,9 @@ struct Value : public any {
 };
 
 // Components
-#include "scanner.hpp"
-#include "parser.hpp"
-#include "frame.hpp"
+#include "../scanner/scanner.hpp"
+#include "../parser/parser.hpp"
+#include "../frame/frame.hpp"
 
 struct Plek {
   enum class EvaluationMode : uint { Default = 0, Strict, LeftSide };
@@ -91,6 +91,9 @@ struct Plek {
     auto invoke(const string& name, Statement call) -> Value;
 
     auto scopePath() -> string;
+
+  // assemble.cpp
+    auto assemble(Statement stmt) -> bool;
 };
 
 };

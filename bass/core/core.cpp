@@ -1,12 +1,13 @@
 #include "stringifys.cpp"
 
 namespace Bass {
-  #include "scanner.cpp"
-  #include "parser.cpp"
+  #include "../scanner/scanner.cpp"
+  #include "../parser/parser.cpp"
   #include "execute.cpp"
   #include "evaluate.cpp"
   #include "utility.cpp"
-  #include "frame.cpp"
+  #include "../frame/frame.cpp"
+  #include "assemble.cpp"
 
   auto Plek::target(const string& filename, bool create) -> bool {
     if(targetFile) targetFile.close();
