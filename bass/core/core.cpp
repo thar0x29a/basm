@@ -98,12 +98,12 @@ namespace Bass {
   template<typename... P> auto Plek::warning(P&&... p) -> void {
     string s{forward<P>(p)...};
     print(stderr, terminal::color::yellow("warning: "), s, "\n");
-    /*if(!strict) {
-      printInstruction();
+    if(!strict) {
+      //printInstruction();
       return;
     }
 
-    printInstructionStack();/**/
+    //printInstructionStack();
     struct BassWarning {};
     throw BassWarning();
   }

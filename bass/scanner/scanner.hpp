@@ -73,7 +73,7 @@ protected:
       insert("continue", TokenType::KW_CONTINUE);
       insert("namespace", TokenType::KW_NAMESPACE);
 
-      insert("print", TokenType::CMD_PRINT);
+      //insert("print", TokenType::CMD_PRINT);
       insert("arch", TokenType::CMD_ARCH);
       insert("include", TokenType::CMD_INCLUDE);
     }

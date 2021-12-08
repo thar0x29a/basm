@@ -77,6 +77,7 @@ struct Plek {
     Program program;
     vector<Frame> frames;
     map<string, CoreFunction> coreFunctions;
+    bool strict = false;            // strict mode
     uint origin = 0;                //file offset
     int base = 0;                   //file offset to memory map displacement
     Endian endian = Endian::LSB;    //used for multi-byte writes (d[bwldq], etc)
