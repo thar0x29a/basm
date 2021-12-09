@@ -26,6 +26,10 @@ namespace Bass {
     return true;
   }
 
+  /**
+   * If filename is valid, and not in cache, it get loaded, scanned, parsed,
+   * and will be appended to the end of our programm. 
+  **/
   auto Plek::load(const string& filename) -> bool {
     if(!file::exists(filename)) {
       warning(stderr, "warning: source file not found: ", filename, "\n");
@@ -33,19 +37,26 @@ namespace Bass {
     }
 
     //TODO: only load stuff once!
+    for(auto item : sourceFiles) {
+      if(item.filename != filename) continue;
+      notice(filename, " was found in cache.");
+      program.append(item.entryPoint);
+      return true;
+    }
 
-    uint fileNumber = sourceFilenames.size();
-    sourceFilenames.append(filename);
+    uint fileNumber = sourceFiles.size();
 
     string data = file::read(filename);
-
     Scanner scanner(fileNumber, data);
     auto tokens = scanner.scanTokens();
     //scanner.debug(tokens);
 
     Parser parser(scanner);
     parser.parseAll();
-    program.append(parser.first());
+    auto entry = parser.first();
+    
+    program.append(entry);
+    sourceFiles.append({filename, tokens, entry});
 
     notice("Done loading ", filename);
     return true;

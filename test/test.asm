@@ -28,4 +28,4 @@ Loop:
   jmp Loop
 
 include("test2.asm")
-print(a, b, "\n")
+include("test2.asm")

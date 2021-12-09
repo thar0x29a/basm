@@ -26,10 +26,12 @@ auto Plek::initFunctions() -> void {
     auto scope = frames.right();
     evaluate(args);
     auto file = args->leftResult().getString();
-    
-    if(load(file)) {
-      // loaded file got added to the main program.
-      excecuteBlock(program.takeRight(), scope);
+    if(file) {
+      if(load(file)) {
+        // loaded file got added to the main program.
+        // we will remove it from there, since we just execute it once
+        excecuteBlock(program.takeRight(), scope);
+      }
     }
     return Value{nothing};
   });
