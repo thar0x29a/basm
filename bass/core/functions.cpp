@@ -16,7 +16,8 @@ auto Plek::initFunctions() -> void {
       architecture = new Architecture{*this};
       notice("architecture reseted");
     } else {
-      notice("switch architecture to ", name);
+      architecture = new Table{*this, readArchitecture(name)};
+      notice("switch architecture to ", name, " using the table engine");
     }
 
     return Value{nothing};

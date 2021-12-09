@@ -180,7 +180,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       }
 
       case st(Raw): {
-        assemble(item);
+        architecture->assemble(item);
         break;
       }
 

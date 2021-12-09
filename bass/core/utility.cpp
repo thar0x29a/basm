@@ -134,3 +134,10 @@ auto Plek::scopePath() -> string {
   }
   return res.slice(1);
 }
+
+auto Plek::readArchitecture(const string& name) -> string {
+  string location{Path::userData(), "bass/architectures/", name, ".arch"};
+  if(!file::exists(location)) location = {Path::program(), "architectures/", name, ".arch"};
+  if(!file::exists(location)) error("unknown architecture: ", name);
+  return string::read(location);
+}

@@ -1,7 +1,14 @@
-Table::Table(Bass& self, const string& table) : Architecture(self) {
+Table::Table(Plek& self, const string& table) : Architecture(self) {
   bitval = 0;
   bitpos = 0;
   parseTable(table);
+}
+
+auto Table::assemble(Statement stmt) -> bool {
+  string key = stmt->value.getString();
+  notice("~> ", key);
+
+  return false;
 }
 
 auto Table::assemble(const string& statement) -> bool {

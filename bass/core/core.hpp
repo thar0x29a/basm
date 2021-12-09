@@ -45,6 +45,7 @@ struct SourceCode {
 struct Architecture;
 
 using CoreFunction = std::function<Value (Statement)>;
+using string_vector = vector<string>;
 
 struct Plek {
   protected:
@@ -68,7 +69,6 @@ struct Plek {
     const string appLabel = {"v", appVersion, " plek 0"};
 
     auto load(const string& filename) -> bool;
-    auto readArchitecture(const string& name) -> string;
     auto target(const string& filename, bool create) -> bool;
     auto pc() const -> int64_t;
     auto seek(uint offset) -> void;
@@ -104,12 +104,10 @@ struct Plek {
     auto invoke(const string& name, Statement call) -> Value;
 
     auto scopePath() -> string;
-
-  // assemble.cpp
-    auto assemble(Statement stmt) -> bool;
+    auto readArchitecture(const string& name) -> string;
 };
 
 // loaded here because of high dependencys
 #include "../architecture/architecture.hpp"
-
+#include "../architecture/table/table.hpp"
 };

@@ -9,6 +9,10 @@ struct Architecture {
     return false;
   }
 
+  virtual auto assemble(Statement statement) -> bool {
+    return false;
+  }
+
   //
   auto pc() const -> int64_t {
     return self.pc();
@@ -30,9 +34,10 @@ struct Architecture {
     return self.readArchitecture(s);
   }
 
-  /*auto evaluate(const string& expression, Bass::Evaluation mode = Bass::Evaluation::Default) -> int64_t {
-    return self.evaluate(expression, mode);
-  }/**/
+  auto evaluate(const string& expression, EvaluationMode mode = EvaluationMode::Default) -> int64_t {
+    throw string{"Not implemented!"};
+    return 0;
+  }
 
   auto write(uint64_t data, uint length = 1) -> void {
     return self.write(data, length);

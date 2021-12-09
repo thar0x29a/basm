@@ -8,7 +8,7 @@ namespace Bass {
   #include "evaluate.cpp"
   #include "utility.cpp"
   #include "../frame/frame.cpp"
-  #include "assemble.cpp"
+  #include "../architecture/table/table.cpp"
 
   auto Plek::target(const string& filename, bool create) -> bool {
     if(targetFile) targetFile.close();
@@ -36,7 +36,6 @@ namespace Bass {
       return false;
     }
 
-    //TODO: only load stuff once!
     for(auto item : sourceFiles) {
       if(item.filename != filename) continue;
       notice(filename, " was found in cache.");
@@ -60,10 +59,6 @@ namespace Bass {
 
     notice("Done loading ", filename);
     return true;
-  }
-
-  auto Plek::readArchitecture(const string& name) -> string {
-    return {};
   }
 
   auto Plek::pc() const -> int64_t {

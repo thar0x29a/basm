@@ -1,6 +1,7 @@
 struct Table : Architecture {
-  Table(Bass& self, const string& table);
+  Table(Plek& self, const string& table);
   auto assemble(const string& statement) -> bool override;
+  auto assemble(Statement statement) -> bool override;
 
 private:
   struct Prefix {
