@@ -26,6 +26,3 @@ const REG_BG1HOFS = $210D
 
 Loop:
   jmp Loop
-
-include("test2.asm")
-include("test2.asm")
