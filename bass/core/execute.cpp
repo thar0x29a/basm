@@ -198,9 +198,12 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         for(auto& el : pool->all()) {
           string dbug = el->result.getString();
           if(el->type == st(Raw)) dbug = terminal::color::magenta(dbug);
-          if(el->type == st(Identifier)) dbug = terminal::color::blue(dbug);
-          if(el->type == st(Value)) dbug = terminal::color::green(dbug);
-
+          else if(el->type == st(Identifier)) dbug = terminal::color::blue(dbug);
+          else if(el->type == st(Call)) dbug = {terminal::color::cyan(dbug), "(*)"};
+          //else if(el->type == st(Reference)) dbug = {"[",terminal::color::yellow(dbug),"]"};
+          else if(el->type == st(Evaluation)) dbug = terminal::color::cyan("{...}");
+          else if(el->type == st(Value)) dbug = terminal::color::green(dbug);
+          else dbug = terminal::color::red(dbug);
           text.append(dbug);
         }
         print(terminal::color::yellow(name), text, "\n");
@@ -212,7 +215,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         for(auto el : pool->all()) {
           string dbug = el->result.getString();
           
-          if(el->type == st(Identifier)) {
+          if(el->type != st(Raw)) {
             evaluate(el);
             if(el->result.isNothing()) {
               dbug = el->value.getString();

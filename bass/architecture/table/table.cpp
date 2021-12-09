@@ -423,12 +423,18 @@ auto Table::swapEndian(uint64_t data, unsigned bits) -> uint64_t {
   return t_data;
 }
 
-auto Table::evaluate(const string& expression, EvaluationMode mode) -> int64_t {
+auto Table::evaluate(const string& expr, EvaluationMode mode) -> int64_t {
   // everything is allready pre-evaluated. we just have this to change as least as possible on
   // this file. 
 
+  for(auto& c : expr) {
+    if(c<'0' || c>'9') throw string{expr, " cannot evaluate parameter"};
+  }
+
+
   //todo: floats!
-  auto res = (int64_t)toInteger(expression);
-  notice(expression, " => ", res);
+  //todo: contains invalid?
+  auto res = (int64_t)toInteger(expr);
+  //notice(expr, " => ", res);
   return res;
 };

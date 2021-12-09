@@ -417,7 +417,7 @@ auto Parser::unary() -> const Statement {
   return primary();
 }
 
-auto Parser::primary(bool strict) -> const Statement {
+auto Parser::primary(bool allfeatures) -> const Statement {
   if (match(tt(INTEGER), tt(FLOAT), tt(STRING))) {
     return Statement::create(previous(), StmtType::Value);
   }
@@ -426,9 +426,13 @@ auto Parser::primary(bool strict) -> const Statement {
     return symbol();
   }
 
-  if(strict) {
-    // strict means, that were not in an alien line.
-    // in alien lines its forbidden to use [] and ()
+  if(check(tt(LEFT_BRACE))) {
+    return evaluation();
+  }
+
+  if(allfeatures) {
+    // in possible assembly lines we do not allow the
+    // full syntax since it would collide with the assembly one
     if(match(tt(LEFT_PAREN))) {
       auto prev = previous();
       auto expr = expression();
