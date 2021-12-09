@@ -75,7 +75,7 @@ protected:
 
       //insert("print", TokenType::CMD_PRINT);
       //insert("arch", TokenType::CMD_ARCH);
-      insert("include", TokenType::CMD_INCLUDE);
+      //insert("include", TokenType::CMD_INCLUDE);
     }
   };
 

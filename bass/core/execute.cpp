@@ -41,32 +41,11 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
 
   bool doElse = false;  //todo: state machine ...
 
-  //for(auto& item : stmt->all()) {
-  for(uint i=0; i<stmt->all().size(); i++) {
-    auto item = stmt->all()[i];
-
+  for(auto& item : stmt->all()) {
     switch(item->type) {
       case st(File):
       case st(Block): {
         excecuteBlock(item, scope); 
-        break;
-      }
-
-      case st(CmdPrint): {
-        for(auto cnt : item->all()) {
-          evaluate(cnt);
-          if(cnt->result) print(cnt->result);
-        }
-        break;
-      }
-
-      case st(CmdInclude): {
-        auto file = item->leftResult().getString();
-        if(!file) return true;
-        if(load(file)) {
-          stmt->content[i] = program.takeRight();
-          excecuteBlock(stmt->content[i], scope);
-        }
         break;
       }
 

@@ -21,6 +21,20 @@ auto Plek::initFunctions() -> void {
 
     return Value{nothing};
   };
+
+  coreFunctions.insert("include#1", [&](Statement args) {
+    auto scope = frames.right();
+    evaluate(args);
+    auto file = args->leftResult().getString();
+    
+    if(load(file)) {
+      // loaded file got added to the main program.
+      excecuteBlock(program.takeRight(), scope);
+    }
+    return Value{nothing};
+  });
+
+
   coreFunctions.insert("arch#1", arch);
   coreFunctions.insert("architecture#1", arch);
 

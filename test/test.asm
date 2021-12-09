@@ -26,3 +26,6 @@ const REG_BG1HOFS = $210D
 
 Loop:
   jmp Loop
+
+include("test2.asm")
+print(a, b, "\n")
