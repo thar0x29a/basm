@@ -88,7 +88,9 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
 
   // incode function?
   auto [found, scope, name] = find(id);
-  if(!found) error("cannot call unknown ", id);
+  if(!found) {
+    throw string{"cannot call unknown ", id};
+  }
 
   // get function handle
   auto fun = scope->symbolTable.find(name)();

@@ -1,7 +1,8 @@
 struct Table : Architecture {
   Table(Plek& self, const string& table);
   auto assemble(const string& statement) -> bool override;
-  auto assemble(Statement statement) -> bool override;
+
+  auto evaluate(const string& expression, EvaluationMode mode = EvaluationMode::Default) -> int64_t;
 
 private:
   struct Prefix {

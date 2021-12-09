@@ -109,6 +109,7 @@ protected:
 
   auto macro() -> const Statement;
   auto _return() -> const Statement;
+  auto callOrAlien() -> const Statement;
   auto call() -> const Statement;
   auto list() -> const Statement;
   auto defList() -> const Statement;
@@ -135,7 +136,7 @@ protected:
   auto term() -> const Statement;
   auto factor() -> const Statement;
   auto unary() -> const Statement;
-  auto primary() -> const Statement;
+  auto primary(bool strict = true) -> const Statement;
   auto symbol() -> const Statement;
   auto identifier() -> const Statement;
   auto evaluation() -> const Statement;

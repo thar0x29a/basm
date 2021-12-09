@@ -5,6 +5,7 @@ const REG_BG1SC = $2107
 const REG_BG12NBA = $210B
 const REG_TM = $212C
 const REG_BG1HOFS = $210D
+const REG_BG1VOFS	= $2110
 
 // Setup Video
   lda.b #%00001000 // DCBAPMMM: M = Mode, P = Priority, ABCD = BG1,2,3,4 Tile Size

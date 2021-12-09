@@ -35,8 +35,13 @@ struct Architecture {
   }
 
   auto evaluate(const string& expression, EvaluationMode mode = EvaluationMode::Default) -> int64_t {
+    self.notice(expression);
     throw string{"Not implemented!"};
     return 0;
+  }
+
+  auto evaluate(Statement expression, EvaluationMode mode = EvaluationMode::Default) -> int64_t {
+    return self.evaluate(expression, mode);
   }
 
   auto write(uint64_t data, uint length = 1) -> void {

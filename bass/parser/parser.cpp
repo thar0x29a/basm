@@ -60,7 +60,7 @@ auto Parser::statement() -> const Statement {
       return assignment();
     }
     else if(check(tt(LEFT_PAREN))) {
-      return call();
+      return callOrAlien();
     }
     else if(check(tt(COLON))) {
       return label();
@@ -109,11 +109,19 @@ auto Parser::alien() -> const Statement {
     if(peek().type == tt(TERMINAL)) break;
     if(peek().origin.line > start.origin.line) break;
 
-    auto more = Statement::create(advance());
-    more().strict = false;
-    node().append(more);
-  }
+    Statement res = primary(false);
+    //print(res, " - ", res->value.getString(), "\n");
+    node->append(res);
     
+    
+    // just try to add something regular?
+    //auto more = Statement::create(advance());
+    //auto more = statement();
+    
+    //more().strict = false;
+    //node().append(more);
+  }
+
   return node;
 }
 
@@ -126,6 +134,21 @@ auto Parser::macro() -> const Statement {
   auto black = block();
 
   return Statement::create(t, StmtType::Macro, name, list, black);
+}
+
+auto Parser::callOrAlien() -> const Statement {
+  auto offs = ip;
+  auto res = call();
+  auto end1 = ip;
+  // rewind and handle als alien data for fallback reasons
+  ip = offs;
+  res->append(alien());
+  auto end2 = ip;
+
+  // use the correct ending.
+  ip = (end1>end2) ? end1 : end2;
+
+  return res;
 }
 
 auto Parser::call() -> const Statement {
@@ -394,7 +417,7 @@ auto Parser::unary() -> const Statement {
   return primary();
 }
 
-auto Parser::primary() -> const Statement {
+auto Parser::primary(bool strict) -> const Statement {
   if (match(tt(INTEGER), tt(FLOAT), tt(STRING))) {
     return Statement::create(previous(), StmtType::Value);
   }
@@ -403,18 +426,25 @@ auto Parser::primary() -> const Statement {
     return symbol();
   }
 
-  if(match(tt(LEFT_PAREN))) {
-    auto prev = previous();
-    auto expr = expression();
-    consume(tt(RIGHT_PAREN), "Expect ')' after expression.");
-    return Statement::create(prev, StmtType::Grouped, expr);
+  if(strict) {
+    // strict means, that were not in an alien line.
+    // in alien lines its forbidden to use [] and ()
+    if(match(tt(LEFT_PAREN))) {
+      auto prev = previous();
+      auto expr = expression();
+      consume(tt(RIGHT_PAREN), "Expect ')' after expression.");
+      return Statement::create(prev, StmtType::Grouped, expr);
+    }
+
+    if(check(tt(LEFT_BRACKET))) {
+      return reference();
+    }
+
+    throw string{"not expected"};
   }
 
-  if(check(tt(LEFT_BRACKET))) {
-    return reference();
-  }
-
-  throw string{"not expected"};
+  // thread as unknown/raw item
+  return Statement::create(advance());
 }
 
 // something that could result in an value

@@ -4,12 +4,39 @@ Table::Table(Plek& self, const string& table) : Architecture(self) {
   parseTable(table);
 }
 
-auto Table::assemble(Statement stmt) -> bool {
-  string key = stmt->value.getString();
-  notice("~> ", key);
+/*auto Table::assemble(Statement stmt) -> bool {
+  uint pc = Architecture::pc();
+  
+  // building full key
+  string key = {stmt->value.getString(), " "};
+  for(auto& el : stmt->all()) {
+    string dis = el->result.getString();
+    if(el->type == st(Raw)) key.append(dis);
+    else break;
+  }
+
+  vector<Opcode> findings;
+  for(auto& opcode : table) {
+    string start = opcode.prefix.left().text;
+    if(start != key) continue;
+    
+    print(opcode.pattern);
+    print("\tprefixes: ", opcode.prefix.size());
+
+    for(int i=1; i<opcode.prefix.size(); i++) {
+      print(" '", opcode.prefix[i].text, "'");
+    }
+
+    print("\n");
+
+    // cool. how about the other prefixes
+
+
+    findings.append(opcode);
+  }
 
   return false;
-}
+}/**/
 
 auto Table::assemble(const string& statement) -> bool {
   string s = statement;
@@ -395,3 +422,13 @@ auto Table::swapEndian(uint64_t data, unsigned bits) -> uint64_t {
   }
   return t_data;
 }
+
+auto Table::evaluate(const string& expression, EvaluationMode mode) -> int64_t {
+  // everything is allready pre-evaluated. we just have this to change as least as possible on
+  // this file. 
+
+  //todo: floats!
+  auto res = (int64_t)toInteger(expression);
+  notice(expression, " => ", res);
+  return res;
+};

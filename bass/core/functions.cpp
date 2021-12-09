@@ -17,7 +17,7 @@ auto Plek::initFunctions() -> void {
       notice("architecture reseted");
     } else {
       architecture = new Table{*this, readArchitecture(name)};
-      notice("switch architecture to ", name, " using the table engine");
+      notice("switch architecture to ", terminal::color::green(name), " using the table engine");
     }
 
     return Value{nothing};
