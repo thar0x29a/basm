@@ -8,7 +8,7 @@ auto Plek::initFunctions() -> void {
     string name{};
     evaluate(args);
 
-    if(args->left()) {
+    if(args->leftResult()) {
       name = args->leftResult().getString();
     }
 
@@ -40,17 +40,68 @@ auto Plek::initFunctions() -> void {
     return Value{nothing};
   });
 
+  coreFunctions.insert("ds#1", [&](Statement args) {
+    evaluate(args->left());
+    if(!args->leftResult().isInt()) error("wrong parameter type1");
+    auto val = args->leftResult().getInt();
+    origin += val;
+    seek(origin);
+
+    return Value{nothing};
+  });
+
+  auto originFun = [&](Statement args) {  
+    if(args->left()) {
+      evaluate(args->left());
+      if(!args->leftResult().isInt()) error("wrong parameter type2");
+      auto val = args->leftResult().getInt();
+      origin = val;
+    }
+
+    return Value{(int64_t)origin};
+  };
+  coreFunctions.insert("origin#0", originFun);
+  coreFunctions.insert("origin#1", originFun);
+
+  auto baseFun = [&](Statement args) {  
+    if(args->left()) {
+      evaluate(args->left());
+      if(!args->leftResult().isInt()) error("wrong parameter type3");
+      auto val = args->leftResult().getInt();
+      base = val;
+    }
+
+    return Value{(int64_t)base};
+  };
+  coreFunctions.insert("base#0", baseFun);
+  coreFunctions.insert("base#1", baseFun);
+
+  coreFunctions.insert("assert#1", [&](Statement args) {
+    evaluate(args->left());
+    auto res = args->leftResult();
+    if(!res.isTrue()) error("assertion failed");
+
+    return Value{nothing};
+  });
+
+  coreFunctions.insert("endian#1", [&](Statement args) {
+    string arg = args->leftValue().getString();
+    if(arg == "lsb") endian = Endian::LSB;
+    if(arg == "msb") endian = Endian::MSB;
+
+    return Value{nothing};
+  });
 
   auto fill = [&](Statement args) {  
     uint length{0};
     uint with{0};
 
     evaluate(args);
-    if(!args->leftResult().isInt()) error("wrong parameter type");
+    if(!args->leftResult().isInt()) error("wrong parameter type4");
     length = args->leftResult().getInt();
     
-    if(args->right()) {
-      if(!args->rightResult().isInt()) error("wrong parameter type");
+    if(args->rightResult()) {
+      if(!args->rightResult().isInt()) error("wrong parameter type5");
       with = args->rightResult().getInt();
     }
 

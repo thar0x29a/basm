@@ -129,7 +129,6 @@ auto Plek::handleDirective(string name, Statement items) -> bool {
   uint dataLength = 0;
   for(auto d : directives.EmitBytes) {
     if(d.token == name) {
-      notice("found directive ", name);
       dataLength = d.dataLength;
       break;
     }

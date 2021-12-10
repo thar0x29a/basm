@@ -215,6 +215,9 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         // are we an call-fallback?
         auto pool = (item->type == st(Call)) ? item->right() : item;
 
+        // is this an directive?
+        if(handleDirective(name, pool)) break;
+
         // fancy debug stuff
         for(auto& el : pool->all()) {
           string dbug = el->result.getString();
@@ -228,9 +231,6 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
           text.append(dbug);
         }
         print(terminal::color::yellow(name), text, "\n");
-        
-        // is this an directive?
-        if(handleDirective(name, pool)) break;
 
         // prepare command to be passed to the assembler
         string cmd = name;
@@ -253,7 +253,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
 
         // run it!
         if(architecture->assemble(cmd)) break;
-        else error("assembly failed for: ", cmd);
+        else if(callAtemt!=true) error("assembly failed for: ", cmd);
       }
 
       default: {
