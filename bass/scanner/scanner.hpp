@@ -53,6 +53,7 @@ protected:
       insert("parent", TokenType::KW_PARENT);
       insert("exit", TokenType::KW_EXIT);
       insert("macro", TokenType::KW_MACRO);
+      insert("fun", TokenType::KW_MACRO);
       insert("return", TokenType::KW_RETURN);
 
       insert("constant", TokenType::KW_CONST);
