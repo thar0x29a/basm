@@ -120,7 +120,8 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       case st(Return): {
         evaluate(item);
         scope->result = item->leftResult();
-        break;
+        scope->returned = true;
+        return true;
       }
 
       case st(Else): {
@@ -130,6 +131,13 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         frames.append(subscope);
         excecuteBlock(item->left(), subscope);
         frames.removeRight();
+        
+        if(subscope->returned) {
+          scope->result = subscope->result;
+          scope->returned = true;
+          return true;
+        }
+
         break;
       }
 
@@ -149,6 +157,13 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
           frames.append(subscope);
           excecuteBlock(item->right(), subscope);
           frames.removeRight();
+
+          // forward returning state
+          if(subscope->returned) {
+            scope->result = subscope->result;
+            scope->returned = true;
+            return true;
+          }
         }
         else {
           doElse = true;
@@ -170,6 +185,12 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
             frames.append(subscope);
             excecuteBlock(item->right(), subscope);
             frames.removeRight();
+
+            if(subscope->returned) {
+              scope->result = subscope->result;
+              scope->returned = true;
+              return true;
+            }
           }
         } while(result==true);
         break;

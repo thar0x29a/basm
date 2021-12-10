@@ -20,6 +20,7 @@ struct FrameElement {
   Value result;
   const string name;
   bool temporary;
+  bool returned = false;
 
   // references
   Frame parent = nullptr;

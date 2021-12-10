@@ -1,9 +1,12 @@
 arch("snes.cpu")
 
 const REG_BGMODE = $2105
+const cool = 10
 
 macro test() {
-  return 1337
+  if(cool == 1) { return 1337 }
+  else if(cool == 2) { return 9000 }
+  else { return 0 }
 }
 
 // Setup Video
