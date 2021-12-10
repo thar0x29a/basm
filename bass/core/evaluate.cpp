@@ -124,3 +124,26 @@ auto Plek::calculate(StmtType type, const T& a, const T& b) -> Value {
 
   return result;
 }
+
+auto Plek::handleDirective(string name, Statement items) -> bool {
+  uint dataLength = 0;
+  for(auto d : directives.EmitBytes) {
+    if(d.token == name) {
+      notice("found directive ", name);
+      dataLength = d.dataLength;
+      break;
+    }
+  }
+
+  if(dataLength==0) return false;
+  
+  for(auto el : items->all()) {
+    if(el->type != st(Raw)) {
+      evaluate(el);
+      if(!el->result.isInt()) continue;
+      write(el->result.getInt(), dataLength);
+    }
+  }
+
+  return true;
+}

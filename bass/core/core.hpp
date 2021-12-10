@@ -73,7 +73,7 @@ struct Plek {
     auto pc() const -> int64_t;
     auto seek(uint offset) -> void;
     auto track(uint length) -> void;
-    auto write(uint64_t data, uint length) -> void;
+    auto write(uint64_t data, uint bytelength = 1) -> void;
 
     template<typename... P> auto notice(P&&... p) -> void;
     template<typename... P> auto warning(P&&... p) -> void;
@@ -92,6 +92,7 @@ struct Plek {
     auto calculate(Statement) -> Value;
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Value;
+    auto handleDirective(string, Statement) -> bool;
 
   // utility.cpp
     auto walkUp(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;

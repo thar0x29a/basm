@@ -23,6 +23,9 @@ auto Plek::initFunctions() -> void {
     return Value{nothing};
   };
 
+  coreFunctions.insert("arch#1", arch);
+  coreFunctions.insert("architecture#1", arch);
+
   coreFunctions.insert("include#1", [&](Statement args) {
     auto scope = frames.right();
     evaluate(args);
@@ -38,8 +41,25 @@ auto Plek::initFunctions() -> void {
   });
 
 
-  coreFunctions.insert("arch#1", arch);
-  coreFunctions.insert("architecture#1", arch);
+  auto fill = [&](Statement args) {  
+    uint length{0};
+    uint with{0};
+
+    evaluate(args);
+    if(!args->leftResult().isInt()) error("wrong parameter type");
+    length = args->leftResult().getInt();
+    
+    if(args->right()) {
+      if(!args->rightResult().isInt()) error("wrong parameter type");
+      with = args->rightResult().getInt();
+    }
+
+    while(length--) write(with);
+    return Value{nothing};
+  };
+
+  coreFunctions.insert("fill#1", fill);
+  coreFunctions.insert("fill#2", fill);
 
   coreFunctions.insert("pc#0", [&](Statement args) {
     return Value{pc()};

@@ -229,9 +229,10 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
         }
         print(terminal::color::yellow(name), text, "\n");
         
+        // is this an directive?
+        if(handleDirective(name, pool)) break;
 
-
-        // and now solved!
+        // prepare command to be passed to the assembler
         string cmd = name;
         for(auto el : pool->all()) {
           string dbug = el->result.getString();
