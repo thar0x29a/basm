@@ -27,6 +27,16 @@ print("Hello World\n") // working
 ```
 There are only very few commands such as `arch` and `include` remaining in our syntax.
 
+### Dataypes
+Since I upgraded bass from an macro to an script language it also knows some Datatypes. They will be selected implicite by the value that you store inside of it.
+
+* Integer - internally stored as int64 
+* Float - internally stored as int64 
+* String - internally stored as, well, string
+* function - stored as hashmap given by its name and signature
+* array - stored as hashmap given by the used key
+
+
 ### Include
 Include had several special rules. This had been changed. You can include your stuff where and whenever you want. Even with constructed file-names. Each time this code get executed bass will reload, reparse and reprogress the included file from it's source.
 
