@@ -4,6 +4,7 @@ struct SymbolRef {
   SymbolType type;
   Value value;
   Statement ref;
+  //map<string,Statement> values;
 
   static const SymbolRef nothing() {
     static SymbolRef nothing{SymbolType::Const, {nothing}};

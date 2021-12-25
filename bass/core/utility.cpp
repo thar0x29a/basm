@@ -121,8 +121,9 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
     }
   }
 
+  auto macro = (MacroStatement)fun.ref;
   frames.append(fscope);
-  excecuteBlock(fun.ref->content[2], fscope);
+  excecuteBlock(macro.getCode(), fscope);
   frames.removeRight();
   return fscope->result;
 }

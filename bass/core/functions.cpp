@@ -100,7 +100,7 @@ auto Plek::initFunctions() -> void {
     if(!args->leftResult() || !args->leftResult().isInt()) error("wrong parameter type4");
     length = args->leftResult().getInt();
 
-    if(args->right()) {
+    if(args->size()>1) {
       if(!args->rightResult().isInt()) error("wrong parameter type5");
       with = args->rightResult().getInt();
     }
