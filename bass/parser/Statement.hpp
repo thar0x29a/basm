@@ -86,3 +86,6 @@ struct StmtNode {
 
   auto size() const -> uint { return content.size(); }
 };
+
+#define tt(t) (Bass::TokenType::t)
+#define st(t) (Bass::StmtType::t)

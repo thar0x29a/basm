@@ -69,6 +69,3 @@ protected:
   inline auto match(Ts... xs) -> bool;
   auto synchronize() -> void;/**/
 };
-
-#define tt(t) (Bass::TokenType::t)
-#define st(t) (Bass::StmtType::t)
