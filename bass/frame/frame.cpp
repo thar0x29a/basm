@@ -12,10 +12,24 @@ auto FrameElement::setVariable(const string& name, const Value& val) -> void {
   symbolTable.insert(name, {SymbolRef::SymbolType::Var, val});
 }
 
-auto FrameElement::setMacro(const string& name, Statement def) -> void {
+/*auto FrameElement::setMacro(const string& name, Statement def) -> void {
   string id = {name, "#", def->content[1]->size()};
   symbolTable.insert(id, {SymbolRef::SymbolType::Callable, nothing, def});
+}/**/
+
+auto FrameElement::setMacro(MacroStatement def) -> void {
+  string id = def.getName();
+  auto map = SymbolRef::asMap();
+  
+  if(auto res = symbolTable.find(id)) {
+    if(res->type == symbt(Map)) map = res();
+  }
+
+  map.references.insert({def.getArgCount()}, def.ref);
+  symbolTable.insert(def.getName(), map);
 }
+
+
 
 auto FrameElement::assign(const string& name, const Value& val) -> void {
   if(auto res = symbolTable.find(name)) {

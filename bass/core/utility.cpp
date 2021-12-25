@@ -20,17 +20,15 @@ auto Plek::walkDown(const Program& what, std::function<bool (Statement, int)> wi
 }
 
 auto Plek::identifier(const string& identName) -> Value {
-  auto [found, scope, name] = find(identName);
+  auto [found, scope, name, res] = find(identName);
   if(!found) return {nothing};
-
-  auto res = scope->symbolTable.find(name)();
   return res.value;
 }
 
-auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string> {
+auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, SymbolRef> {
   auto parts = symbolName.split(".");
   auto lastId = parts.takeRight();
-  //SymbolRef symbol{};
+  SymbolRef symbol{};
   bool found = false;
 
   Frame scope = frames.last();
@@ -48,7 +46,7 @@ auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string> {
     
     // end of the road. do we find it?
     if(auto res = upScope->symbolTable.find(lastId)) {
-      //symbol = res();
+      symbol = res();
       scope = upScope;
       found = true;
       break;
@@ -59,11 +57,11 @@ auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string> {
   } while(scope);  
   
   // return stuff, if successfull or not, to caller
-  return std::make_tuple(found, scope, lastId);
+  return std::make_tuple(found, scope, lastId, symbol);
 }
 
 auto Plek::assign(const string& assName, const Value& val) -> void {
-  auto [found, scope, name] = find(assName);
+  auto [found, scope, name, res] = find(assName);
   if(found) {
     scope->assign(assName, val);
   }
@@ -75,7 +73,8 @@ auto Plek::assign(const string& assName, const Value& val) -> void {
 }
 
 auto Plek::invoke(const string& fullName, Statement args) -> Value {
-  string id = {fullName, "#", args->size()};
+  string argc = {args->size()};
+  string id = {fullName, "#", argc};
   string gId = {fullName, "#*"};
 
   // fitting or general build in function?
@@ -87,20 +86,28 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
   }
 
   // incode function?
-  auto [found, scope, name] = find(id);
+  auto [found, scope, name, res] = find(fullName);
   if(!found) {
-    throw string{"cannot call unknown ", id};
+    throw string{"cannot call unknown ", fullName};
   }
 
   // get function handle
-  auto fun = scope->symbolTable.find(name)();
+  Statement fun;
+  if(res.type != symbt(Map)) throw string{"cannot call ", fullName};
+  if(auto funres = res.references.find({argc})) {
+    fun = funres();
+  }
+  else {
+    throw string{"cannot call unknown ", fullName, "#", argc};
+  }
 
   // invoke
-  auto padef = fun.ref->content[1];
+  auto macro = (MacroStatement)fun;
+  auto padef = macro.getArguments();
   auto fscope = Frame::create(scope);
 
   for(int i=0; i<args->size(); i++) {
-    auto t = padef->content[i];
+    auto t = padef[i];
     auto v = args->content[i];
 
     if(v->type == st(Identifier)) {
@@ -121,7 +128,6 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
     }
   }
 
-  auto macro = (MacroStatement)fun.ref;
   frames.append(fscope);
   excecuteBlock(macro.getCode(), fscope);
   frames.removeRight();

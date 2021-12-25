@@ -108,12 +108,7 @@ auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
       }
 
       case st(Macro): {
-        if(!item->left()) throw "Broken AST #118";
-
-        auto name = item->left()->value.getString();
-        scope->setMacro(name, item);
-
-        if(path.size()>0) name = {path, ".", name};
+        scope->setMacro({item});
         break;
       }
 

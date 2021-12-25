@@ -4,7 +4,7 @@ struct MacroStatement {
   const int LIST_INDEX = 1;
   const int CODE_INDEX = 2;
 
-  MacroStatement(Statement& source) : ref(source) {
+  MacroStatement(Statement source) : ref(source) {
     if(!ref->content[NAME_INDEX]) {
       throw string{"found broken macro def: invalid name"};
     }
@@ -18,5 +18,6 @@ struct MacroStatement {
 
   auto getName() -> string { return ref->leftValue().getString(); }
   auto getArguments() -> Program { return ref->content[LIST_INDEX]->content; }
+  auto getArgCount() -> uint { return ref->content[LIST_INDEX]->content.size(); }
   auto getCode() -> Statement { return ref->content[CODE_INDEX]; }
 };
