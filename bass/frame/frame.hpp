@@ -1,29 +1,27 @@
-struct SymbolRef {
-  enum class SymbolType : uint { Const, Var, Callable, Map }; // and more ...
-    
+enum class SymbolType : uint { Const, Var, Map };
+#define symbt(t) (Bass::SymbolType::t)
+
+struct Symbol {
   SymbolType type;
   Value value;
-  Statement ref;
   map<string,Statement> references;
 
-  static const SymbolRef nothing() {
-    static SymbolRef nothing{SymbolType::Const, {nothing}};
+  static const Symbol nothing() {
+    static Symbol nothing{SymbolType::Const, {nothing}};
     return nothing;
   }
 
-  static SymbolRef asMap() {
+  static Symbol asMap() {
     return {SymbolType::Map};
   }
 };
-
-#define symbt(t) (Bass::SymbolRef::SymbolType::t)
 
 struct FrameElement;
 using Frame = shared_pointer<FrameElement>;
 
 struct FrameElement {
   // content
-  map<string, SymbolRef> symbolTable;
+  map<string, Symbol> symbolTable;
   Value result;
   const string name;
   bool temporary;
@@ -39,11 +37,14 @@ struct FrameElement {
     : parent(parent), name(name), temporary(false) {};
   
   auto setConstant(const string& name, const Value& val) -> void;
+  auto setConstant(const string& name, Symbol value) -> void;
   auto setVariable(const string& name, const Value& val) -> void;
-  //auto setMacro(const string& name, Statement def) -> void;
+  auto setVariable(const string& name, Symbol value) -> void;
+
   auto setMacro(MacroStatement def) -> void;
 
   auto assign(const string& name, const Value& val) -> void;
+  auto assign(const string& name, Symbol value) -> void;
 
   auto addScope(const Frame frm) -> void;
 };

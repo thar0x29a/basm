@@ -1,7 +1,3 @@
-struct StmtNode;
-using Statement = shared_pointer<StmtNode>;
-using Program = vector<Statement>;
-
 enum class StmtType : uint {
   File, Block, Grouped,
   Value, Identifier, Label, Evaluation, Reference,
@@ -74,6 +70,10 @@ struct StmtNode {
 
   auto all() const -> Program { return content; }
   auto is(StmtType t) -> bool { return type == t; }
+  auto isReference() -> bool { 
+    return type == st(Identifier)
+      || type == st(Evaluation);
+  }
 
   auto left() const -> Statement { return content[0]; }
   auto right() const -> Statement { return content[1]; }
@@ -86,6 +86,3 @@ struct StmtNode {
 
   auto size() const -> uint { return content.size(); }
 };
-
-#define tt(t) (Bass::TokenType::t)
-#define st(t) (Bass::StmtType::t)

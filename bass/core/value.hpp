@@ -1,16 +1,19 @@
 struct Value : public any {
   auto isInt() -> bool { return type() == typeid(int64_t); };
   auto isFloat() -> bool { return type() == typeid(double); };
+  auto isReference() -> bool { return type() == typeid(Statement); };
   auto isString() -> bool { return type() == typeid(string); };
   auto isNothing() -> bool { return type() == typeid(nothing); };
 
   auto getInt() -> int64_t { return get<int64_t>(); };
   auto getFloat() -> double { return get<double>(); };
+  auto getReference() -> Statement { return get<Statement>(); }
   auto getString() -> string { 
     if(isString()) return get<string>(); 
     else if(isInt()) return { getInt() };
     else if(isFloat()) return { getFloat() };
     else if(isNothing()) return { "null" };
+    else if(isReference()) return { "&ToDo" };
     else throw "unknown state";
   };
 

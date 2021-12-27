@@ -487,9 +487,9 @@ auto Parser::evaluation() -> const Statement {
 }
 
 auto Parser::reference() -> const Statement {
-  auto start = consume(tt(LEFT_BRACKET), "expected {");
+  auto start = consume(tt(LEFT_BRACKET), "expected [");
   auto sub = primary();
-  consume(tt(RIGHT_BRACKET), "expected }");
+  consume(tt(RIGHT_BRACKET), "expected ]");
 
   return Statement::create(start, StmtType::Reference, sub);
 }

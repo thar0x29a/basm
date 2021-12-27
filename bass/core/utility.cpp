@@ -25,10 +25,10 @@ auto Plek::identifier(const string& identName) -> Value {
   return res.value;
 }
 
-auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, SymbolRef> {
+auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol> {
   auto parts = symbolName.split(".");
   auto lastId = parts.takeRight();
-  SymbolRef symbol{};
+  Symbol symbol{};
   bool found = false;
 
   Frame scope = frames.last();
@@ -63,14 +63,43 @@ auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, Sym
 auto Plek::assign(const string& assName, const Value& val) -> void {
   auto [found, scope, name, res] = find(assName);
   if(found) {
-    scope->assign(assName, val);
+    scope->assign(name, val);
   }
   else {
     //todo: still contains dots -> error! No implicit namespaces!
     frames.right()->assign(assName, val);
-    notice("implicit created var ", name);
+    notice("implicit created var ", assName);
   }
 }
+
+auto Plek::assign(const string& dest, const string& src) -> void {
+  auto [src_found, src_scope, src_name, src_res] = find(src);
+  auto [dest_found, dest_scope, dest_name, dest_res] = find(dest);
+
+  if(!src_found) error("Cannot assign unknown value ", src);
+
+  if(dest_found) {
+    dest_scope->assign(dest_name, src_res);
+  } else {
+    frames.right()->assign(dest, src_res);
+    notice("implicit created var ", dest);
+  }
+}
+
+auto Plek::setVariable(const string& dest, const string& src) -> void {
+  auto [src_found, src_scope, src_name, src_res] = find(src);
+  if(!src_found) error("Cannot assign unknown value ", src);
+
+  frames.last()->setVariable(dest, src_res);
+}
+
+auto Plek::setConstant(const string& dest, const string& src) -> void {
+  auto [src_found, src_scope, src_name, src_res] = find(src);
+  if(!src_found) error("Cannot assign unknown value ", src);
+
+  frames.last()->setConstant(dest, src_res);
+}
+
 
 auto Plek::invoke(const string& fullName, Statement args) -> Value {
   string argc = {args->size()};
@@ -102,7 +131,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
   }
 
   // invoke
-  auto macro = (MacroStatement)fun;
+  MacroStatement macro{fun};
   auto padef = macro.getArguments();
   auto fscope = Frame::create(scope);
 

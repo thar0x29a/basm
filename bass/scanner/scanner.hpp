@@ -114,3 +114,5 @@ protected:
   template<typename... P> 
   auto error(P&&... p) -> void;
 };
+
+#define tt(t) (Bass::TokenType::t)

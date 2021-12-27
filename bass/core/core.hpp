@@ -2,13 +2,17 @@
 
 namespace Bass {
 
-// Components
+// General
+struct StmtNode;
+using Statement = shared_pointer<StmtNode>;
+using Program = vector<Statement>;
+#define st(t) (Bass::StmtType::t)
+
 #include "value.hpp"
 #include "../scanner/scanner.hpp"
 #include "../parser/parser.hpp"
 #include "../frame/frame.hpp"
 
-// General
 enum class EvaluationMode : uint { Default = 0, Strict, LeftSide };
 enum class Endian : uint { LSB, MSB };
 
@@ -46,6 +50,7 @@ struct Architecture;
 
 using CoreFunction = std::function<Value (Statement)>;
 using string_vector = vector<string>;
+
 
 struct Plek {
   protected:
@@ -99,9 +104,12 @@ struct Plek {
     auto walkDown(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
 
     auto identifier(const string& name) -> Value;
-    auto find(const string& symbolName) -> std::tuple<bool, Frame, string, SymbolRef>;
+    auto find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol>;
 
     auto assign(const string& name, const Value& val) -> void;
+    auto assign(const string& dest, const string& src) -> void;
+    auto setVariable(const string& dest, const string& src) -> void;
+    auto setConstant(const string& dest, const string& src) -> void;
     auto invoke(const string& name, Statement call) -> Value;
 
     auto scopePath() -> string;
