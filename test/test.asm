@@ -3,15 +3,30 @@
 //include("Font8x8.asm")
 
 const hello = "world";
-var catmakes = "meow"
+
+fun solution() {
+  return 42;
+}
 
 fun foo() {
-  notice("Foo? Bah! ", hello, " ", catmakes);
+  var catmakes = "meow"
+  warning("Foo? Bah! ", hello, " ", catmakes);
 }
+
 fun foo(var num) {
   warning(num, " is alot to foo!");
 }
 
-const test = pikachu = hello
+fun refback() {
+  return foo;
+}
 
-test();
+const test = pikachu = foo
+
+test(solution());
+//pikachu();
+
+var urgs = refback();
+urgs(9001);
+
+print("END\n\n");

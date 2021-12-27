@@ -1,24 +1,3 @@
-auto Plek::walkUp(const Program& what, std::function<bool (Statement, int)> with, int level) -> void {
-  for(auto item : what) {
-    if(!item) continue;
-
-    // bottom up
-    walkUp(item().content, with, level+1);
-    with(item, level);
-  }
-}
-
-auto Plek::walkDown(const Program& what, std::function<bool (Statement, int)> with, int level) -> void {
-  for(auto item : what) {
-    if(!item) continue;
-
-    // top down
-    if(with(item, level)) {
-      walkDown(item().content, with, level+1);
-    }
-  }
-}
-
 auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol> {
   auto parts = symbolName.split(".");
   auto lastId = parts.takeRight();
@@ -66,34 +45,8 @@ auto Plek::assign(const string& dest, Result src) -> void {
   }
 }
 
-/*auto Plek::assign(const string& assName, const Value& val) -> void {
-  auto [found, scope, name, res] = find(assName);
-  if(found) {
-    scope->assign(name, val);
-  }
-  else {
-    //todo: still contains dots -> error! No implicit namespaces!
-    frames.right()->assign(assName, val);
-    notice("implicit created var ", assName);
-  }
-}
-
-auto Plek::assign(const string& dest, const string& src) -> void {
-  auto [src_found, src_scope, src_name, src_res] = find(src);
-  auto [dest_found, dest_scope, dest_name, dest_res] = find(dest);
-
-  if(!src_found) error("Cannot assign unknown value ", src);
-
-  if(dest_found) {
-    dest_scope->assign(dest_name, src_res);
-  } else {
-    frames.right()->assign(dest, src_res);
-    notice("implicit created var ", dest);
-  }
-}/**/
-
-auto Plek::invoke(const string& fullName, Statement args) -> Value {
-/*  string argc = {args->size()};
+auto Plek::invoke(const string& fullName, Statement args) -> Result {
+  string argc = {args->size()};
   string id = {fullName, "#", argc};
   string gId = {fullName, "#*"};
 
@@ -129,40 +82,20 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
   for(int i=0; i<args->size(); i++) {
     auto t = padef[i];
     auto v = args->content[i];
-
-    if(v->type == st(Identifier)) {
-      if(t->type == st(RefArgument)) {
-        v->result = v->value;
-      } else {
-        evaluate(v);
-      }
-    }
-
-    if(!v->result || v->result.isNothing()) warning("Parameter ", i+1, " is not set");
+    auto name = t->value.getString();
     
-    if(t->type == st(ConstArgument)) {
-      fscope->setConstant(t->result, v->result);
-    }
-    else {
-      fscope->setVariable(t->result, v->result);
-    }
+    Result res = (t->is(st(RefArgument))) ? Result{v->value} : evaluateRHS(v);
+
+    if(!res || res.isNothing()) warning("Parameter ", i+1, " is not set");
+
+    if(t->type == st(ConstArgument)) fscope->setConstant(name, res);
+    else fscope->setVariable(name, res);
   }
 
   frames.append(fscope);
-  exBlock(macro.getCode(), fscope);
+  exBlock(macro.getCode());
   frames.removeRight();
-  return fscope->result;/**/
-  return {nothing};
-}
-
-auto Plek::scopePath() -> string {
-  string res{""};
-
-  for(auto f : frames) {
-    if(f->name.size()>0)
-      res.append('.').append(f->name);
-  }
-  return res.slice(1);
+  return fscope->result;
 }
 
 auto Plek::readArchitecture(const string& name) -> string {

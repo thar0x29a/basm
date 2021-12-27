@@ -17,11 +17,11 @@ template<> struct nall::stringify<Bass::Value> {
 
 template<> struct nall::stringify<Bass::Result> {
   stringify(Bass::Result source) {
-    if(!source) _text = {"nothing"};
+    if(!source) _text = {"nullptr"};
     else if(source.isInt()) _text = { source.getInt() };
     else if(source.isFloat()) _text = { source.getFloat() };
     else if(source.isString()) _text = { source.getString() };
-    else if(source.isSymbol()) _text = { "SymbolTODO" };
+    else if(source.isSymbol()) _text = { "Symbol" };
     else if(source.isNothing()) _text = { "NULL" };
     //else if(source.isBool()) _text = (source.getBool()) ? "true" : "false";
     else _text =  {"`", source.type().name(), "`"};

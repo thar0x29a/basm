@@ -4,12 +4,13 @@ namespace Bass {
 
 // General
 struct StmtNode;
-struct Result;
 using Statement = shared_pointer<StmtNode>;
 using Program = vector<Statement>;
 #define st(t) (Bass::StmtType::t)
 
 #include "value.hpp"
+#include "symbol.hpp"
+#include "result.hpp"
 #include "../scanner/scanner.hpp"
 #include "../parser/parser.hpp"
 #include "../frame/frame.hpp"
@@ -47,25 +48,10 @@ struct SourceCode {
   Statement entryPoint;
 };
 
-struct Result : public Value {
-  auto isSymbol() -> bool { return type() == typeid(Symbol); };
-  auto getSymbol() -> Symbol { return get<Symbol>(); };
-
-  template<typename T> auto operator=(const T& value) -> Result& {
-    any::operator=(value);
-    return *this;
-  }
-  auto operator=(const Value& source) -> Result& {
-    Value::operator=(source);
-    return *this;
-  }/**/
-};
-
 struct Architecture;
 
-using CoreFunction = std::function<Value (Statement)>;
+using CoreFunction = std::function<Result (Statement)>;
 using string_vector = vector<string>;
-
 
 struct Plek {
   protected:
@@ -105,6 +91,9 @@ struct Plek {
     auto exBlock(Statement) -> bool;
     auto exConstDeclaration(Statement) -> bool;
     auto exVarDeclaration(Statement) -> bool;
+    auto exFunDeclaration(Statement) -> bool;
+    auto exCall(Statement) -> bool;
+    auto exReturn(Statement stmt) -> bool;
 
   // functions.cpp
     auto initFunctions() -> void;
@@ -115,20 +104,17 @@ struct Plek {
     auto calculate(Statement) -> Result;
     auto evalAssign(Statement) -> Result;
     auto evalIdentifier(Statement) -> Result;
+    auto evalCall(Statement) -> Result;
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Value;
     auto handleDirective(string, Statement) -> bool;
 
   // utility.cpp
-    auto walkUp(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
-    auto walkDown(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
-
     auto find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol>;
 
     auto assign(const string& dest, Result src) -> void;
-    auto invoke(const string& name, Statement call) -> Value;
+    auto invoke(const string& name, Statement call) -> Result;
 
-    auto scopePath() -> string;
     auto readArchitecture(const string& name) -> string;
 };
 

@@ -18,6 +18,7 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
     case st(Value): res = stmt->value; break;
     case st(Assignment): res = evalAssign(stmt); break;
     case st(Identifier): res = evalIdentifier(stmt); break;
+    case st(Call): res = evalCall(stmt); break;
     default: error("LHS cannot handle ", stmt);
   }
 
@@ -42,6 +43,10 @@ auto Plek::evalIdentifier(Statement stmt) -> Result {
     else tmp = res.value;
   }
   return tmp;
+}
+
+auto Plek::evalCall(Statement stmt) -> Result {
+  return invoke(stmt->value, stmt->left());
 }
 
 auto Plek::calculate(Statement stmt) -> Result {

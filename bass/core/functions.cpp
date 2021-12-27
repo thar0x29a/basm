@@ -1,7 +1,7 @@
 auto Plek::initFunctions() -> void {
   // returns bass version as string
   coreFunctions.insert("version#0", [&](Statement stmt) {
-    return Value{appVersion};
+    return Result{appVersion};
   });
 
 /*  auto arch = [&](Statement args) {  
@@ -20,7 +20,7 @@ auto Plek::initFunctions() -> void {
       notice("switch architecture to ", terminal::color::green(name), " using the table engine");
     }
 
-    return Value{nothing};
+    return Result{nothing};
   };
 
   coreFunctions.insert("arch#1", arch);
@@ -37,7 +37,7 @@ auto Plek::initFunctions() -> void {
         exBlock(program.takeRight(), scope);
       }
     }
-    return Value{nothing};
+    return Result{nothing};
   });
 
   coreFunctions.insert("ds#1", [&](Statement args) {
@@ -47,7 +47,7 @@ auto Plek::initFunctions() -> void {
     origin += val;
     seek(origin);
 
-    return Value{nothing};
+    return Result{nothing};
   });
 
   auto originFun = [&](Statement args) {  
@@ -58,7 +58,7 @@ auto Plek::initFunctions() -> void {
       origin = val;
     }
 
-    return Value{(int64_t)origin};
+    return Result{(int64_t)origin};
   };
   coreFunctions.insert("origin#0", originFun);
   coreFunctions.insert("origin#1", originFun);
@@ -71,7 +71,7 @@ auto Plek::initFunctions() -> void {
       base = val;
     }
 
-    return Value{(int64_t)base};
+    return Result{(int64_t)base};
   };
   coreFunctions.insert("base#0", baseFun);
   coreFunctions.insert("base#1", baseFun);
@@ -81,15 +81,15 @@ auto Plek::initFunctions() -> void {
     auto res = args->leftResult();
     if(!res.isTrue()) error("assertion failed");
 
-    return Value{nothing};
+    return Result{nothing};
   });
 
   coreFunctions.insert("endian#1", [&](Statement args) {
-    string arg = args->leftValue().getString();
+    string arg = args->leftResult().getString();
     if(arg == "lsb") endian = Endian::LSB;
     if(arg == "msb") endian = Endian::MSB;
 
-    return Value{nothing};
+    return Result{nothing};
   });
 
   auto fill = [&](Statement args) {  
@@ -106,54 +106,54 @@ auto Plek::initFunctions() -> void {
     }
 
     while(length--) write(with);
-    return Value{nothing};
+    return Result{nothing};
   };
 
   coreFunctions.insert("fill#1", fill);
   coreFunctions.insert("fill#2", fill);
 
   coreFunctions.insert("pc#0", [&](Statement args) {
-    return Value{pc()};
+    return Result{pc()};
   });
-
+/**/
   // main print command
   coreFunctions.insert("print#*", [&](Statement args) {
     string text{};
     for(auto cnt : args->all()) {
-      evaluate(cnt);
-      if(cnt->result) text.append(cnt->result);
+      Result res = evaluateRHS(cnt);
+      if(res) text.append(res);
     }
     print(text);
-    return Value{nothing};
+    return Result{nothing};
   });
 
   coreFunctions.insert("error#*", [&](Statement args) {
     string text{};
     for(auto cnt : args->all()) {
-      evaluate(cnt);
-      if(cnt->result) text.append(cnt->result);
+      Result res = evaluateRHS(cnt);
+      if(res) text.append(res);
     }
     error(text);
-    return Value{nothing};
+    return Result{nothing};
   });
 
   coreFunctions.insert("warning#*", [&](Statement args) {
     string text{};
     for(auto cnt : args->all()) {
-      evaluate(cnt);
-      if(cnt->result) text.append(cnt->result);
+      Result res = evaluateRHS(cnt);
+      if(res) text.append(res);
     }
     warning(text);
-    return Value{nothing};
+    return Result{nothing};
   });
 
   coreFunctions.insert("notice#*", [&](Statement args) {
     string text{};
     for(auto cnt : args->all()) {
-      evaluate(cnt);
-      if(cnt->result) text.append(cnt->result);
+      Result res = evaluateRHS(cnt);
+      if(res) text.append(res);
     }
     notice(text);
-    return Value{nothing};
-  });/**/
+    return Result{nothing};
+  });
 }
