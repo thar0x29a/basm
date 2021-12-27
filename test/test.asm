@@ -16,4 +16,6 @@ namespace {"foo"} {
   }
 }
 
-notice(foo.baa());
+hard = foo.baa;
+notice(hard());
+warning(1+2*3)

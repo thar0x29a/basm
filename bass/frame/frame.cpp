@@ -33,4 +33,3 @@ auto FrameElement::assign(const string& name, Result val) -> void {;
 auto FrameElement::addScope(const Frame frm) -> void {
   children.insert(frm->name, frm);
 }
-
