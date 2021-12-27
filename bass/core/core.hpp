@@ -95,6 +95,7 @@ struct Plek {
     auto exCall(Statement) -> bool;
     auto exReturn(Statement) -> bool;
     auto exNamespace(Statement) -> bool;
+    auto exLabel(Statement) -> bool;
 
   // functions.cpp
     auto initFunctions() -> void;

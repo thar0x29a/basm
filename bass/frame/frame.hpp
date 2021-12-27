@@ -18,10 +18,10 @@ struct FrameElement {
   FrameElement(const Frame parent, const string& name) 
     : parent(parent), name(name), temporary(false) {};
   
-  auto setConstant(const string& name, Result& val) -> void;
-  auto setVariable(const string& name, Result& val) -> void;
+  auto setConstant(const string& name, Result val) -> void;
+  auto setVariable(const string& name, Result val) -> void;
   auto setMacro(MacroStatement def) -> void;
 
-  auto assign(const string& name, Result& val) -> void;
+  auto assign(const string& name, Result val) -> void;
   auto addScope(const Frame frm) -> void;
 };

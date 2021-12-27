@@ -50,6 +50,7 @@ auto Plek::exBlock(Statement stmt) -> bool {
       case st(Namespace): exNamespace(item); break;
       case st(DeclConst): exConstDeclaration(item); break;
       case st(DeclVar): exVarDeclaration(item); break;
+      case st(Label): exLabel(item); break;
       case st(Macro): exFunDeclaration(item); break;
       case st(Call): exCall(item); break;
       case st(Return): exReturn(item); break;
@@ -113,5 +114,11 @@ auto Plek::exNamespace(Statement stmt) -> bool {
     exBlock(stmt->right());
   frames.removeRight(); 
 
+  return true;
+}
+
+auto Plek::exLabel(Statement stmt) -> bool {
+  auto left = evaluateLHS(stmt->left());
+  frames.last()->setConstant(left.getString(), {pc()});
   return true;
 }

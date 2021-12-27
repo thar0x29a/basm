@@ -1,4 +1,4 @@
-auto FrameElement::setConstant(const string& name, Result& val) -> void {
+auto FrameElement::setConstant(const string& name, Result val) -> void {
   if(auto res = symbolTable.find(name)) {
     if(res->type == symbt(Const)) throw string{"constant cannot be modified '", name, "'"};
   }
@@ -6,7 +6,7 @@ auto FrameElement::setConstant(const string& name, Result& val) -> void {
   else symbolTable.insert(name, {symbt(Const), val});
 }
 
-auto FrameElement::setVariable(const string& name, Result& val) -> void {
+auto FrameElement::setVariable(const string& name, Result val) -> void {
   if(auto res = symbolTable.find(name)) {
     if(res->type == symbt(Const)) throw string{"constant cannot be modified '", name, "'"};
   }
@@ -26,7 +26,7 @@ auto FrameElement::setMacro(MacroStatement def) -> void {
   symbolTable.insert(def.getName(), map);
 }
 
-auto FrameElement::assign(const string& name, Result& val) -> void {;
+auto FrameElement::assign(const string& name, Result val) -> void {;
   setVariable(name, val);
 }
 
