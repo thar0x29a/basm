@@ -19,12 +19,6 @@ auto Plek::walkDown(const Program& what, std::function<bool (Statement, int)> wi
   }
 }
 
-auto Plek::identifier(const string& identName) -> Value {
-  auto [found, scope, name, res] = find(identName);
-  if(!found) return {nothing};
-  return res.value;
-}
-
 auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol> {
   auto parts = symbolName.split(".");
   auto lastId = parts.takeRight();
@@ -60,7 +54,19 @@ auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, Sym
   return std::make_tuple(found, scope, lastId, symbol);
 }
 
-auto Plek::assign(const string& assName, const Value& val) -> void {
+auto Plek::assign(const string& dest, Result src) -> void {
+  auto [found, scope, name, res] = find(dest);
+  if(found) {
+    scope->assign(name, src);
+  }
+  else {
+    //todo: still contains dots -> error! No implicit namespaces!
+    frames.right()->assign(dest, src);
+    notice("implicit created var ", dest);
+  }
+}
+
+/*auto Plek::assign(const string& assName, const Value& val) -> void {
   auto [found, scope, name, res] = find(assName);
   if(found) {
     scope->assign(name, val);
@@ -84,22 +90,7 @@ auto Plek::assign(const string& dest, const string& src) -> void {
     frames.right()->assign(dest, src_res);
     notice("implicit created var ", dest);
   }
-}
-
-auto Plek::setVariable(const string& dest, const string& src) -> void {
-  auto [src_found, src_scope, src_name, src_res] = find(src);
-  if(!src_found) error("Cannot assign unknown value ", src);
-
-  frames.last()->setVariable(dest, src_res);
-}
-
-auto Plek::setConstant(const string& dest, const string& src) -> void {
-  auto [src_found, src_scope, src_name, src_res] = find(src);
-  if(!src_found) error("Cannot assign unknown value ", src);
-
-  frames.last()->setConstant(dest, src_res);
-}
-
+}/**/
 
 auto Plek::invoke(const string& fullName, Statement args) -> Value {
 /*  string argc = {args->size()};

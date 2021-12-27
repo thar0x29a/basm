@@ -6,6 +6,10 @@ struct Symbol {
   Value value;
   map<string,Statement> references;
 
+  auto isReference() -> bool {
+    return type == SymbolType::Map;
+  }
+
   static const Symbol nothing() {
     static Symbol nothing{SymbolType::Const, {nothing}};
     return nothing;
@@ -36,15 +40,10 @@ struct FrameElement {
   FrameElement(const Frame parent, const string& name) 
     : parent(parent), name(name), temporary(false) {};
   
-  auto setConstant(const string& name, const Value& val) -> void;
-  auto setConstant(const string& name, Symbol value) -> void;
-  auto setVariable(const string& name, const Value& val) -> void;
-  auto setVariable(const string& name, Symbol value) -> void;
-
+  auto setConstant(const string& name, Result& val) -> void;
+  auto setVariable(const string& name, Result& val) -> void;
   auto setMacro(MacroStatement def) -> void;
 
-  auto assign(const string& name, const Value& val) -> void;
-  auto assign(const string& name, Symbol value) -> void;
-
+  auto assign(const string& name, Result& val) -> void;
   auto addScope(const Frame frm) -> void;
 };

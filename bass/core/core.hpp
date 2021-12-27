@@ -4,6 +4,7 @@ namespace Bass {
 
 // General
 struct StmtNode;
+struct Result;
 using Statement = shared_pointer<StmtNode>;
 using Program = vector<Statement>;
 #define st(t) (Bass::StmtType::t)
@@ -46,9 +47,18 @@ struct SourceCode {
   Statement entryPoint;
 };
 
-struct Result : Value {
+struct Result : public Value {
   auto isSymbol() -> bool { return type() == typeid(Symbol); };
   auto getSymbol() -> Symbol { return get<Symbol>(); };
+
+  template<typename T> auto operator=(const T& value) -> Result& {
+    any::operator=(value);
+    return *this;
+  }
+  auto operator=(const Value& source) -> Result& {
+    Value::operator=(source);
+    return *this;
+  }/**/
 };
 
 struct Architecture;
@@ -92,15 +102,19 @@ struct Plek {
   // execute.cpp
     auto initExecution() -> void;
     auto execute() -> bool;
-    auto exBlock(Statement, Frame scope) -> bool;
-    auto exConstDeclaration(Statement, Frame) -> bool;
-  
+    auto exBlock(Statement) -> bool;
+    auto exConstDeclaration(Statement) -> bool;
+    auto exVarDeclaration(Statement) -> bool;
+
   // functions.cpp
     auto initFunctions() -> void;
 
   // evaluate.cpp
-    auto evaluate(Statement, EvaluationMode mode = EvaluationMode::Default) -> bool;
-    auto calculate(Statement) -> Value;
+    auto evaluateLHS(Statement) -> Result;
+    auto evaluateRHS(Statement) -> Result;
+    auto calculate(Statement) -> Result;
+    auto evalAssign(Statement) -> Result;
+    auto evalIdentifier(Statement) -> Result;
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Value;
     auto handleDirective(string, Statement) -> bool;
@@ -109,13 +123,9 @@ struct Plek {
     auto walkUp(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
     auto walkDown(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
 
-    auto identifier(const string& name) -> Value;
     auto find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol>;
 
-    auto assign(const string& name, const Value& val) -> void;
-    auto assign(const string& dest, const string& src) -> void;
-    auto setVariable(const string& dest, const string& src) -> void;
-    auto setConstant(const string& dest, const string& src) -> void;
+    auto assign(const string& dest, Result src) -> void;
     auto invoke(const string& name, Statement call) -> Value;
 
     auto scopePath() -> string;

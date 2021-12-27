@@ -41,7 +41,7 @@ struct Architecture {
   }
 
   auto evaluate(Statement expression, EvaluationMode mode = EvaluationMode::Default) -> int64_t {
-    return self.evaluate(expression, mode);
+    return self.evaluateRHS(expression).getInt();
   }
 
   auto write(uint64_t data, uint length = 1) -> void {

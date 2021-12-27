@@ -1,10 +1,51 @@
-auto Plek::evaluate(Statement what, EvaluationMode mode) -> bool {
- 
-  return true;
+auto Plek::evaluateLHS(Statement stmt) -> Result {
+  if(!stmt) throw string{"Syntax error!"};
+
+  Result res{nothing};
+  switch(stmt->type) {
+    case st(Identifier): res = stmt->value; break;
+    default: error("LHS cannot handle ", stmt);
+  }
+
+  return res;
 }
 
-auto Plek::calculate(Statement stmt) -> Value {
-  Value result;
+auto Plek::evaluateRHS(Statement stmt) -> Result {
+  if(!stmt) throw string{"Syntax error!"};
+
+  Result res{nothing};
+  switch(stmt->type) {
+    case st(Value): res = stmt->value; break;
+    case st(Assignment): res = evalAssign(stmt); break;
+    case st(Identifier): res = evalIdentifier(stmt); break;
+    default: error("LHS cannot handle ", stmt);
+  }
+
+  return res;
+}
+
+auto Plek::evalAssign(Statement stmt) -> Result {
+  auto left = evaluateLHS(stmt->left());
+  auto right = evaluateRHS(stmt->right());
+
+  assign(left.getString(), right);
+  return right;
+}
+
+auto Plek::evalIdentifier(Statement stmt) -> Result {
+  Result tmp{nothing};
+  string identName{stmt->value.getString()};
+
+  auto [found, scope, name, res] = find(identName);
+  if(found) {
+    if(res.isReference()) tmp = res;
+    else tmp = res.value;
+  }
+  return tmp;
+}
+
+auto Plek::calculate(Statement stmt) -> Result {
+  Result result;
   /*for(auto item : stmt->content) {
     if(!item->result) throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", item->result};
     if(!result) { result = item->result; continue; }

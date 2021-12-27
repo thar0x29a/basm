@@ -14,38 +14,49 @@ auto Plek::execute() -> bool {
     //todo: better errorhandling. probl somewhere else. 
 
     for(auto& item : program) {
-      exBlock(item, frames.last());
+      exBlock(item);
     }
   } catch(string e) {
     error(e);
+  }
+
+  auto scope = frames.last();
+  for(auto [key, val] : scope->symbolTable) {
+    notice(key, " = ", val.value);
   }
 
   frames.removeRight();
   return true;
 }
 
-auto Plek::exBlock(Statement stmt, Frame scope) -> bool {
+auto Plek::exBlock(Statement stmt) -> bool {
   // i feel like that wintergartan guy for doing this
   for(auto item : stmt->all())
   switch(item->type) {
     case st(File): 
-    case st(Block): exBlock(item, scope); break;
-    case st(DeclConst): exConstDeclaration(item, scope); break;
+    case st(Block): exBlock(item); break;
+    case st(DeclConst): exConstDeclaration(item); break;
+    case st(DeclVar): exVarDeclaration(item); break;
     default: warning("todo: ", item);
   }
  
   return true;
 }
 
-auto Plek::exConstDeclaration(Statement stmt, Frame scope) -> bool {
-  if(!stmt->left() || !stmt->right()) throw string{"syntax error"};
+auto Plek::exConstDeclaration(Statement stmt) -> bool {
+  auto scope = frames.last();
+  auto left = evaluateLHS(stmt->left());
+  auto right = evaluateRHS(stmt->right());
 
-  notice(stmt->left(), " = ", stmt->right());
+  scope->setConstant(left.getString(), right);
+  return true;
+}
 
-  //1. solve left side down
-  //2. solve right side down
+auto Plek::exVarDeclaration(Statement stmt) -> bool {
+  auto scope = frames.last();
+  auto left = evaluateLHS(stmt->left());
+  auto right = evaluateRHS(stmt->right());
 
-  
-
+  scope->setVariable(left.getString(), right);
   return true;
 }
