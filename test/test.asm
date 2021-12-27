@@ -1,32 +1,19 @@
 //arch("snes.cpu")
 
 //include("Font8x8.asm")
+const a = "Hello"
 
-const hello = "world";
-
-fun solution() {
-  return 42;
+namespace space {
+  const jam = "Bugs Bunny";
 }
 
-fun foo() {
-  var catmakes = "meow"
-  warning("Foo? Bah! ", hello, " ", catmakes);
+namespace {"foo"} {
+  const b = "World"
+
+  fun baa() {
+    const c = "!"
+    return a + b + c + space.jam;
+  }
 }
 
-fun foo(var num) {
-  warning(num, " is alot to foo!");
-}
-
-fun refback() {
-  return foo;
-}
-
-const test = pikachu = foo
-
-test(solution());
-//pikachu();
-
-var urgs = refback();
-urgs(9001);
-
-print("END\n\n");
+notice(foo.baa());

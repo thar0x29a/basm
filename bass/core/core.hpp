@@ -93,7 +93,8 @@ struct Plek {
     auto exVarDeclaration(Statement) -> bool;
     auto exFunDeclaration(Statement) -> bool;
     auto exCall(Statement) -> bool;
-    auto exReturn(Statement stmt) -> bool;
+    auto exReturn(Statement) -> bool;
+    auto exNamespace(Statement) -> bool;
 
   // functions.cpp
     auto initFunctions() -> void;
@@ -106,7 +107,7 @@ struct Plek {
     auto evalIdentifier(Statement) -> Result;
     auto evalCall(Statement) -> Result;
     template <typename T>
-    auto calculate(StmtType type, const T& a, const T& b) -> Value;
+    auto calculate(StmtType type, const T& a, const T& b) -> Result;
     auto handleDirective(string, Statement) -> bool;
 
   // utility.cpp

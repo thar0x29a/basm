@@ -13,6 +13,8 @@ auto Plek::execute() -> bool {
   try {
     //todo: better errorhandling. probl somewhere else. 
 
+    //Parser::debug(program);
+
     for(auto& item : program) {
       exBlock(item);
     }
@@ -39,13 +41,13 @@ auto Plek::execute() -> bool {
 }
 
 auto Plek::exBlock(Statement stmt) -> bool {
-  // i feel like that wintergartan guy for doing this
   for(auto item : stmt->all()) {
     if(frames.last()->returned) break;
 
     switch(item->type) {
       case st(File): 
       case st(Block): exBlock(item); break;
+      case st(Namespace): exNamespace(item); break;
       case st(DeclConst): exConstDeclaration(item); break;
       case st(DeclVar): exVarDeclaration(item); break;
       case st(Macro): exFunDeclaration(item); break;
@@ -85,6 +87,7 @@ auto Plek::exCall(Statement stmt) -> bool {
     invoke(stmt->value, stmt->left());
   } catch(string e) {
     //todo: store error message
+    warning(e);
   }
 
   return false;
@@ -94,5 +97,21 @@ auto Plek::exReturn(Statement stmt) -> bool {
   auto scope = frames.last();
   scope->result = evaluateRHS(stmt->left());
   scope->returned = true;
+  return true;
+}
+
+auto Plek::exNamespace(Statement stmt) -> bool {
+  if(!stmt->left() || !stmt->right()) throw "Broken AST #103";
+  auto left = evaluateLHS(stmt->left());
+
+  string name = left.getString();
+  auto scope = frames.last();
+  auto subscope = Frame::create(scope, name);
+
+  scope->addScope(subscope);
+  frames.append(subscope);
+    exBlock(stmt->right());
+  frames.removeRight(); 
+
   return true;
 }

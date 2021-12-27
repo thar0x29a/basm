@@ -4,6 +4,7 @@ auto Plek::evaluateLHS(Statement stmt) -> Result {
   Result res{nothing};
   switch(stmt->type) {
     case st(Identifier): res = stmt->value; break;
+    case st(Evaluation): res = evaluateRHS(stmt->left()); break;
     default: error("LHS cannot handle ", stmt);
   }
 
@@ -19,7 +20,25 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
     case st(Assignment): res = evalAssign(stmt); break;
     case st(Identifier): res = evalIdentifier(stmt); break;
     case st(Call): res = evalCall(stmt); break;
-    default: error("LHS cannot handle ", stmt);
+    case st(Add):
+    case st(Sub):
+    case st(Mul):
+    case st(Div):
+    case st(CmpEqual):
+    case st(CmpMore):
+    case st(CmpLess):
+    case st(CmpEqualMore):
+    case st(CmpEqualLess):
+    case st(CmpNotEqual): {
+      res = calculate(stmt);
+      break;
+    }
+    case st(Evaluation):
+    case st(Grouped): {
+      res = evaluateRHS(stmt->left());
+      break;    
+    }
+    default: error("RHS cannot handle ", stmt);
   }
 
   return res;
@@ -51,48 +70,48 @@ auto Plek::evalCall(Statement stmt) -> Result {
 
 auto Plek::calculate(Statement stmt) -> Result {
   Result result;
-  /*for(auto item : stmt->content) {
-    if(!item->result) throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", item->result};
-    if(!result) { result = item->result; continue; }
+  for(auto item : stmt->content) {
+    Result ir = evaluateRHS(item);
+    if(!ir) throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", ir};
+    if(!result) { result = ir; continue; }
 
-    // todo: handle with visitor patterns
     if(result.isString()) {
-      // as long the target is a string, value can handle it.
+      // as long the target is a string, value can append everything on it.
     }
-    else if(result.type() != item->result.type()) {
-      throw string{"incompatible types: ", result, ":", item->result};
+    else if(result.type() != ir.type()) {
+      throw string{"incompatible types: ", result, ":", ir};
     }
 
-    if(result.isInt()) result = calculate(stmt->type, result.getInt(), item->result.getInt());
-    else if(result.isFloat()) result = calculate(stmt->type, result.getFloat(), item->result.getFloat());
+    if(result.isInt()) result = calculate(stmt->type, result.getInt(), ir.getInt());
+    else if(result.isFloat()) result = calculate(stmt->type, result.getFloat(), ir.getFloat());
     else if(result.isString()) { 
       string a = result.getString();
-      string b = item->result.getString();
+      string b = ir.getString();
 
-      if(stmt->type == st(Add)) result = {string{a,b}};
+      if(stmt->type == st(Add)) result = Result{string{a,b}};
       else error("Type not supported");
     }
-    else error("Type not supported"); 
-  }/**/
+    else error("Type not supported");
+  }
 
   return result;
 }
 
 template <typename T>
-auto Plek::calculate(StmtType type, const T& a, const T& b) -> Value {
-  Value result{nothing};
+auto Plek::calculate(StmtType type, const T& a, const T& b) -> Result {
+  Result result{nothing};
   
-  if(type == st(Add))      result = Value{a+b};
-  else if(type == st(Sub)) result = Value{a-b};
-  else if(type == st(Mul)) result = Value{a*b};
-  else if(type == st(Div)) result = Value{a/b};
+  if(type == st(Add))      result = Result{a+b};
+  else if(type == st(Sub)) result = Result{a-b};
+  else if(type == st(Mul)) result = Result{a*b};
+  else if(type == st(Div)) result = Result{a/b};
 
-  else if(type == st(CmpEqual))     result = Value{(int64_t)(a==b)};
-  else if(type == st(CmpMore))      result = Value{(int64_t)(a>=b)};
-  else if(type == st(CmpLess))      result = Value{(int64_t)(a<=b)};
-  else if(type == st(CmpEqualMore)) result = Value{(int64_t)(a>=b)};
-  else if(type == st(CmpEqualLess)) result = Value{(int64_t)(a<=b)};
-  else if(type == st(CmpNotEqual))  result = Value{(int64_t)(a!=b)};
+  else if(type == st(CmpEqual))     result = Result{(int64_t)(a==b)};
+  else if(type == st(CmpMore))      result = Result{(int64_t)(a>=b)};
+  else if(type == st(CmpLess))      result = Result{(int64_t)(a<=b)};
+  else if(type == st(CmpEqualMore)) result = Result{(int64_t)(a>=b)};
+  else if(type == st(CmpEqualLess)) result = Result{(int64_t)(a<=b)};
+  else if(type == st(CmpNotEqual))  result = Result{(int64_t)(a!=b)};
 
   else error("unknown operation");
 
