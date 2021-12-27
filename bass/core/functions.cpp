@@ -4,7 +4,7 @@ auto Plek::initFunctions() -> void {
     return Value{appVersion};
   });
 
-  auto arch = [&](Statement args) {  
+/*  auto arch = [&](Statement args) {  
     string name{};
     evaluate(args);
 
@@ -34,7 +34,7 @@ auto Plek::initFunctions() -> void {
       if(load(file)) {
         // loaded file got added to the main program.
         // we will remove it from there, since we just execute it once
-        excecuteBlock(program.takeRight(), scope);
+        exBlock(program.takeRight(), scope);
       }
     }
     return Value{nothing};
@@ -155,5 +155,5 @@ auto Plek::initFunctions() -> void {
     }
     notice(text);
     return Value{nothing};
-  });
+  });/**/
 }

@@ -46,6 +46,11 @@ struct SourceCode {
   Statement entryPoint;
 };
 
+struct Result : Value {
+  auto isSymbol() -> bool { return type() == typeid(Symbol); };
+  auto getSymbol() -> Symbol { return get<Symbol>(); };
+};
+
 struct Architecture;
 
 using CoreFunction = std::function<Value (Statement)>;
@@ -87,7 +92,8 @@ struct Plek {
   // execute.cpp
     auto initExecution() -> void;
     auto execute() -> bool;
-    auto excecuteBlock(Statement, Frame scope) -> bool;
+    auto exBlock(Statement, Frame scope) -> bool;
+    auto exConstDeclaration(Statement, Frame) -> bool;
   
   // functions.cpp
     auto initFunctions() -> void;

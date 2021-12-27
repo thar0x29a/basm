@@ -5,7 +5,7 @@ auto Plek::evaluate(Statement what, EvaluationMode mode) -> bool {
 
 auto Plek::calculate(Statement stmt) -> Value {
   Value result;
-  for(auto item : stmt->content) {
+  /*for(auto item : stmt->content) {
     if(!item->result) throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", item->result};
     if(!result) { result = item->result; continue; }
 
@@ -27,7 +27,7 @@ auto Plek::calculate(Statement stmt) -> Value {
       else error("Type not supported");
     }
     else error("Type not supported"); 
-  }
+  }/**/
 
   return result;
 }
@@ -54,7 +54,7 @@ auto Plek::calculate(StmtType type, const T& a, const T& b) -> Value {
 }
 
 auto Plek::handleDirective(string name, Statement items) -> bool {
-  uint dataLength = 0;
+  /*uint dataLength = 0;
   for(auto d : directives.EmitBytes) {
     if(d.token == name) {
       dataLength = d.dataLength;
@@ -70,7 +70,7 @@ auto Plek::handleDirective(string name, Statement items) -> bool {
       if(!el->result.isInt()) continue;
       write(el->result.getInt(), dataLength);
     }
-  }
+  }/**/
 
   return true;
 }

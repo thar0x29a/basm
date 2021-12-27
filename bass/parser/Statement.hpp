@@ -43,23 +43,22 @@ struct StmtNode {
   Program content;
   
   Value value;
-  Value result;
 
   bool leaf = true;
   bool strict = true;
 
-  StmtNode(const Token& op) : value(op.literal), result(op.literal), origin(op.origin), type(StmtType::Raw) {};
-  StmtNode(const Token& op, const StmtType t) : value(op.literal), result(op.literal), origin(op.origin), type(t) {};
+  StmtNode(const Token& op) : value(op.literal), origin(op.origin), type(StmtType::Raw) {};
+  StmtNode(const Token& op, const StmtType t) : value(op.literal), origin(op.origin), type(t) {};
   
   template <typename... Ts>
   StmtNode(const Token& op, const StmtType t, Ts... xs) 
-  : value(op.literal), result(op.literal), origin(op.origin), type(t), leaf(false) {
+  : value(op.literal), origin(op.origin), type(t), leaf(false) {
     content.append(Program{xs...});
   };
 
   template <typename... Ts>
   StmtNode(const Token& op, Ts... xs) 
-  : value(op.literal), result(op.literal), origin(op.origin), type(StmtType::Raw), leaf(false) {
+  : value(op.literal), origin(op.origin), type(StmtType::Raw), leaf(false) {
     content.append(Program{xs...});
   };
 
@@ -80,9 +79,6 @@ struct StmtNode {
 
   auto leftValue() const -> Value { return content[0]->value; }
   auto rightValue() const -> Value { return content[1]->value; }
-
-  auto leftResult() const -> Value { return content[0]->result; }
-  auto rightResult() const -> Value { return content[1]->result; }
 
   auto size() const -> uint { return content.size(); }
 };

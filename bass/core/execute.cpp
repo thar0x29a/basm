@@ -14,7 +14,7 @@ auto Plek::execute() -> bool {
     //todo: better errorhandling. probl somewhere else. 
 
     for(auto& item : program) {
-      excecuteBlock(item, frames.last());
+      exBlock(item, frames.last());
     }
   } catch(string e) {
     error(e);
@@ -24,8 +24,28 @@ auto Plek::execute() -> bool {
   return true;
 }
 
-auto Plek::excecuteBlock(Statement stmt, Frame scope) -> bool {
+auto Plek::exBlock(Statement stmt, Frame scope) -> bool {
   // i feel like that wintergartan guy for doing this
+  for(auto item : stmt->all())
+  switch(item->type) {
+    case st(File): 
+    case st(Block): exBlock(item, scope); break;
+    case st(DeclConst): exConstDeclaration(item, scope); break;
+    default: warning("todo: ", item);
+  }
+ 
+  return true;
+}
+
+auto Plek::exConstDeclaration(Statement stmt, Frame scope) -> bool {
+  if(!stmt->left() || !stmt->right()) throw string{"syntax error"};
+
+  notice(stmt->left(), " = ", stmt->right());
+
+  //1. solve left side down
+  //2. solve right side down
+
   
+
   return true;
 }

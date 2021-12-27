@@ -102,7 +102,7 @@ auto Plek::setConstant(const string& dest, const string& src) -> void {
 
 
 auto Plek::invoke(const string& fullName, Statement args) -> Value {
-  string argc = {args->size()};
+/*  string argc = {args->size()};
   string id = {fullName, "#", argc};
   string gId = {fullName, "#*"};
 
@@ -158,9 +158,10 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
   }
 
   frames.append(fscope);
-  excecuteBlock(macro.getCode(), fscope);
+  exBlock(macro.getCode(), fscope);
   frames.removeRight();
-  return fscope->result;
+  return fscope->result;/**/
+  return {nothing};
 }
 
 auto Plek::scopePath() -> string {
