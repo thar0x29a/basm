@@ -42,10 +42,11 @@ auto Plek::execute() -> bool {
 
 auto Plek::exBlock(Statement stmt) -> bool {
   for(auto item : stmt->all()) {
+    // frame removal will be done by caller
     if(frames.last()->returned) break;
 
     switch(item->type) {
-      case st(File): 
+      case st(File):
       case st(Block): exBlock(item); break;
       case st(Namespace): exNamespace(item); break;
       case st(DeclConst): exConstDeclaration(item); break;
@@ -53,8 +54,8 @@ auto Plek::exBlock(Statement stmt) -> bool {
       case st(DeclVar): exVarDeclaration(item); break;
       case st(Assignment): exAssign(item); break;
       case st(Macro): exFunDeclaration(item); break;
-      case st(Call): exCall(item); break;
       case st(Return): exReturn(item); break;
+      case st(Call): exCall(item); break;
       default: warning("todo: ", item);
     }
   }
@@ -87,11 +88,11 @@ auto Plek::exCall(Statement stmt) -> bool {
   if(!stmt->left()) throw "Broken AST #79";
   try {
     invoke(stmt->value, stmt->left());
+    return true;
   } catch(string e) {
     //todo: store error message
     warning(e);
   }
-
   return false;
 }
 

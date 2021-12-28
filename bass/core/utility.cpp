@@ -61,7 +61,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Result {
   // incode function?
   auto [found, scope, name, res] = find(fullName);
   if(!found) {
-    throw string{"cannot call unknown ", fullName};
+    throw string{"cannot call unknown function ", fullName};
   }
 
   // get function handle

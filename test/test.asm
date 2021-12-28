@@ -1,6 +1,6 @@
-//arch("snes.cpu")
+arch("snes.cpu")
 
-//include("Font8x8.asm")
+include("Font8x8.asm")
 const a = "Hello"
 
 namespace space {

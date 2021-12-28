@@ -74,11 +74,23 @@ struct StmtNode {
       || type == st(Evaluation);
   }
 
-  auto left() const -> Statement { return content[0]; }
-  auto right() const -> Statement { return content[1]; }
+  auto left() const -> Statement {
+    if(content.size()<1) return nullptr;
+    return content[0]; 
+  }
+  auto right() const -> Statement {
+    if(content.size()<2) return nullptr;
+    return content[1]; 
+  }
 
-  auto leftValue() const -> Value { return content[0]->value; }
-  auto rightValue() const -> Value { return content[1]->value; }
+  auto leftValue() const -> Value {
+    if(content.size()<1) return {nothing};
+    return content[0]->value; 
+  }
+  auto rightValue() const -> Value {
+    if(content.size()<2) return {nothing};
+    return content[1]->value;
+  }
 
   auto size() const -> uint { return content.size(); }
 };

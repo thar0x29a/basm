@@ -4,12 +4,11 @@ auto Plek::initFunctions() -> void {
     return Result{appVersion};
   });
 
-/*  auto arch = [&](Statement args) {  
+  auto arch = [&](Statement args) {  
     string name{};
-    evaluate(args);
-
-    if(args->leftResult()) {
-      name = args->leftResult().getString();
+    if(args->left()) {
+      auto res = evaluateRHS(args->left());
+      name = res.getString();
     }
 
     if(name=="" || name=="none") {
@@ -28,23 +27,24 @@ auto Plek::initFunctions() -> void {
 
   coreFunctions.insert("include#1", [&](Statement args) {
     auto scope = frames.right();
-    evaluate(args);
-    auto file = args->leftResult().getString();
-    if(file) {
+    auto res = evaluateRHS(args->left());
+
+    if(res) {
+      auto file = res.getString();
       if(load(file)) {
         // loaded file got added to the main program.
         // we will remove it from there, since we just execute it once
-        exBlock(program.takeRight(), scope);
+        exBlock(program.takeRight());
       }
     }
     return Result{nothing};
   });
 
   coreFunctions.insert("ds#1", [&](Statement args) {
-    evaluate(args->left());
-    if(!args->leftResult().isInt()) error("wrong parameter type1");
-    auto val = args->leftResult().getInt();
-    origin += val;
+    auto res = evaluateRHS(args->left());
+    if(!res.isInt()) error("wrong parameter type1");
+    
+    origin += res.getInt();
     seek(origin);
 
     return Result{nothing};
@@ -52,10 +52,10 @@ auto Plek::initFunctions() -> void {
 
   auto originFun = [&](Statement args) {  
     if(args->left()) {
-      evaluate(args->left());
-      if(!args->leftResult().isInt()) error("wrong parameter type2");
-      auto val = args->leftResult().getInt();
-      origin = val;
+      auto res = evaluateRHS(args->left());
+      if(!res.isInt()) error("wrong parameter type2");
+      
+      origin = res.getInt();
     }
 
     return Result{(int64_t)origin};
@@ -65,10 +65,10 @@ auto Plek::initFunctions() -> void {
 
   auto baseFun = [&](Statement args) {  
     if(args->left()) {
-      evaluate(args->left());
-      if(!args->leftResult().isInt()) error("wrong parameter type3");
-      auto val = args->leftResult().getInt();
-      base = val;
+      auto res = evaluateRHS(args->left());
+      if(!res.isInt()) error("wrong parameter type3");
+      
+      base = res.getInt();
     }
 
     return Result{(int64_t)base};
@@ -77,17 +77,19 @@ auto Plek::initFunctions() -> void {
   coreFunctions.insert("base#1", baseFun);
 
   coreFunctions.insert("assert#1", [&](Statement args) {
-    evaluate(args->left());
-    auto res = args->leftResult();
+    auto res = evaluateRHS(args->left());
     if(!res.isTrue()) error("assertion failed");
 
     return Result{nothing};
   });
 
   coreFunctions.insert("endian#1", [&](Statement args) {
-    string arg = args->leftResult().getString();
+    auto res = evaluateRHS(args->left());
+    string arg = res.getString();
+
     if(arg == "lsb") endian = Endian::LSB;
-    if(arg == "msb") endian = Endian::MSB;
+    else if(arg == "msb") endian = Endian::MSB;
+    else error("invalid endian. allowed: lsb|msb");
 
     return Result{nothing};
   });
@@ -95,14 +97,19 @@ auto Plek::initFunctions() -> void {
   auto fill = [&](Statement args) {  
     uint length{0};
     uint with{0};
+  Parser::debug(args);
+  print(".\n");
 
-    evaluate(args);
-    if(!args->leftResult() || !args->leftResult().isInt()) error("wrong parameter type4");
-    length = args->leftResult().getInt();
+    auto lr = evaluateRHS(args->left());
+    if(!lr.isInt()) error("wrong parameter type4");
+    length = lr.getInt();
 
-    if(args->size()>1) {
-      if(!args->rightResult().isInt()) error("wrong parameter type5");
-      with = args->rightResult().getInt();
+  notice("solved 1th argument with ", lr);
+
+    if(args->right()) {
+      auto rr = evaluateRHS(args->right());
+      if(!rr.isInt()) error("wrong parameter type5");
+      with = rr.getInt();
     }
 
     while(length--) write(with);
@@ -115,7 +122,7 @@ auto Plek::initFunctions() -> void {
   coreFunctions.insert("pc#0", [&](Statement args) {
     return Result{pc()};
   });
-/**/
+
   // main print command
   coreFunctions.insert("print#*", [&](Statement args) {
     string text{};
