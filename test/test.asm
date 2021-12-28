@@ -1,21 +1,21 @@
 arch("snes.cpu")
 
-include("Font8x8.asm")
+//include("Font8x8.asm")
 const a = "Hello"
 
-namespace space {
-  const jam = "Bugs Bunny";
-}
-
-namespace {"foo"} {
+blue {
   const b = "World"
 
-  fun baa() {
+  fun pill() {
     const c = "!"
-    return a + b + c + space.jam;
+    return a + " " + b + c;
   }
 }
 
-hard = foo.baa;
-notice(hard());
-warning(1+2*3)
+namespace red {
+  const b = "Matrix"
+  const pill = blue.pill
+}
+
+notice( blue.pill() )
+warning( red.pill() )

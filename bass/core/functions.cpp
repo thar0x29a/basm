@@ -97,14 +97,10 @@ auto Plek::initFunctions() -> void {
   auto fill = [&](Statement args) {  
     uint length{0};
     uint with{0};
-  Parser::debug(args);
-  print(".\n");
 
     auto lr = evaluateRHS(args->left());
     if(!lr.isInt()) error("wrong parameter type4");
     length = lr.getInt();
-
-  notice("solved 1th argument with ", lr);
 
     if(args->right()) {
       auto rr = evaluateRHS(args->right());

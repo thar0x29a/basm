@@ -65,6 +65,10 @@ auto Parser::statement() -> const Statement {
     else if(check(tt(COLON))) {
       return label();
     }
+    else if(check((tt(LEFT_BRACE)))) {
+      back(); // since there is no 'namespace' keyword
+      return _namespace();
+    }
   }
 
   else if(t.type == tt(CMD_PRINT)) {
