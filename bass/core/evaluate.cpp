@@ -16,6 +16,7 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
 
   Result res{nothing};
   switch(stmt->type) {
+    case st(Raw):
     case st(Value): res = stmt->value; break;
     case st(Assignment): res = evalAssign(stmt); break;
     case st(Identifier): res = evalIdentifier(stmt); break;
@@ -119,7 +120,7 @@ auto Plek::calculate(StmtType type, const T& a, const T& b) -> Result {
 }
 
 auto Plek::handleDirective(string name, Statement items) -> bool {
-  /*uint dataLength = 0;
+  uint dataLength = 0;
   for(auto d : directives.EmitBytes) {
     if(d.token == name) {
       dataLength = d.dataLength;
@@ -131,11 +132,11 @@ auto Plek::handleDirective(string name, Statement items) -> bool {
   
   for(auto el : items->all()) {
     if(el->type != st(Raw)) {
-      evaluate(el);
-      if(!el->result.isInt()) continue;
-      write(el->result.getInt(), dataLength);
+      auto res = evaluateRHS(el);
+      if(!res.isInt()) continue;
+      write(res.getInt(), dataLength);
     }
-  }/**/
+  }
 
   return true;
 }

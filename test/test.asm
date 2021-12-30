@@ -2,13 +2,12 @@ arch("snes.cpu")
 
 
 const REG_BGMODE = $2105
-const cool = 10
+const cool = 2
 
 fun test() {
-  //if(cool == 1) { return 1337 }
-  //else if(cool == 2) { return 9000 }
-  //else { return false }
-  return true
+  if(cool == 1) { return 1337 }
+  else if(cool == 2) { return 9000 }
+  else { return false }
 }
 
 
@@ -19,6 +18,6 @@ fun test() {
   lda.b #%00000001 // Enable BG1
 
   sta.w test()
-  //sta.w {(1+2*3)}
+  sta.w {(1+2*3)}
 Loop:
   jmp Loop

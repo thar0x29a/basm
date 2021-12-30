@@ -64,10 +64,11 @@ auto Parser::statement() -> const Statement {
     else if(check(tt(COLON))) {
       return label();
     }
+    /** collides with raw evaluations 
     else if(check((tt(LEFT_BRACE)))) {
       back(); // since there is no 'namespace' keyword
       return _namespace();
-    }
+    }/**/
   }
 
   else if(t.type == tt(CMD_PRINT)) {
@@ -106,7 +107,7 @@ auto Parser::_return() -> const Statement {
 auto Parser::alien() -> const Statement {
   auto start = previous();
   auto node = Statement::create(start);
-  node().strict = false;
+  node->strict = false;
 
   while(!isAtEnd()) {
     if(peek().type == tt(TERMINAL)) break;
@@ -115,14 +116,6 @@ auto Parser::alien() -> const Statement {
     Statement res = primary(false);
     //print(res, " - ", res->value.getString(), "\n");
     node->append(res);
-    
-    
-    // just try to add something regular?
-    //auto more = Statement::create(advance());
-    //auto more = statement();
-    
-    //more().strict = false;
-    //node().append(more);
   }
 
   return node;
@@ -208,7 +201,7 @@ auto Parser::label() -> const Statement {
   // step back in order to solve this properly
   back();
   auto value = identOrEval();
-  
+
   advance(); // :
   return Statement::create(newt, StmtType::Label, value);
 }

@@ -43,7 +43,7 @@ auto Plek::execute() -> bool {
 auto Plek::exBlock(Statement stmt) -> bool {
   if(!stmt) error("No Instructions found");
   bool inIfClause = false;
-  Parser::debug(stmt);
+  
   for(auto item : stmt->all()) {
     if(frames.last()->returned) break;
 
@@ -59,7 +59,7 @@ auto Plek::exBlock(Statement stmt) -> bool {
       case st(Return): exReturn(item); break;
       case st(IfClause): exIfState(item); break;
       case st(While): exWhile(item); break;
-      case st(Call): exCall(item); break;
+      case st(Call): if(exCall(item)) break;
       case st(Raw): exAssembly(item); break;
       default: warning("todo: ", item);
     }
@@ -91,16 +91,16 @@ auto Plek::exFunDeclaration(Statement stmt) -> bool {
   return true;
 }
 
+
 auto Plek::exCall(Statement stmt) -> bool {
   if(!stmt->left()) throw "Broken AST #79";
   try {
     invoke(stmt->value, stmt->left());
     return true;
   } catch(string e) {
-    //todo: store error message
-    warning(e);
+    notice(e);
+    return false;
   }
-  return false;
 }
 
 auto Plek::exReturn(Statement stmt) -> bool {
@@ -150,8 +150,7 @@ auto Plek::exIfState(Statement stmt) -> bool {
         if(!opened) error("ElseIf without If.");
       case st(If): {
         opened = true;
-        // true = keep looking for match
-        if(exIf(item)==true) break;
+        if(exIf(item)==false) break;
       }
 
       default: return true;
@@ -160,7 +159,7 @@ auto Plek::exIfState(Statement stmt) -> bool {
   return true;
 }
 
-/** @return true = there is more possible | false = were done **/
+/** @return true = clause solved **/
 auto Plek::exIf(Statement stmt) -> bool {
   auto left = evaluateRHS(stmt->left());
   bool result = left.isTrue();
@@ -178,10 +177,10 @@ auto Plek::exIf(Statement stmt) -> bool {
       scope->result = subscope->result;
       scope->returned = true;
     }
-    return false;
+    return true;
   }
 
-  return true;
+  return false;
 }
 
 auto Plek::exElse(Statement stmt) -> bool {
@@ -226,28 +225,46 @@ auto Plek::exWhile(Statement stmt) -> bool {
 
 auto Plek::exAssembly(Statement stmt) -> bool {
   string name = {stmt->value.getString(), " "};
+  
+  // are we an call-fallback?
+  auto pool = (stmt->is(st(Call))) ? stmt->right() : stmt;
+  bool callAtemt = (stmt->is(st(Call))==true);
+
+  // is this an directive?
+  if(handleDirective(name, pool)) return true;
+
+  //TODO: outsource fancy debug stuff
   string text{};
+  for(auto& el : pool->all()) {
+    auto res = evaluateRHS(el);
+    string dbug = res.getString();
+    if(el->type == st(Raw)) dbug = terminal::color::magenta(dbug);
+    else if(el->type == st(Identifier)) dbug = terminal::color::blue(dbug);
+    else if(el->type == st(Call)) dbug = {terminal::color::cyan(dbug), "(*)"};
+    //else if(el->type == st(Reference)) dbug = {"[",terminal::color::yellow(dbug),"]"};
+    else if(el->type == st(Evaluation)) dbug = terminal::color::cyan("{...}");
+    else if(el->type == st(Value)) dbug = terminal::color::green(dbug);
+    else dbug = terminal::color::red(dbug);
+    text.append(dbug);
+  }
+  print(terminal::color::yellow(name), text, "\n");
+ 
 
-  notice("try raw ", name);
-/*
-        // are we an call-fallback?
-        auto pool = (item->type == st(Call)) ? item->right() : item;
+  // prepare command to be passed to the assembler
+  string cmd = name;
+  for(auto el : pool->all()) {
+    auto res = evaluateRHS(el);
+    string dbug = res.getString();
+    if(res.isNothing()) dbug = el->value.getString();
+    cmd.append(dbug);
+  }
+  
+  print(cmd, "\n");
 
-        // is this an directive?
-        if(handleDirective(name, pool)) break;
+  // run it!
+  if(architecture->assemble(cmd)) return true;
+  else if(callAtemt) error("function call finally failed (no assembly possible)");
+  else error("assembly failed for: ", cmd);
 
-        // fancy debug stuff
-        for(auto& el : pool->all()) {
-          string dbug = el->result.getString();
-          if(el->type == st(Raw)) dbug = terminal::color::magenta(dbug);
-          else if(el->type == st(Identifier)) dbug = terminal::color::blue(dbug);
-          else if(el->type == st(Call)) dbug = {terminal::color::cyan(dbug), "(*)"};
-          //else if(el->type == st(Reference)) dbug = {"[",terminal::color::yellow(dbug),"]"};
-          else if(el->type == st(Evaluation)) dbug = terminal::color::cyan("{...}");
-          else if(el->type == st(Value)) dbug = terminal::color::green(dbug);
-          else dbug = terminal::color::red(dbug);
-          text.append(dbug);
-        }
-        print(terminal::color::yellow(name), text, "\n");  /**/
-  return true;
+  return false;
 }
