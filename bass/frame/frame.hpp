@@ -20,6 +20,7 @@ struct FrameElement {
   
   auto setConstant(const string& name, Result val) -> void;
   auto setVariable(const string& name, Result val) -> void;
+  auto setVariable(const string& name, Result val, string id) -> void;
   auto setMacro(MacroStatement def) -> void;
 
   auto assign(const string& name, Result val) -> void;

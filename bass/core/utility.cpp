@@ -68,7 +68,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Result {
   Statement fun;
   if(res.type != symbt(Map)) throw string{"cannot call ", fullName};
   if(auto funres = res.references.find({argc})) {
-    fun = funres();
+    fun = funres->reference;
   }
   else {
     throw string{"cannot call unknown ", fullName, "#", argc};

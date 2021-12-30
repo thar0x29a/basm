@@ -1,21 +1,27 @@
-enum class SymbolType : uint { Const, Var, Map };
+enum class SymbolType : uint { Value, Reference, Map };
+enum class SymbolMode : uint { Const, Var};
+
 #define symbt(t) (Bass::SymbolType::t)
 
+struct Symbol;
 struct Symbol {
   SymbolType type;
+  SymbolMode mode;
+
   Value value;
-  map<string,Statement> references;
+  Statement reference;
+  map<string, Symbol> references;
 
   auto isReference() -> bool {
     return type == SymbolType::Map;
   }
 
-  static const Symbol nothing() {
-    static Symbol nothing{SymbolType::Const, {nothing}};
-    return nothing;
+  auto isProtected() -> bool {
+    return mode == SymbolMode::Const;
   }
 
-  static Symbol asMap() {
-    return {SymbolType::Map};
+  static const Symbol nothing() {
+    static Symbol nothing{SymbolType::Value, SymbolMode::Const, {nothing}};
+    return nothing;
   }
 };
