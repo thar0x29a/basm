@@ -8,7 +8,7 @@ fun test(a) {
   }
   else if(a<10) {
     notice(a, " second branch")
-    return 0; 
+    return true; 
   }
   else {
     notice(a, " last branch")
@@ -16,4 +16,4 @@ fun test(a) {
   warning("has not returned");
 }
 
-test(10);
+error( test(9) )
