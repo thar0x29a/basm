@@ -58,6 +58,7 @@ auto Plek::exBlock(Statement stmt) -> bool {
       case st(Macro): exFunDeclaration(item); break;
       case st(Return): exReturn(item); break;
       case st(IfClause): exIfState(item); break;
+      case st(While): exWhile(item); break;
       case st(Call): exCall(item); break;
       default: warning("todo: ", item);
     }
@@ -194,5 +195,30 @@ auto Plek::exElse(Statement stmt) -> bool {
     scope->returned = true;
   }
 
+  return true;
+}
+
+auto Plek::exWhile(Statement stmt) -> bool {
+  auto scope = frames.last();
+  bool result = false;
+  
+  do {
+    auto res = evaluateRHS(stmt->left());
+    result = res.isTrue();
+        
+    if(result==true) {
+      auto subscope = Frame::create(scope);
+      frames.append(subscope);
+        exBlock(stmt->right());
+      frames.removeRight();
+
+      if(subscope->returned) {
+        scope->result = subscope->result;
+        scope->returned = true;
+        return true;
+      }
+    }
+  } while(result==true);
+  
   return true;
 }

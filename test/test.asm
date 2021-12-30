@@ -3,17 +3,19 @@ arch("snes.cpu")
 //include("Font8x8.asm")
 
 fun test(a) {
-  if(a==1) {
-    notice(a, " first branch")
+  var max = 20;
+  while(a<max) {
+    if(a==1) {
+      notice(a, " first branch")
+    }
+    else if(a<10) {
+      notice(a, " second branch") 
+    }
+    else {
+      notice(a, " last branch")
+    }
+    a = a+1
   }
-  else if(a<10) {
-    notice(a, " second branch")
-    return true; 
-  }
-  else {
-    notice(a, " last branch")
-  }
-  warning("has not returned");
 }
 
-error( test(9) )
+error( test(0) )

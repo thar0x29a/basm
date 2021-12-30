@@ -100,7 +100,8 @@ struct Plek {
     auto exIfState(Statement) -> bool;
     auto exIf(Statement) -> bool;
     auto exElse(Statement) -> bool;
-  
+    auto exWhile(Statement) -> bool;
+
   // functions.cpp
     auto initFunctions() -> void;
 
