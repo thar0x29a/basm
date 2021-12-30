@@ -41,8 +41,10 @@ auto Plek::execute() -> bool {
 }
 
 auto Plek::exBlock(Statement stmt) -> bool {
+  if(!stmt) error("No Instructions found");
+  bool inIfClause = false;
+
   for(auto item : stmt->all()) {
-    // frame removal will be done by caller
     if(frames.last()->returned) break;
 
     switch(item->type) {
@@ -55,9 +57,12 @@ auto Plek::exBlock(Statement stmt) -> bool {
       case st(Assignment): exAssign(item); break;
       case st(Macro): exFunDeclaration(item); break;
       case st(Return): exReturn(item); break;
+      case st(IfClause): exIfState(item); break;
       case st(Call): exCall(item); break;
       default: warning("todo: ", item);
     }
+
+    inIfClause = false;
   }
  
   return true;
@@ -127,5 +132,67 @@ auto Plek::exLabel(Statement stmt) -> bool {
 
 auto Plek::exAssign(Statement stmt) -> bool {
   evalAssign(stmt);
+  return true;
+}
+
+auto Plek::exIfState(Statement stmt) -> bool {
+  bool opened = false;
+  for(auto item : stmt->all()) {
+    switch(item->type) {
+      case st(Else): {
+        if(!opened) error("ElseIf without If.");
+        exElse(item); 
+        break;
+      }
+      case st(ElseIf):
+        if(!opened) error("ElseIf without If.");
+      case st(If): {
+        opened = true;
+        // true = keep looking for match
+        if(exIf(item)==true) break;
+      }
+
+      default: return true;
+    }
+  }
+  return true;
+}
+
+/** @return true = there is more possible | false = were done **/
+auto Plek::exIf(Statement stmt) -> bool {
+  auto left = evaluateRHS(stmt->left());
+  bool result = left.isTrue();
+        
+  if(result==true) {
+    // invoke
+    auto scope = frames.last();
+    auto subscope = Frame::create(scope);
+    frames.append(subscope);
+      exBlock(stmt->right());
+    frames.removeRight();
+
+    // forward possible returning state
+    if(subscope->returned) {
+      scope->result = subscope->result;
+      scope->returned = true;
+    }
+    return false;
+  }
+
+  return true;
+}
+
+auto Plek::exElse(Statement stmt) -> bool {
+  auto scope = frames.last();
+  auto subscope = Frame::create(scope);
+  frames.append(subscope);
+    exBlock(stmt->left());
+  frames.removeRight();
+
+  if(subscope->returned) {
+    scope->result = subscope->result;
+    scope->returned = true;
+  }
+
   return true;
 }

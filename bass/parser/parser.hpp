@@ -32,6 +32,7 @@ protected:
   auto block() -> const Statement;
   auto blockOrEval() -> const Statement;
 
+  auto ifClause() -> const Statement;
   auto _if() -> const Statement;
   auto _else() -> const Statement;
   auto _while() -> const Statement;

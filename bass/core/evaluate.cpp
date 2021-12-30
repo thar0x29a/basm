@@ -107,8 +107,8 @@ auto Plek::calculate(StmtType type, const T& a, const T& b) -> Result {
   else if(type == st(Div)) result = Result{a/b};
 
   else if(type == st(CmpEqual))     result = Result{(int64_t)(a==b)};
-  else if(type == st(CmpMore))      result = Result{(int64_t)(a>=b)};
-  else if(type == st(CmpLess))      result = Result{(int64_t)(a<=b)};
+  else if(type == st(CmpMore))      result = Result{(int64_t)(a>b)};
+  else if(type == st(CmpLess))      result = Result{(int64_t)(a<b)};
   else if(type == st(CmpEqualMore)) result = Result{(int64_t)(a>=b)};
   else if(type == st(CmpEqualLess)) result = Result{(int64_t)(a<=b)};
   else if(type == st(CmpNotEqual))  result = Result{(int64_t)(a!=b)};

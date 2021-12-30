@@ -1,21 +1,19 @@
 arch("snes.cpu")
 
 //include("Font8x8.asm")
-const a = "Hello"
 
-blue {
-  const b = "World"
-
-  fun pill() {
-    const c = "!"
-    return a + " " + b + c;
+fun test(a) {
+  if(a==1) {
+    notice(a, " first branch")
   }
+  else if(a<10) {
+    notice(a, " second branch")
+    return 0; 
+  }
+  else {
+    notice(a, " last branch")
+  }
+  warning("has not returned");
 }
 
-namespace red {
-  const b = "Matrix"
-  const pill = blue.pill
-}
-
-notice( blue.pill() )
-warning( red.pill() )
+test(10);

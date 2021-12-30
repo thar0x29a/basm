@@ -47,8 +47,7 @@ auto Parser::statement() -> const Statement {
   else if(t.type == tt(LEFT_BRACE)) return blockOrEval();
 
   else if(t.type == tt(KW_RETURN)) return _return();
-  else if(t.type == tt(KW_IF)) return _if();
-  else if(t.type == tt(KW_ELSE)) return _else();
+  else if(t.type == tt(KW_IF)) return ifClause();
   else if(t.type == tt(KW_WHILE)) return _while();
   else if(t.type == tt(KW_CONTINUE)) return _continue();
   else if(t.type == tt(KW_BREAK)) return _break();
@@ -157,16 +156,16 @@ auto Parser::callOrAlien() -> const Statement {
 
 auto Parser::call() -> const Statement {
   auto result = Statement::create(previous(), StmtType::Call);
-  result().append(list());
+  result->append(list());
   return result;
 }
 
 auto Parser::list() -> const Statement {
   auto start = consume(tt(LEFT_PAREN), "expected list opening");
   auto expr = Statement::create(start, StmtType::List);
-    
+
   while(!check(tt(RIGHT_PAREN))) {
-    expr().append(expression());
+    expr->append(expression());
     if(!check(tt(COMMA))) break;
     advance(); // ,
   }
@@ -282,10 +281,21 @@ auto Parser::block() -> const Statement {
 
 // ._."._."._."._."._."._."._."._."._."._."._."._."._."._."
 
+
+auto Parser::ifClause() -> const Statement {
+  auto res = Statement::create(previous(), StmtType::IfClause, _if());
+  while(check(tt(KW_ELSE))) {
+    advance();
+    res->append(_else());
+  }
+  return res;
+}
+
 auto Parser::_if() -> const Statement {
+  auto start = previous();
   auto expr = expression();
   auto then = match(tt(LEFT_BRACE)) ? block() : expression();
-  return Statement::create(previous(), StmtType::If, expr, then);
+  return Statement::create(start, StmtType::If, expr, then);
 }
 auto Parser::_else() -> const Statement {
   if(check(tt(KW_IF))) {
@@ -294,14 +304,16 @@ auto Parser::_else() -> const Statement {
     res->type = StmtType::ElseIf;
     return res;
   } else {
+    auto start = previous();
     auto then = match(tt(LEFT_BRACE)) ? block() : expression();
-    return Statement::create(previous(), StmtType::Else, then);
+    return Statement::create(start, StmtType::Else, then);
   }
 }
 auto Parser::_while() -> const Statement {
+  auto start = previous();
   auto expr = expression();
   auto then = match(tt(LEFT_BRACE)) ? block() : expression();
-  return Statement::create(previous(), StmtType::While, expr, then);
+  return Statement::create(start, StmtType::While, expr, then);
 }
 auto Parser::_break() -> const Statement {
   return Statement::create(previous(), StmtType::Break);

@@ -9,7 +9,7 @@ enum class StmtType : uint {
     Add, Sub, Mul, Div, 
   Macro, Call, List, Assignment,
   Return,
-  While, If, ElseIf, Else, Break, Continue, 
+  While, IfClause, If, ElseIf, Else, Break, Continue, 
   Namespace,
   
   CmpEqual, CmpLess, CmpMore, CmpEqualLess, CmpEqualMore, CmpNotEqual,
@@ -28,7 +28,7 @@ const vector<string> StmtNames = {
   "Add", "Sub", "Mul", "Div", 
   "Macro", "Call", "List", "Assignment",
   "Return",
-  "While", "If", "ElseIf", "Else", "Break", "Continue",
+  "While", "IfClause", "If", "ElseIf", "Else", "Break", "Continue",
   "Namespace",
 
   "CmpEqual", "CmpLess", "CmpMore", "CmpEqualLess", "CmpEqualMore", "CmpNotEqual",
