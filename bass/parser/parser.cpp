@@ -204,8 +204,13 @@ auto Parser::argument() -> const Statement {
 
 auto Parser::label() -> const Statement {
   auto newt = previous();
+
+  // step back in order to solve this properly
+  back();
+  auto value = identOrEval();
+  
   advance(); // :
-  return Statement::create(newt, StmtType::Label);
+  return Statement::create(newt, StmtType::Label, value);
 }
 
 auto Parser::assignment() -> const Statement {

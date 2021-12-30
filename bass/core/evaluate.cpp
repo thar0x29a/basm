@@ -1,5 +1,5 @@
 auto Plek::evaluateLHS(Statement stmt) -> Result {
-  if(!stmt) throw string{"Syntax error!"};
+  if(!stmt) throw string{"Syntax error! LHS was empty."};
 
   Result res{nothing};
   switch(stmt->type) {
@@ -12,7 +12,7 @@ auto Plek::evaluateLHS(Statement stmt) -> Result {
 }
 
 auto Plek::evaluateRHS(Statement stmt) -> Result {
-  if(!stmt) throw string{"Syntax error!"};
+  if(!stmt) throw string{"Syntax error! RHS was empty."};
 
   Result res{nothing};
   switch(stmt->type) {

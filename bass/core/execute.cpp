@@ -43,7 +43,7 @@ auto Plek::execute() -> bool {
 auto Plek::exBlock(Statement stmt) -> bool {
   if(!stmt) error("No Instructions found");
   bool inIfClause = false;
-
+  Parser::debug(stmt);
   for(auto item : stmt->all()) {
     if(frames.last()->returned) break;
 
@@ -60,6 +60,7 @@ auto Plek::exBlock(Statement stmt) -> bool {
       case st(IfClause): exIfState(item); break;
       case st(While): exWhile(item); break;
       case st(Call): exCall(item); break;
+      case st(Raw): exAssembly(item); break;
       default: warning("todo: ", item);
     }
 
@@ -125,7 +126,7 @@ auto Plek::exNamespace(Statement stmt) -> bool {
   return true;
 }
 
-auto Plek::exLabel(Statement stmt) -> bool {
+auto Plek::exLabel(Statement stmt) -> bool {  
   auto left = evaluateLHS(stmt->left());
   frames.last()->setConstant(left.getString(), {pc()});
   return true;
@@ -220,5 +221,33 @@ auto Plek::exWhile(Statement stmt) -> bool {
     }
   } while(result==true);
   
+  return true;
+}
+
+auto Plek::exAssembly(Statement stmt) -> bool {
+  string name = {stmt->value.getString(), " "};
+  string text{};
+
+  notice("try raw ", name);
+/*
+        // are we an call-fallback?
+        auto pool = (item->type == st(Call)) ? item->right() : item;
+
+        // is this an directive?
+        if(handleDirective(name, pool)) break;
+
+        // fancy debug stuff
+        for(auto& el : pool->all()) {
+          string dbug = el->result.getString();
+          if(el->type == st(Raw)) dbug = terminal::color::magenta(dbug);
+          else if(el->type == st(Identifier)) dbug = terminal::color::blue(dbug);
+          else if(el->type == st(Call)) dbug = {terminal::color::cyan(dbug), "(*)"};
+          //else if(el->type == st(Reference)) dbug = {"[",terminal::color::yellow(dbug),"]"};
+          else if(el->type == st(Evaluation)) dbug = terminal::color::cyan("{...}");
+          else if(el->type == st(Value)) dbug = terminal::color::green(dbug);
+          else dbug = terminal::color::red(dbug);
+          text.append(dbug);
+        }
+        print(terminal::color::yellow(name), text, "\n");  /**/
   return true;
 }
