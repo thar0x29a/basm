@@ -205,7 +205,10 @@ auto Scanner::anIdentifier() -> void {
   while (isAlphaNumeric(peek()) || peek()=='.') advance();
 
   string text = source.slice(start, current-start);
-  if(auto type = keywords.find(text)) addToken(type());
+
+  if(text == "true") addToken(TokenType::INTEGER, (int64_t)1);
+  else if(text == "false") addToken(TokenType::INTEGER, (int64_t)0);
+  else if(auto type = keywords.find(text)) addToken(type());
   else addToken(TokenType::IDENTIFIER, text);
 }
 

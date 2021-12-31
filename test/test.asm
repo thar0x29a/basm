@@ -1,3 +1,4 @@
-arch("snes.cpu")
+fun a() { return "Hello" }
+fun b(wort) { return " " + wort + "!" }
 
-include("Font8x8.asm")
+notice(a(), b("World"))

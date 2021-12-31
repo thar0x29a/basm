@@ -2,13 +2,19 @@
 
 namespace Bass {
 
-// Components
+// General
+struct StmtNode;
+using Statement = shared_pointer<StmtNode>;
+using Program = vector<Statement>;
+#define st(t) (Bass::StmtType::t)
+
 #include "value.hpp"
+#include "symbol.hpp"
+#include "result.hpp"
 #include "../scanner/scanner.hpp"
 #include "../parser/parser.hpp"
 #include "../frame/frame.hpp"
 
-// General
 enum class EvaluationMode : uint { Default = 0, Strict, LeftSide };
 enum class Endian : uint { LSB, MSB };
 
@@ -44,7 +50,7 @@ struct SourceCode {
 
 struct Architecture;
 
-using CoreFunction = std::function<Value (Statement)>;
+using CoreFunction = std::function<Result (Statement)>;
 using string_vector = vector<string>;
 
 struct Plek {
@@ -82,29 +88,41 @@ struct Plek {
   // execute.cpp
     auto initExecution() -> void;
     auto execute() -> bool;
-    auto excecuteBlock(Statement, Frame scope) -> bool;
-  
+    auto exBlock(Statement) -> bool;
+    auto exConstDeclaration(Statement) -> bool;
+    auto exVarDeclaration(Statement) -> bool;
+    auto exFunDeclaration(Statement) -> bool;
+    auto exCall(Statement) -> bool;
+    auto exReturn(Statement) -> bool;
+    auto exNamespace(Statement) -> bool;
+    auto exLabel(Statement) -> bool;
+    auto exAssign(Statement) -> bool;
+    auto exIfState(Statement) -> bool;
+    auto exIf(Statement) -> bool;
+    auto exElse(Statement) -> bool;
+    auto exWhile(Statement) -> bool;
+    auto exAssembly(Statement) -> bool;
+
   // functions.cpp
     auto initFunctions() -> void;
 
   // evaluate.cpp
-    auto evaluate(Statement, EvaluationMode mode = EvaluationMode::Default) -> bool;
-    auto calculate(Statement) -> Value;
+    auto evaluateLHS(Statement) -> Result;
+    auto evaluateRHS(Statement) -> Result;
+    auto calculate(Statement) -> Result;
+    auto evalAssign(Statement) -> Result;
+    auto evalIdentifier(Statement) -> Result;
+    auto evalCall(Statement) -> Result;
     template <typename T>
-    auto calculate(StmtType type, const T& a, const T& b) -> Value;
+    auto calculate(StmtType type, const T& a, const T& b) -> Result;
     auto handleDirective(string, Statement) -> bool;
 
   // utility.cpp
-    auto walkUp(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
-    auto walkDown(const Program& what, std::function<bool (Statement, int)> with, int level = 0) -> void;
+    auto find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol>;
 
-    auto identifier(const string& name) -> Value;
-    auto find(const string& symbolName) -> std::tuple<bool, Frame, string, SymbolRef>;
+    auto assign(const string& dest, Result src) -> void;
+    auto invoke(const string& name, Statement call) -> Result;
 
-    auto assign(const string& name, const Value& val) -> void;
-    auto invoke(const string& name, Statement call) -> Value;
-
-    auto scopePath() -> string;
     auto readArchitecture(const string& name) -> string;
 };
 

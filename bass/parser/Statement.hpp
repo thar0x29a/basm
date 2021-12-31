@@ -1,7 +1,3 @@
-struct StmtNode;
-using Statement = shared_pointer<StmtNode>;
-using Program = vector<Statement>;
-
 enum class StmtType : uint {
   File, Block, Grouped,
   Value, Identifier, Label, Evaluation, Reference,
@@ -13,7 +9,7 @@ enum class StmtType : uint {
     Add, Sub, Mul, Div, 
   Macro, Call, List, Assignment,
   Return,
-  While, If, ElseIf, Else, Break, Continue, 
+  While, IfClause, If, ElseIf, Else, Break, Continue, 
   Namespace,
   
   CmpEqual, CmpLess, CmpMore, CmpEqualLess, CmpEqualMore, CmpNotEqual,
@@ -32,7 +28,7 @@ const vector<string> StmtNames = {
   "Add", "Sub", "Mul", "Div", 
   "Macro", "Call", "List", "Assignment",
   "Return",
-  "While", "If", "ElseIf", "Else", "Break", "Continue",
+  "While", "IfClause", "If", "ElseIf", "Else", "Break", "Continue",
   "Namespace",
 
   "CmpEqual", "CmpLess", "CmpMore", "CmpEqualLess", "CmpEqualMore", "CmpNotEqual",
@@ -47,23 +43,22 @@ struct StmtNode {
   Program content;
   
   Value value;
-  Value result;
 
   bool leaf = true;
   bool strict = true;
 
-  StmtNode(const Token& op) : value(op.literal), result(op.literal), origin(op.origin), type(StmtType::Raw) {};
-  StmtNode(const Token& op, const StmtType t) : value(op.literal), result(op.literal), origin(op.origin), type(t) {};
+  StmtNode(const Token& op) : value(op.literal), origin(op.origin), type(StmtType::Raw) {};
+  StmtNode(const Token& op, const StmtType t) : value(op.literal), origin(op.origin), type(t) {};
   
   template <typename... Ts>
   StmtNode(const Token& op, const StmtType t, Ts... xs) 
-  : value(op.literal), result(op.literal), origin(op.origin), type(t), leaf(false) {
+  : value(op.literal), origin(op.origin), type(t), leaf(false) {
     content.append(Program{xs...});
   };
 
   template <typename... Ts>
   StmtNode(const Token& op, Ts... xs) 
-  : value(op.literal), result(op.literal), origin(op.origin), type(StmtType::Raw), leaf(false) {
+  : value(op.literal), origin(op.origin), type(StmtType::Raw), leaf(false) {
     content.append(Program{xs...});
   };
 
@@ -74,18 +69,28 @@ struct StmtNode {
 
   auto all() const -> Program { return content; }
   auto is(StmtType t) -> bool { return type == t; }
+  auto isReference() -> bool { 
+    return type == st(Identifier)
+      || type == st(Evaluation);
+  }
 
-  auto left() const -> Statement { return content[0]; }
-  auto right() const -> Statement { return content[1]; }
+  auto left() const -> Statement {
+    if(content.size()<1) return nullptr;
+    return content[0]; 
+  }
+  auto right() const -> Statement {
+    if(content.size()<2) return nullptr;
+    return content[1]; 
+  }
 
-  auto leftValue() const -> Value { return content[0]->value; }
-  auto rightValue() const -> Value { return content[1]->value; }
-
-  auto leftResult() const -> Value { return content[0]->result; }
-  auto rightResult() const -> Value { return content[1]->result; }
+  auto leftValue() const -> Value {
+    if(content.size()<1) return {nothing};
+    return content[0]->value; 
+  }
+  auto rightValue() const -> Value {
+    if(content.size()<2) return {nothing};
+    return content[1]->value;
+  }
 
   auto size() const -> uint { return content.size(); }
 };
-
-#define tt(t) (Bass::TokenType::t)
-#define st(t) (Bass::StmtType::t)

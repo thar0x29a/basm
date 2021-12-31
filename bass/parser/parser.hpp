@@ -6,6 +6,7 @@ struct Parser {
   auto parseAll() -> bool;
   auto first() -> Statement { return scopes[0]; };
   static auto debug(const Program&) -> void;
+  static auto debug(const Statement) -> void;
 
 protected:
   uint ip = 0;
@@ -13,8 +14,6 @@ protected:
   Program scopes;
 
   auto parse() -> bool;
-  static auto debug(const Statement) -> void;
-
   auto statement() -> const Statement;
 
   auto constant() -> const Statement;
@@ -33,6 +32,7 @@ protected:
   auto block() -> const Statement;
   auto blockOrEval() -> const Statement;
 
+  auto ifClause() -> const Statement;
   auto _if() -> const Statement;
   auto _else() -> const Statement;
   auto _while() -> const Statement;

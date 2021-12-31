@@ -1,47 +1,56 @@
-auto FrameElement::setConstant(const string& name, const Value& val) -> void {
+auto FrameElement::setConstant(const string& name, Result val) -> void {
   if(auto res = symbolTable.find(name)) {
-    if(res().type == SymbolRef::SymbolType::Const) throw string{"constant cannot be modified '", name, "'"};
+    if(res->isProtected()) throw string{"constant cannot be modified '", name, "'"};
   }
-  symbolTable.insert(name, {SymbolRef::SymbolType::Const, val});
+  if(val.isSymbol()) symbolTable.insert(name, val.getSymbol());
+  else symbolTable.insert(name, {SymbolType::Value, SymbolMode::Const, val});
 }
 
-auto FrameElement::setVariable(const string& name, const Value& val) -> void {
+auto FrameElement::setVariable(const string& name, Result val) -> void {
   if(auto res = symbolTable.find(name)) {
-    if(res().type == SymbolRef::SymbolType::Const) throw string{"constant with the same name cannot be modified '",name,"'"};
-  }  
-  symbolTable.insert(name, {SymbolRef::SymbolType::Var, val});
+    if(res->isProtected()) throw string{"constant cannot be modified '", name, "'"};
+  }
+  if(val.isSymbol()) symbolTable.insert(name, val.getSymbol());
+  else symbolTable.insert(name, {SymbolType::Value, SymbolMode::Var, val});
 }
 
-/*auto FrameElement::setMacro(const string& name, Statement def) -> void {
-  string id = {name, "#", def->content[1]->size()};
-  symbolTable.insert(id, {SymbolRef::SymbolType::Callable, nothing, def});
-}/**/
+auto FrameElement::setVariable(const string& name, Result val, string id) -> void {
+/*  auto map = Symbol{SymbolType::Map, SymbolMode::Var};
 
-auto FrameElement::setMacro(MacroStatement def) -> void {
-  string id = def.getName();
-  auto map = SymbolRef::asMap();
-  
   if(auto res = symbolTable.find(id)) {
+    if(res->isProtected()) throw string{"constant cannot be modified '", name, "'"};
     if(res->type == symbt(Map)) map = res();
   }
 
-  map.references.insert({def.getArgCount()}, def.ref);
+  map.references.insert(id, {val});
+  symbolTable.insert(name, map);/**/
+}
+
+auto FrameElement::setMacro(MacroStatement def) -> void {
+  string id = def.getName();
+  string key = {def.getArgCount()};
+  Symbol map{SymbolType::Map, SymbolMode::Const};
+
+  // check modes  
+  if(auto res = symbolTable.find(id)) {
+    if(res->type == symbt(Map)) {
+      map = res();
+
+      if(auto ex = map.references.find(key)) {
+        if(ex->isProtected()) throw string{"constant cannot be modified '", name, "'"};    
+      }
+    }
+  }
+
+  Symbol entry{SymbolType::Reference, SymbolMode::Const, {nothing}, def.ref};
+  map.references.insert(key, entry);
   symbolTable.insert(def.getName(), map);
 }
 
-
-
-auto FrameElement::assign(const string& name, const Value& val) -> void {
-  if(auto res = symbolTable.find(name)) {
-    if(res().type == SymbolRef::SymbolType::Const) throw string{"constant cannot be modified '", name, "'"};
-    auto type = res().type;
-    symbolTable.remove(name);
-    symbolTable.insert(name, {type, val});
-  }
+auto FrameElement::assign(const string& name, Result val) -> void {;
   setVariable(name, val);
 }
 
 auto FrameElement::addScope(const Frame frm) -> void {
   children.insert(frm->name, frm);
 }
-

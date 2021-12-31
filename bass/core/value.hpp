@@ -10,8 +10,8 @@ struct Value : public any {
     if(isString()) return get<string>(); 
     else if(isInt()) return { getInt() };
     else if(isFloat()) return { getFloat() };
-    else if(isNothing()) return { "null" };
-    else throw "unknown state";
+    else return { "null" };
+    //else throw "unknown state";
   };
 
   auto negate() -> Value {

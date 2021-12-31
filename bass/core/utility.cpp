@@ -1,34 +1,7 @@
-auto Plek::walkUp(const Program& what, std::function<bool (Statement, int)> with, int level) -> void {
-  for(auto item : what) {
-    if(!item) continue;
-
-    // bottom up
-    walkUp(item().content, with, level+1);
-    with(item, level);
-  }
-}
-
-auto Plek::walkDown(const Program& what, std::function<bool (Statement, int)> with, int level) -> void {
-  for(auto item : what) {
-    if(!item) continue;
-
-    // top down
-    if(with(item, level)) {
-      walkDown(item().content, with, level+1);
-    }
-  }
-}
-
-auto Plek::identifier(const string& identName) -> Value {
-  auto [found, scope, name, res] = find(identName);
-  if(!found) return {nothing};
-  return res.value;
-}
-
-auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, SymbolRef> {
+auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol> {
   auto parts = symbolName.split(".");
   auto lastId = parts.takeRight();
-  SymbolRef symbol{};
+  Symbol symbol{};
   bool found = false;
 
   Frame scope = frames.last();
@@ -60,19 +33,19 @@ auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, Sym
   return std::make_tuple(found, scope, lastId, symbol);
 }
 
-auto Plek::assign(const string& assName, const Value& val) -> void {
-  auto [found, scope, name, res] = find(assName);
+auto Plek::assign(const string& dest, Result src) -> void {
+  auto [found, scope, name, res] = find(dest);
   if(found) {
-    scope->assign(assName, val);
+    scope->assign(name, src);
   }
   else {
     //todo: still contains dots -> error! No implicit namespaces!
-    frames.right()->assign(assName, val);
-    notice("implicit created var ", name);
+    frames.right()->assign(dest, src);
+    notice("implicit created var ", dest);
   }
 }
 
-auto Plek::invoke(const string& fullName, Statement args) -> Value {
+auto Plek::invoke(const string& fullName, Statement args) -> Result {
   string argc = {args->size()};
   string id = {fullName, "#", argc};
   string gId = {fullName, "#*"};
@@ -88,60 +61,41 @@ auto Plek::invoke(const string& fullName, Statement args) -> Value {
   // incode function?
   auto [found, scope, name, res] = find(fullName);
   if(!found) {
-    throw string{"cannot call unknown ", fullName};
+    throw string{"cannot call unknown function ", fullName};
   }
 
   // get function handle
   Statement fun;
   if(res.type != symbt(Map)) throw string{"cannot call ", fullName};
   if(auto funres = res.references.find({argc})) {
-    fun = funres();
+    fun = funres->reference;
   }
   else {
     throw string{"cannot call unknown ", fullName, "#", argc};
   }
 
   // invoke
-  auto macro = (MacroStatement)fun;
+  MacroStatement macro{fun};
   auto padef = macro.getArguments();
   auto fscope = Frame::create(scope);
 
   for(int i=0; i<args->size(); i++) {
     auto t = padef[i];
     auto v = args->content[i];
-
-    if(v->type == st(Identifier)) {
-      if(t->type == st(RefArgument)) {
-        v->result = v->value;
-      } else {
-        evaluate(v);
-      }
-    }
-
-    if(!v->result || v->result.isNothing()) warning("Parameter ", i+1, " is not set");
+    auto name = t->value.getString();
     
-    if(t->type == st(ConstArgument)) {
-      fscope->setConstant(t->result, v->result);
-    }
-    else {
-      fscope->setVariable(t->result, v->result);
-    }
+    Result res = (t->is(st(RefArgument))) ? Result{v->value} : evaluateRHS(v);
+
+    if(!res || res.isNothing()) warning("Parameter ", i+1, " is not set");
+
+    if(t->type == st(ConstArgument)) fscope->setConstant(name, res);
+    else fscope->setVariable(name, res);
   }
 
   frames.append(fscope);
-  excecuteBlock(macro.getCode(), fscope);
+  exBlock(macro.getCode());
   frames.removeRight();
   return fscope->result;
-}
-
-auto Plek::scopePath() -> string {
-  string res{""};
-
-  for(auto f : frames) {
-    if(f->name.size()>0)
-      res.append('.').append(f->name);
-  }
-  return res.slice(1);
 }
 
 auto Plek::readArchitecture(const string& name) -> string {

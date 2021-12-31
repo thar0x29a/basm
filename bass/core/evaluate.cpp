@@ -1,124 +1,118 @@
-auto Plek::evaluate(Statement what, EvaluationMode mode) -> bool {
-  auto scope = frames.right();
-  
-  walkUp({what}, [&](Statement stmt, int level) {
-    if(stmt->leaf) {
-      if(stmt->type == st(Identifier)) {
-        if(mode != EvaluationMode::LeftSide) {
-          stmt->result = identifier(stmt->value.getString());
-        } else {
-          stmt->result = stmt->value;  
-        }
-      }
-      else {
-        // should not be needed due on leafs result should be value allready.
-        // but we make sure.
-        stmt->result = stmt->value;
-      }
-      return true;
-    }
+auto Plek::evaluateLHS(Statement stmt) -> Result {
+  if(!stmt) throw string{"Syntax error! LHS was empty."};
 
-    try {
-      switch(stmt->type) {
-        case st(Add):
-        case st(Sub):
-        case st(Mul):
-        case st(Div):
-        case st(CmpEqual):
-        case st(CmpMore):
-        case st(CmpLess):
-        case st(CmpEqualMore):
-        case st(CmpEqualLess):
-        case st(CmpNotEqual):
-          stmt->result = calculate(stmt);
-          break;
-        case st(Call):
-          stmt->result = invoke(stmt->value, stmt->left());
-          break;
-        case st(Negative):
-          stmt->result = stmt->leftResult().negate();
-          break;
-        case st(Reference):
-          stmt->result = identifier(stmt->leftResult().getString());
-          break;
-        case st(Evaluation):
-        case st(Grouped):
-        case st(Label):
-          stmt->result = stmt->leftResult();
-          break;
-        case st(Assignment):
-          stmt->result = stmt->rightResult();
-          assign(
-            stmt->leftValue().getString(),
-            stmt->rightResult()
-          );
-        case st(DeclVar):
-        case st(DeclConst):
-        case st(List):
-        case st(CmdPrint):
-        case st(CmdArch):
-        case st(CmdInclude):
-        case st(Return):
-          // handled in excecuteBlock
-          break;
-        default:
-          notice("unknown: ", stmt);
-          break;
-      }
-    } catch(string e) {
-      error(e);
-    }
+  Result res{nothing};
+  switch(stmt->type) {
+    case st(Identifier): res = stmt->value; break;
+    case st(Evaluation): res = evaluateRHS(stmt->left()); break;
+    default: error("LHS cannot handle ", stmt);
+  }
 
-    return true;
-  });
-
-  return true;
+  return res;
 }
 
-auto Plek::calculate(Statement stmt) -> Value {
-  Value result;
+auto Plek::evaluateRHS(Statement stmt) -> Result {
+  if(!stmt) throw string{"Syntax error! RHS was empty."};
+
+  Result res{nothing};
+  switch(stmt->type) {
+    case st(Raw):
+    case st(Value): res = stmt->value; break;
+    case st(Assignment): res = evalAssign(stmt); break;
+    case st(Identifier): res = evalIdentifier(stmt); break;
+    case st(Call): res = evalCall(stmt); break;
+    case st(Add):
+    case st(Sub):
+    case st(Mul):
+    case st(Div):
+    case st(CmpEqual):
+    case st(CmpMore):
+    case st(CmpLess):
+    case st(CmpEqualMore):
+    case st(CmpEqualLess):
+    case st(CmpNotEqual): {
+      res = calculate(stmt);
+      break;
+    }
+    case st(Evaluation):
+    case st(Grouped): {
+      res = evaluateRHS(stmt->left());
+      break;    
+    }
+    default: error("RHS cannot handle ", stmt);
+  }
+
+  return res;
+}
+
+auto Plek::evalAssign(Statement stmt) -> Result {
+  auto left = evaluateLHS(stmt->left());
+  auto right = evaluateRHS(stmt->right());
+
+  assign(left.getString(), right);
+  return right;
+}
+
+auto Plek::evalIdentifier(Statement stmt) -> Result {
+  Result tmp{nothing};
+  string identName{stmt->value.getString()};
+
+  auto [found, scope, name, res] = find(identName);
+  if(found) {
+    if(res.isReference()) tmp = res;
+    else tmp = res.value;
+  }
+  return tmp;
+}
+
+auto Plek::evalCall(Statement stmt) -> Result {
+  return invoke(stmt->value, stmt->left());
+}
+
+auto Plek::calculate(Statement stmt) -> Result {
+  Result result;
   for(auto item : stmt->content) {
-    if(!item->result) throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", item->result};
-    if(!result) { result = item->result; continue; }
+    Result ir = evaluateRHS(item);
+    if(!ir) throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", ir};
+    if(!result) { result = ir; continue; }
 
-    // todo: handle with visitor patterns
     if(result.isString()) {
-      // as long the target is a string, value can handle it.
+      // as long the target is a string, value can append everything on it.
     }
-    else if(result.type() != item->result.type()) {
-      throw string{"incompatible types: ", result, ":", item->result};
+    else if(result.type() != ir.type()) {
+      throw string{"incompatible types: ", result, ":", ir};
     }
 
-    if(result.isInt()) result = calculate(stmt->type, result.getInt(), item->result.getInt());
-    else if(result.isFloat()) result = calculate(stmt->type, result.getFloat(), item->result.getFloat());
+    if(result.isInt()) result = calculate(stmt->type, result.getInt(), ir.getInt());
+    else if(result.isFloat()) result = calculate(stmt->type, result.getFloat(), ir.getFloat());
     else if(result.isString()) { 
       string a = result.getString();
-      string b = item->result.getString();
+      string b = ir.getString();
 
-      if(stmt->type == st(Add)) result = {string{a,b}};
+      if(stmt->type == st(Add)) result = Result{string{a,b}};
       else error("Type not supported");
     }
-    else error("Type not supported"); 
+    else error("Type not supported");
   }
 
   return result;
 }
 
 template <typename T>
-auto Plek::calculate(StmtType type, const T& a, const T& b) -> Value {
-  Value result{nothing};
+auto Plek::calculate(StmtType type, const T& a, const T& b) -> Result {
+  Result result{nothing};
   
-  if(type == st(Add))      result = Value{a+b};
-  else if(type == st(Sub)) result = Value{a-b};
-  else if(type == st(Mul)) result = Value{a*b};
-  else if(type == st(Div)) result = Value{a/b};
+  if(type == st(Add))      result = Result{a+b};
+  else if(type == st(Sub)) result = Result{a-b};
+  else if(type == st(Mul)) result = Result{a*b};
+  else if(type == st(Div)) result = Result{a/b};
 
-  else if(type == st(CmpEqual))     result = Value{(int64_t)(a==b)};
-  else if(type == st(CmpMore))      result = Value{(int64_t)(a>=b)};
-  else if(type == st(CmpLess))      result = Value{(int64_t)(a<=b)};
-  else if(type == st(CmpEqualMore)) result = Value{(int64_t)(a>=b)};
-  else if(type == st(CmpEqualLess)) result = Value{(int64_t)(a<=b)};
-  else if(type == st(CmpNotEqual))  result = Value{(int64_t)(a!=b)};
+  else if(type == st(CmpEqual))     result = Result{(int64_t)(a==b)};
+  else if(type == st(CmpMore))      result = Result{(int64_t)(a>b)};
+  else if(type == st(CmpLess))      result = Result{(int64_t)(a<b)};
+  else if(type == st(CmpEqualMore)) result = Result{(int64_t)(a>=b)};
+  else if(type == st(CmpEqualLess)) result = Result{(int64_t)(a<=b)};
+  else if(type == st(CmpNotEqual))  result = Result{(int64_t)(a!=b)};
 
   else error("unknown operation");
 
@@ -138,9 +132,9 @@ auto Plek::handleDirective(string name, Statement items) -> bool {
   
   for(auto el : items->all()) {
     if(el->type != st(Raw)) {
-      evaluate(el);
-      if(!el->result.isInt()) continue;
-      write(el->result.getInt(), dataLength);
+      auto res = evaluateRHS(el);
+      if(!res.isInt()) continue;
+      write(res.getInt(), dataLength);
     }
   }
 
