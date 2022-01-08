@@ -22,7 +22,7 @@ auto Plek::execute() -> bool {
     error(e);
   }
 
-  /*auto scope = frames.last();
+  auto scope = frames.last();
   for(auto [key, val] : scope->symbolTable) {
     if(!val.isReference()) {
       notice(key, " = ", val.value);
@@ -30,7 +30,12 @@ auto Plek::execute() -> bool {
     else {
       notice(key, " = {");
       for(auto [k,v] : val.references) {
-        print("\t", k, ":", v,"\n");
+        if(v.type == symbt(Value)) {
+          print("\t", k, ":", v.value,"\n");
+        }
+        else if(v.type == symbt(Reference)) {
+          print("\t", k, " -> \n");
+        }
       }
       notice("}");
     }
