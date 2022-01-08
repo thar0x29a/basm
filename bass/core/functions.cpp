@@ -161,14 +161,14 @@ auto Plek::initFunctions() -> void {
   });
 
   coreFunctions.insert("Array.new#*", [&](Statement args) {
-    Symbol m = {SymbolType::Map, SymbolMode::Var, {nothing}};
-
+    Symbol m = Symbol::newMap();
     int i = 0;
+    
     for(auto cnt : args->all()) {
       Result res = evaluateRHS(cnt);
       m.references.insert(
         {i++},
-        {SymbolType::Value, SymbolMode::Var, res}
+        Symbol::newVar(res)
       );
     }
 

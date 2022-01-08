@@ -64,11 +64,9 @@ auto Parser::statement() -> const Statement {
     else if(check(tt(COLON))) {
       return label();
     }
-    /** collides with raw evaluations 
-    else if(check((tt(LEFT_BRACE)))) {
-      back(); // since there is no 'namespace' keyword
-      return _namespace();
-    }/**/
+    else if(check(tt(LEFT_BRACKET))) {
+      return mapAssignOrAlien();
+    }
   }
 
   else if(t.type == tt(CMD_PRINT)) {
@@ -147,6 +145,37 @@ auto Parser::callOrAlien() -> const Statement {
   return res;
 }
 
+auto Parser::mapAssignOrAlien() -> const Statement {
+  auto offs = ip;
+  try {
+    back();
+    return mapAssign();
+  } catch(string e) {
+    ip = offs;
+    print("Alien!\t", e, "\n");
+    return alien();
+  }
+}
+
+auto Parser::mapAssign() -> const Statement {
+  // ioe[primary] = expr
+  auto t = previous();
+  auto name = identOrEval();
+  auto res = Statement::create(t, StmtType::MapAssignment, name);
+  
+  consume(tt(LEFT_BRACKET), string{"Invalid Map-Assign"});
+  
+  // key
+  res->append(primary());
+  
+  consume(tt(RIGHT_BRACKET), string{"Invalid Map-Assign."});
+  consume(tt(EQUAL), string{"Invalid Map-Assign.."});
+
+  // RHS
+  res->append(expression());
+  return res;
+}
+
 auto Parser::call() -> const Statement {
   auto result = Statement::create(previous(), StmtType::Call);
   result->append(list());
@@ -207,7 +236,8 @@ auto Parser::label() -> const Statement {
 }
 
 auto Parser::assignment() -> const Statement {
-  auto name = identifier();
+  auto t = previous();
+  auto name = identOrEval();
   consume(tt(EQUAL), "expected '='");
 
   return Statement::create(

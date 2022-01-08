@@ -60,6 +60,7 @@ auto Plek::exBlock(Statement stmt) -> bool {
       case st(Label): exLabel(item); break;
       case st(DeclVar): exVarDeclaration(item); break;
       case st(Assignment): exAssign(item); break;
+      case st(MapAssignment): exMapAssign(item); break;
       case st(Macro): exFunDeclaration(item); break;
       case st(Return): exReturn(item); break;
       case st(IfClause): exIfState(item); break;
@@ -139,6 +140,23 @@ auto Plek::exLabel(Statement stmt) -> bool {
 
 auto Plek::exAssign(Statement stmt) -> bool {
   evalAssign(stmt);
+  return true;
+}
+
+auto Plek::exMapAssign(Statement stmt) -> bool {
+  MapAssignStatement ma{stmt};
+  auto id = evaluateLHS(ma.getName());
+  auto key = evaluateRHS(ma.getKey());
+  auto right = evaluateRHS(ma.getRight());
+
+  auto [found, scope, name, res] = find(id);
+  if(found) {
+    scope->setVariable(name, right, key.getString());
+  }
+  else {
+    frames.last()->setVariable(name, right, key.getString());
+  }
+
   return true;
 }
 

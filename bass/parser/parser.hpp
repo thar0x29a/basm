@@ -1,5 +1,6 @@
 #include "Statement.hpp"
 #include "MacroStatement.hpp"
+#include "MapAssignStatement.hpp"
 
 struct Parser {
   Parser(Scanner& scanner);
@@ -24,6 +25,8 @@ protected:
   auto _return() -> const Statement;
   auto callOrAlien() -> const Statement;
   auto call() -> const Statement;
+  auto mapAssignOrAlien() -> const Statement;
+  auto mapAssign() -> const Statement;
   auto list() -> const Statement;
   auto defList() -> const Statement;
   auto argument() -> const Statement;

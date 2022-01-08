@@ -97,6 +97,7 @@ struct Plek {
     auto exNamespace(Statement) -> bool;
     auto exLabel(Statement) -> bool;
     auto exAssign(Statement) -> bool;
+    auto exMapAssign(Statement)-> bool;
     auto exIfState(Statement) -> bool;
     auto exIf(Statement) -> bool;
     auto exElse(Statement) -> bool;

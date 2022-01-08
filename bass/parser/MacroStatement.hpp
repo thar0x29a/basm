@@ -1,10 +1,10 @@
 struct MacroStatement {
-  Statement ref;
+  const Statement& ref;
   const int NAME_INDEX = 0;
   const int LIST_INDEX = 1;
   const int CODE_INDEX = 2;
 
-  MacroStatement(Statement source) : ref(source) {
+  MacroStatement(const Statement& source) : ref(source) {
     if(!ref->content[NAME_INDEX]) {
       throw string{"found broken macro def: invalid name"};
     }

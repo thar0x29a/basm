@@ -14,16 +14,18 @@ auto FrameElement::setVariable(const string& name, Result val) -> void {
   else symbolTable.insert(name, {SymbolType::Value, SymbolMode::Var, val});
 }
 
-auto FrameElement::setVariable(const string& name, Result val, string id) -> void {
-/*  auto map = Symbol{SymbolType::Map, SymbolMode::Var};
+auto FrameElement::setVariable(const string& name, Result value, string key) -> void {
+  Symbol val = (value.isSymbol()) ? value.getSymbol() : Symbol::newVar(value);
 
-  if(auto res = symbolTable.find(id)) {
+  if(auto res = symbolTable.find(name)) {
     if(res->isProtected()) throw string{"constant cannot be modified '", name, "'"};
-    if(res->type == symbt(Map)) map = res();
+    res->references.insert(key, val);
   }
-
-  map.references.insert(id, {val});
-  symbolTable.insert(name, map);/**/
+  else {
+    Symbol m = Symbol::newMap();
+    m.references.insert(key, val);
+    symbolTable.insert(name, m);
+  }
 }
 
 auto FrameElement::setMacro(MacroStatement def) -> void {

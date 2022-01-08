@@ -24,4 +24,12 @@ struct Symbol {
     static Symbol nothing{SymbolType::Value, SymbolMode::Const, {nothing}};
     return nothing;
   }
+
+  static Symbol newMap() {
+    return Symbol{SymbolType::Map, SymbolMode::Var};
+  }
+
+  static Symbol newVar(Value val) {
+    return {SymbolType::Value, SymbolMode::Var, val};   
+  } 
 };
