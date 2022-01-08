@@ -161,19 +161,30 @@ auto Parser::mapAssign() -> const Statement {
   // ioe[primary] = expr
   auto t = previous();
   auto name = identOrEval();
-  auto res = Statement::create(t, StmtType::MapAssignment, name);
+  auto res = Statement::create(t, StmtType::MapAssignment, name, mapKey());
   
-  consume(tt(LEFT_BRACKET), string{"Invalid Map-Assign"});
-  
-  // key
-  res->append(primary());
-  
-  consume(tt(RIGHT_BRACKET), string{"Invalid Map-Assign."});
+  // =
   consume(tt(EQUAL), string{"Invalid Map-Assign.."});
 
   // RHS
   res->append(expression());
   return res;
+}
+
+auto Parser::mapKey() -> const Statement {
+  Statement res;
+  consume(tt(LEFT_BRACKET), string{"Invalid Map-Key"});
+  res = primary();
+  consume(tt(RIGHT_BRACKET), string{"Invalid Map-Key"});
+  return res;
+}
+
+auto Parser::mapItem() -> const Statement {
+  auto t = previous();
+  auto name = identOrEval();
+
+  return Statement::create(t, StmtType::MapItem,
+    name,mapKey());
 }
 
 auto Parser::call() -> const Statement {
@@ -501,6 +512,10 @@ auto Parser::symbol() -> const Statement {
 
   if(check(tt(LEFT_PAREN))) {
     return call();
+  }
+  if(check(tt(LEFT_BRACKET))) {
+    back(); // ... :/
+    return mapItem();
   }
   else {
     back(); // yes, i know ..

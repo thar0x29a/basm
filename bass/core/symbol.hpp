@@ -8,7 +8,7 @@ struct Symbol {
   SymbolType type;
   SymbolMode mode;
 
-  Value value;
+  Value value{nothing};
   Statement reference;
   map<string, Symbol> references;
 
@@ -20,9 +20,10 @@ struct Symbol {
     return mode == SymbolMode::Const;
   }
 
-  static const Symbol nothing() {
-    static Symbol nothing{SymbolType::Value, SymbolMode::Const, {nothing}};
-    return nothing;
+  auto get(string key) -> Value {
+    if(type != SymbolType::Map) throw string{"cannot access value as map"};
+    if(auto res = references.find(key)) return res->value;
+    else return {nothing};
   }
 
   static Symbol newMap() {

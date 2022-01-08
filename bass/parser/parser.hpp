@@ -27,6 +27,8 @@ protected:
   auto call() -> const Statement;
   auto mapAssignOrAlien() -> const Statement;
   auto mapAssign() -> const Statement;
+  auto mapKey() -> const Statement;
+  auto mapItem() -> const Statement;
   auto list() -> const Statement;
   auto defList() -> const Statement;
   auto argument() -> const Statement;

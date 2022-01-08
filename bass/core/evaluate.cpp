@@ -21,6 +21,7 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
     case st(Assignment): res = evalAssign(stmt); break;
     case st(Identifier): res = evalIdentifier(stmt); break;
     case st(Call): res = evalCall(stmt); break;
+    case st(MapItem): res = evalMapItem(stmt); break;
     case st(Add):
     case st(Sub):
     case st(Mul):
@@ -67,6 +68,16 @@ auto Plek::evalIdentifier(Statement stmt) -> Result {
 
 auto Plek::evalCall(Statement stmt) -> Result {
   return invoke(stmt->value, stmt->left());
+}
+
+auto Plek::evalMapItem(Statement stmt) -> Result {
+  if(stmt->content.size()<2) throw string{"Incomplete map statement."};
+
+  auto ref = evaluateRHS(stmt->content[0]);
+  if(!ref.isSymbol()) throw string{stmt->content[0]->value, " is not an map."};
+
+  auto key = evaluateRHS(stmt->content[1]).getString();
+  return { ref.getSymbol().get(key) };
 }
 
 auto Plek::calculate(Statement stmt) -> Result {

@@ -114,6 +114,7 @@ struct Plek {
     auto evalAssign(Statement) -> Result;
     auto evalIdentifier(Statement) -> Result;
     auto evalCall(Statement) -> Result;
+    auto evalMapItem(Statement) -> Result;
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Result;
     auto handleDirective(string, Statement) -> bool;
