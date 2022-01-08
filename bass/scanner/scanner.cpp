@@ -2,6 +2,7 @@ Scanner::Scanner(const uint uid, const string& source) : source(source), uid(uid
 
 auto Scanner::scanTokens() -> vector<Token> {
   tokens.reset();
+  tokens.append({{uid, 0}, TokenType::TERMINAL, "BEGIN", nothing});
 
   while(!isAtEnd()) {
       start = current;

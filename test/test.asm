@@ -1,4 +1,4 @@
-const bla = Array.new(1, 2.0, "foo")
+//const bla = Array.new(1, 2.0, "foo")
 
 bla["quote"] = "over 9000"
 
