@@ -25,7 +25,6 @@ Bass had it's internal reason to mix command's and build-in-functions. This had 
 print "Hello World\n"  // not working
 print("Hello World\n") // working
 ```
-There are only very few commands such as `arch` and `include` remaining in our syntax.
 
 ### Dataypes
 Since I upgraded bass from an macro to an script language it also knows some Datatypes. They will be selected implicite by the value that you store inside of it.
@@ -38,7 +37,7 @@ Since I upgraded bass from an macro to an script language it also knows some Dat
 
 
 ### Include
-Include had several special rules. This had been changed. You can include your stuff where and whenever you want. Even with constructed file-names. Each time this code get executed bass will reload, reparse and reprogress the included file from it's source.
+Include had several special rules. This had been changed. You can include your stuff where and whenever you want. Even with constructed file-names. Note that an include file will be loaded and parsed just once.
 
 ### Namespaces 
 The namespace feature remains nearby unchanged to the given syntax in bass18:
