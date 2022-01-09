@@ -174,4 +174,16 @@ auto Plek::initFunctions() -> void {
 
     return Result{m};
   });
+
+  coreFunctions.insert("Array.size#1", [&](Statement args) {
+    if(args->size()!=1) error("wrong parameter count");
+    
+    auto p = evaluateRHS(args->left());
+    if(!p.isSymbol()) error("wrong parameter type");
+    
+    auto s = p.getSymbol();
+    if(s.type != symbt(Map)) error("wrong parameter type");
+
+    return Result{  (int64_t)s.references.size() };
+  });  
 }
