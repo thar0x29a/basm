@@ -185,5 +185,5 @@ auto Plek::initFunctions() -> void {
     if(s.type != symbt(Map)) error("wrong parameter type");
 
     return Result{  (int64_t)s.references.size() };
-  });  
+  });
 }
