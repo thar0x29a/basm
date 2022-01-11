@@ -21,7 +21,7 @@ auto Plek::execute() -> bool {
   } catch(string e) {
     error(e);
   }
-
+/*
   auto scope = frames.last();
   for(auto [key, val] : scope->symbolTable) {
     if(!val.isReference()) {

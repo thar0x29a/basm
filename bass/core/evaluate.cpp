@@ -101,6 +101,8 @@ auto Plek::calculate(Statement stmt) -> Result {
       string b = ir.getString();
 
       if(stmt->type == st(Add)) result = Result{string{a,b}};
+      else if(stmt->type == st(CmpEqual)) result = Result{(int64_t)(a==b)};
+      else if(stmt->type == st(CmpNotEqual))  result = Result{(int64_t)(a!=b)};
       else error("Type not supported");
     }
     else error("Type not supported");
