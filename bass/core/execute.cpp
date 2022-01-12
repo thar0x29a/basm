@@ -21,7 +21,7 @@ auto Plek::execute() -> bool {
   } catch(string e) {
     error(e);
   }
-
+/*
   auto scope = frames.last();
   for(auto [key, val] : scope->symbolTable) {
     if(!val.isReference()) {
@@ -45,16 +45,17 @@ auto Plek::execute() -> bool {
   return true;
 }
 
-auto Plek::exBlock(Statement stmt) -> bool {
+auto Plek::exBlock(Statement stmt) -> ReturnState {
   if(!stmt) error("No Instructions found");
-  bool inIfClause = false;
   
   for(auto item : stmt->all()) {
-    if(frames.last()->returned) break;
+    ReturnState result = ReturnState::Default;
 
     switch(item->type) {
       case st(File):
       case st(Block): exBlock(item); break;
+      case st(Break): return ReturnState::Break;
+      case st(Continue): return ReturnState::Continue;
       case st(Namespace): exNamespace(item); break;
       case st(DeclConst): exConstDeclaration(item); break;
       case st(Label): exLabel(item); break;
@@ -62,18 +63,20 @@ auto Plek::exBlock(Statement stmt) -> bool {
       case st(Assignment): exAssign(item); break;
       case st(MapAssignment): exMapAssign(item); break;
       case st(Macro): exFunDeclaration(item); break;
-      case st(Return): exReturn(item); break;
-      case st(IfClause): exIfState(item); break;
+      case st(Return): result = exReturn(item); break;
+      case st(IfClause): result = exIfState(item); break;
       case st(While): exWhile(item); break;
       case st(Call): if(exCall(item)) break;
       case st(Raw): exAssembly(item); break;
       default: warning("todo: ", item);
     }
 
-    inIfClause = false;
+    if(result==ReturnState::Continue) return ReturnState::Continue;
+    if(result==ReturnState::Break) return ReturnState::Break;
+    if(result==ReturnState::Return) return ReturnState::Return;
   }
  
-  return true;
+  return ReturnState::Default;
 }
 
 auto Plek::exConstDeclaration(Statement stmt) -> bool {
@@ -109,11 +112,10 @@ auto Plek::exCall(Statement stmt) -> bool {
   }
 }
 
-auto Plek::exReturn(Statement stmt) -> bool {
+auto Plek::exReturn(Statement stmt) -> ReturnState {
   auto scope = frames.last();
   scope->result = evaluateRHS(stmt->left());
-  scope->returned = true;
-  return true;
+  return ReturnState::Return;
 }
 
 auto Plek::exNamespace(Statement stmt) -> bool {
@@ -160,65 +162,69 @@ auto Plek::exMapAssign(Statement stmt) -> bool {
   return true;
 }
 
-auto Plek::exIfState(Statement stmt) -> bool {
+auto Plek::exIfState(Statement stmt) -> ReturnState {
+  auto retstate = ReturnState::Default;
   bool opened = false;
+
   for(auto item : stmt->all()) {
     switch(item->type) {
       case st(Else): {
         if(!opened) error("ElseIf without If.");
-        exElse(item); 
+        retstate = exElse(item); 
         break;
       }
       case st(ElseIf):
         if(!opened) error("ElseIf without If.");
       case st(If): {
         opened = true;
-        if(exIf(item)==false) break;
+        retstate = exIf(item);
+        break;
       }
 
-      default: return true;
+      default: throw string{"Unexpected Token in IfState"};
     }
+
+    if(retstate != ReturnState::Running) return retstate;
   }
-  return true;
+  return retstate;
 }
 
 /** @return true = clause solved **/
-auto Plek::exIf(Statement stmt) -> bool {
+auto Plek::exIf(Statement stmt) -> ReturnState {
   auto left = evaluateRHS(stmt->left());
   bool result = left.isTrue();
-        
+
   if(result==true) {
     // invoke
     auto scope = frames.last();
     auto subscope = Frame::create(scope);
     frames.append(subscope);
-      exBlock(stmt->right());
+    auto retstate = exBlock(stmt->right());
     frames.removeRight();
-
-    // forward possible returning state
-    if(subscope->returned) {
+  
+    if(retstate==ReturnState::Return) {
       scope->result = subscope->result;
-      scope->returned = true;
     }
-    return true;
+    return retstate;
   }
 
-  return false;
+  // if had not been solved
+  return ReturnState::Running;
 }
 
-auto Plek::exElse(Statement stmt) -> bool {
+auto Plek::exElse(Statement stmt) -> ReturnState {
   auto scope = frames.last();
   auto subscope = Frame::create(scope);
+
   frames.append(subscope);
-    exBlock(stmt->left());
+  auto retstate = exBlock(stmt->left());
   frames.removeRight();
 
-  if(subscope->returned) {
+  if(retstate==ReturnState::Return) {
     scope->result = subscope->result;
-    scope->returned = true;
   }
 
-  return true;
+  return retstate;
 }
 
 auto Plek::exWhile(Statement stmt) -> bool {
@@ -232,10 +238,12 @@ auto Plek::exWhile(Statement stmt) -> bool {
     if(result==true) {
       auto subscope = Frame::create(scope);
       frames.append(subscope);
-        exBlock(stmt->right());
+      auto retstate = exBlock(stmt->right());
       frames.removeRight();
 
-      if(subscope->returned) {
+      if(retstate==ReturnState::Continue) continue;
+      if(retstate==ReturnState::Break) break;
+      if(retstate==ReturnState::Return) {
         scope->result = subscope->result;
         scope->returned = true;
         return true;

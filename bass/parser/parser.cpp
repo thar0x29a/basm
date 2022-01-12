@@ -333,7 +333,8 @@ auto Parser::ifClause() -> const Statement {
 auto Parser::_if() -> const Statement {
   auto start = previous();
   auto expr = expression();
-  auto then = match(tt(LEFT_BRACE)) ? block() : expression();
+  consume(tt(LEFT_BRACE), "Expected Block after if");
+  auto then = block();
   return Statement::create(start, StmtType::If, expr, then);
 }
 auto Parser::_else() -> const Statement {
@@ -344,7 +345,9 @@ auto Parser::_else() -> const Statement {
     return res;
   } else {
     auto start = previous();
-    auto then = match(tt(LEFT_BRACE)) ? block() : expression();
+    //auto then = match(tt(LEFT_BRACE)) ? block() : expression();
+    consume(tt(LEFT_BRACE), "Expected Block after else");
+    auto then = block();
     return Statement::create(start, StmtType::Else, then);
   }
 }
