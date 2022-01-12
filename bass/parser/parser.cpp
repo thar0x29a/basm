@@ -111,9 +111,12 @@ auto Parser::alien() -> const Statement {
     if(peek().type == tt(TERMINAL)) break;
     if(peek().origin.line > start.origin.line) break;
 
-    Statement res = primary(false);
-    //print(res, " - ", res->value.getString(), "\n");
-    node->append(res);
+    if(check(tt(LEFT_BRACE))) {
+      node->append(evaluation());
+    }
+    else {
+      node->append( Statement::create(advance()) );
+    }
   }
 
   return node;
@@ -541,17 +544,17 @@ auto Parser::identifier() -> const Statement {
 }
 
 auto Parser::evaluation() -> const Statement {
-  auto start = consume(tt(LEFT_BRACE), "expected {");
-  auto sub = primary();
-  consume(tt(RIGHT_BRACE), "expected }");
+  auto start = consume(tt(LEFT_BRACE), "evaluation expected {");
+  auto sub = term();
+  consume(tt(RIGHT_BRACE), "evaluation expected }");
 
   return Statement::create(start, StmtType::Evaluation, sub);
 }
 
 auto Parser::reference() -> const Statement {
-  auto start = consume(tt(LEFT_BRACKET), "expected [");
-  auto sub = primary();
-  consume(tt(RIGHT_BRACKET), "expected ]");
+  auto start = consume(tt(LEFT_BRACKET), "reference expected [");
+  auto sub = term();
+  consume(tt(RIGHT_BRACKET), "reference expected ]");
 
   return Statement::create(start, StmtType::Reference, sub);
 }
