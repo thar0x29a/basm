@@ -78,6 +78,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Result {
   MacroStatement macro{fun};
   auto padef = macro.getArguments();
   auto fscope = Frame::create(scope);
+  fscope->context = SymbolRef::create(res);
 
   for(int i=0; i<args->size(); i++) {
     auto t = padef[i];

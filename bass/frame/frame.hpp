@@ -11,6 +11,8 @@ struct FrameElement {
 
   // references
   Frame parent = nullptr;
+  /** used on 'this' */
+  shared_pointer<Symbol> context = nullptr;
   map<string, Frame> children;
 
   FrameElement(const Frame parent) 

@@ -4,6 +4,8 @@ enum class SymbolMode : uint { Const, Var};
 #define symbt(t) (Bass::SymbolType::t)
 
 struct Symbol;
+using SymbolRef = shared_pointer<Symbol>;
+
 struct Symbol {
   SymbolType type;
   SymbolMode mode;
