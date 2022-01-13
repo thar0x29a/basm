@@ -1,0 +1,3 @@
+[submodule "nall"]
+	path = nall
+	url = https://github.com/ares-emulator/nall
