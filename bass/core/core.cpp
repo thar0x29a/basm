@@ -10,6 +10,11 @@ namespace Bass {
   #include "../frame/frame.cpp"
   #include "../architecture/table/table.cpp"
 
+  auto Plek::init() -> void {
+    initFunctions();
+    initExecution();
+  }
+
   auto Plek::target(const string& filename, bool create) -> bool {
     if(targetFile) targetFile.close();
     if(!filename) return true;
