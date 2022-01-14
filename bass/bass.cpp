@@ -41,16 +41,22 @@ auto nall::main(Arguments arguments) -> void {
   clock_t clockStart = clock();
 
   // core application
-  for(auto& sourceFilename : sourceFilenames) {
-    plek.load(sourceFilename);
-  }
-  plek.target(targetFilename, create);
-  
+  plek.init();
   try {
-    plek.initFunctions();
+    for(auto& c : constants) {
+      auto p = c.split("=", 1L);
+      plek.constant(p(0), p(1,"1"));
+    }
+
+    for(auto& sourceFilename : sourceFilenames) {
+      plek.load(sourceFilename);
+    }
+    plek.target(targetFilename, create);
+
     plek.execute();
-  } catch(...) {
-    
+  } catch(string e) {
+    plek.error(e);
+    exit(EXIT_FAILURE);
   }
 
   clock_t clockFinish = clock();

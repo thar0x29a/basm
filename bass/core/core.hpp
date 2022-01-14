@@ -73,8 +73,9 @@ struct Plek {
 
   public:
     const int64_t appVersion = 20;
-    const string appLabel = {"v", appVersion, " plek 0"};
+    const string appLabel = {"v", appVersion, " plek 220115"};
 
+    auto init() -> void;
     auto load(const string& filename) -> bool;
     auto target(const string& filename, bool create) -> bool;
     auto pc() const -> int64_t;
@@ -124,6 +125,7 @@ struct Plek {
     auto find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol>;
 
     auto assign(const string& dest, Result src) -> void;
+    auto constant(const string& name, const string& value) -> void;
     auto invoke(const string& name, Statement call) -> Result;
 
     auto readArchitecture(const string& name) -> string;

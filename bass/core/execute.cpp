@@ -8,8 +8,6 @@ auto Plek::initExecution() -> void {
 }
 
 auto Plek::execute() -> bool {
-  initExecution();
-
   try {
     //todo: better errorhandling. probl somewhere else. 
 

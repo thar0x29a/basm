@@ -45,6 +45,26 @@ auto Plek::assign(const string& dest, Result src) -> void {
   }
 }
 
+auto Plek::constant(const string& name, const string& value) -> void {
+  auto scope = frames.last();
+  bool isNumber = true;
+  bool isfloat = true;
+  
+  for(int i=0;i<value.length();i++) {
+    char c = value[i];
+    if(c=='.') { isNumber = false; continue; }
+    if(c >= '0' && c <= '9') continue;
+    
+    isNumber = false;
+    isfloat = false;
+    break;
+  }
+  
+  if(isNumber) scope->setConstant(name, {(int64_t)toInteger(value)});
+  else if(isfloat) scope->setConstant(name, { (double)toReal(value)});
+  else scope->setConstant(name, {value});
+}
+
 auto Plek::invoke(const string& fullName, Statement args) -> Result {
   string argc = {args->size()};
   string id = {fullName, "#", argc};
