@@ -6,11 +6,14 @@ const bin2 = 0b101
 const oct = 0o101
 const hex2 = 0x101
 
+const dec2 = 123'456'789
+
 assert(2==bin)
 assert(5==bin2)
 
 assert(65==oct)
 assert(10==dec)
+assert(123456789==dec2)
 
 assert(16==hex)
 assert(257==hex2)
