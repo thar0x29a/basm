@@ -175,9 +175,9 @@ auto Scanner::anBinary() -> void {
 auto Scanner::anNumber() -> void {
   char type = 'i';
 
-  //todo: fix that. given from main switch case we will never reach this!
-  if(match('b') || match('o') || match('x')) {
+  if(peek()=='b' || peek()=='o' || peek()=='x') {
     type = advance();
+    start+=2;
   }
    
   // consume numbers
