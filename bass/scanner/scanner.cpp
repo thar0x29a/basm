@@ -132,9 +132,10 @@ auto Scanner::peekNext() -> char {
 }
 
 auto Scanner::anString() -> void {
-  while (peek() != '"' && !isAtEnd()) {
+  char last = 0;
+  while (!isAtEnd() && !(last!='\\' && peek()=='"')) {
     if (peek() == '\n') line++;
-    advance();
+    last = advance();
   }
 
   if (isAtEnd()) {
