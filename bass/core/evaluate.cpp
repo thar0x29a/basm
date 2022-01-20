@@ -35,6 +35,10 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
       res = calculate(stmt);
       break;
     }
+    case st(Negative): {
+      res = evaluateRHS(stmt->left()).negate();
+      break;
+    }
     case st(Evaluation):
     case st(Grouped): {
       res = evaluateRHS(stmt->left());

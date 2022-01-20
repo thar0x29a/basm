@@ -1,4 +1,4 @@
-const dec = 10
+const dec = -10
 const bin = %10
 const hex = $10
 
@@ -12,7 +12,7 @@ assert(2==bin)
 assert(5==bin2)
 
 assert(65==oct)
-assert(10==dec)
+assert(-10==dec)
 assert(123456789==dec2)
 
 assert(16==hex)
