@@ -14,7 +14,15 @@ struct Symbol {
   Statement reference;
   map<string, Symbol> references;
 
+  auto isValue() -> bool {
+    return type == SymbolType::Value;
+  }
+
   auto isReference() -> bool {
+    return type == SymbolType::Reference;
+  }
+
+  auto isMap() -> bool {
     return type == SymbolType::Map;
   }
 

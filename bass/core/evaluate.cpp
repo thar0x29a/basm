@@ -76,7 +76,7 @@ auto Plek::evalIdentifier(Statement stmt) -> Result {
 
   auto [found, scope, name, res] = find(identName);
   if(found) {
-    if(res.isReference()) tmp = res;
+    if(res.isMap() || res.isReference()) tmp = res;
     else tmp = res.value;
   }
   return tmp;
@@ -162,20 +162,44 @@ auto Plek::handleDirective(string name, Statement items) -> bool {
   for(auto el : items->all()) {
     if(el->type != st(Raw)) {
       auto res = evaluateRHS(el);
-      if(res.isInt()) {
-        write(res.getInt(), dataLength);
-      }
-      else if(res.isString()) {
-        for(auto c : res.getString()) {
-          if(charactersUseMap) write(stringTable[c], 1);
-          else write(c, 1);
-        }
-      }
-      else {
-        warning("Directive not implemented for ", res);
-      }
+      handleDirectiveValue(res, dataLength);
+    }
+    else {
+      error("Directive cannot handle ", el);
     }
   }
 
   return true;
+}
+
+auto Plek::handleDirectiveValue(Result value, uint dataLength) -> void {
+  if(value.isInt()) {
+    write(value.getInt(), dataLength);
+  }
+
+  else if(value.isString()) {
+    for(auto c : value.getString()) {
+      if(charactersUseMap) write(stringTable[c], 1);
+      else write(c, dataLength);
+    }
+  }
+      
+  else if(value.isSymbol()) {
+    auto symb = value.getSymbol();
+    if(symb.isMap()) {
+      for(auto item : symb.references) {
+        handleDirectiveValue({item.value}, dataLength);
+      }
+    }
+    else if(symb.isValue()) {
+      handleDirectiveValue({symb.value}, dataLength);
+    }
+    else {
+      error("Directive cannot handle this symbol");
+    }
+  }
+
+  else {
+    error("Directive cannot handle ", value);
+  }  
 }

@@ -22,7 +22,7 @@ auto Plek::execute() -> bool {
 /*
   auto scope = frames.last();
   for(auto [key, val] : scope->symbolTable) {
-    if(!val.isReference()) {
+    if(!val.isMap()) {
       notice(key, " = ", val.value);
     }
     else {

@@ -123,7 +123,8 @@ struct Plek {
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Result;
     auto handleDirective(string, Statement) -> bool;
-
+    auto handleDirectiveValue(Result value, uint dataLength) -> void;
+  
   // utility.cpp
     auto find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol>;
 
