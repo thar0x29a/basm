@@ -111,12 +111,7 @@ auto Parser::alien() -> const Statement {
     if(peek().type == tt(TERMINAL)) break;
     if(peek().origin.line > start.origin.line) break;
 
-    if(check(tt(LEFT_BRACE))) {
-      node->append(evaluation());
-    }
-    else {
-      node->append( Statement::create(advance()) );
-    }
+    node->append( unary(false) );
   }
 
   return node;
@@ -465,7 +460,7 @@ auto Parser::factor() -> const Statement {
   return expr;
 }
 
-auto Parser::unary() -> const Statement {
+auto Parser::unary(bool allfeatures) -> const Statement {
   if (match(tt(BANG))) {
     auto op = previous();
     return Statement::create(op, StmtType::Banged, unary());
@@ -475,16 +470,12 @@ auto Parser::unary() -> const Statement {
     return Statement::create(op, StmtType::Negative, unary());
   }
 
-  return primary();
+  return primary(allfeatures);
 }
 
 auto Parser::primary(bool allfeatures) -> const Statement {
   if (match(tt(INTEGER), tt(FLOAT), tt(STRING))) {
     return Statement::create(previous(), StmtType::Value);
-  }
-
-  if(check(tt(IDENTIFIER))) {
-    return symbol();
   }
 
   if(check(tt(LEFT_BRACE))) {
@@ -494,6 +485,10 @@ auto Parser::primary(bool allfeatures) -> const Statement {
   if(allfeatures) {
     // in possible assembly lines we do not allow the
     // full syntax since it would collide with the assembly one
+    if(check(tt(IDENTIFIER))) {
+      return symbol();
+    }
+
     if(match(tt(LEFT_PAREN))) {
       auto prev = previous();
       auto expr = expression();

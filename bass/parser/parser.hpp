@@ -54,8 +54,8 @@ protected:
   auto comparison() -> const Statement;
   auto term() -> const Statement;
   auto factor() -> const Statement;
-  auto unary() -> const Statement;
-  auto primary(bool strict = true) -> const Statement;
+  auto unary(bool allfeatures = true) -> const Statement;
+  auto primary(bool allfeatures = true) -> const Statement;
   auto symbol() -> const Statement;
   auto identifier() -> const Statement;
   auto evaluation() -> const Statement;

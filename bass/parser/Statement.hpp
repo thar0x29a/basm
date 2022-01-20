@@ -93,4 +93,6 @@ struct StmtNode {
   }
 
   auto size() const -> uint { return content.size(); }
+
+  auto name() const -> string { return StmtNames[(uint)type]; }
 };
