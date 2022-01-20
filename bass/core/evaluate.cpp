@@ -164,9 +164,6 @@ auto Plek::handleDirective(string name, Statement items) -> bool {
       auto res = evaluateRHS(el);
       handleDirectiveValue(res, dataLength);
     }
-    else {
-      error("Directive cannot handle ", el);
-    }
   }
 
   return true;

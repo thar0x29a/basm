@@ -110,7 +110,10 @@ auto Parser::alien() -> const Statement {
   while(!isAtEnd()) {
     if(peek().type == tt(TERMINAL)) break;
     if(peek().origin.line > start.origin.line) break;
-
+    if(peek().type == tt(COMMA)) {
+      node->append( Statement::create(advance()) );
+      continue;
+    }
     node->append( unary(false) );
   }
 
