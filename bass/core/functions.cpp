@@ -194,4 +194,33 @@ auto Plek::initFunctions() -> void {
 
     return Result{  (int64_t)s.references.size() };
   });
+
+  coreFunctions.insert("String.map#*", [&](Statement args) {
+    if(!(args->size()==2 || args->size()==3)) error("wrong parameter count");
+
+    int64_t s = 0;
+    int64_t v = 0;
+    int64_t l = 1;
+
+    auto start = evaluateRHS(args->left());
+    if(start.isString()) s = start.getString()[0];
+    else if(start.isInt()) s = start.getInt();
+    else error("Unexpedted type on parameter 1");
+
+    auto val = evaluateRHS(args->right());
+    if(!val.isInt()) error("Unexpedted type on parameter 2");
+    v = val.getInt();
+
+    if(args->size()==3) {
+      auto last = evaluateRHS(args->content[2]);
+      if(!last.isInt()) error("Unexpedted type on parameter 3");
+      l = last.getInt();
+    }
+
+    for(int i=s; i<(s+l); i++) {
+      stringTable[i] = v++;
+    }
+    
+    return Result{nothing};
+  });  
 }

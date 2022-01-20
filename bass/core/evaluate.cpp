@@ -162,8 +162,18 @@ auto Plek::handleDirective(string name, Statement items) -> bool {
   for(auto el : items->all()) {
     if(el->type != st(Raw)) {
       auto res = evaluateRHS(el);
-      if(!res.isInt()) continue;
-      write(res.getInt(), dataLength);
+      if(res.isInt()) {
+        write(res.getInt(), dataLength);
+      }
+      else if(res.isString()) {
+        for(auto c : res.getString()) {
+          if(charactersUseMap) write(stringTable[c], 1);
+          else write(c, 1);
+        }
+      }
+      else {
+        warning("Directive not implemented for ", res);
+      }
     }
   }
 

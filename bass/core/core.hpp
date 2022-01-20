@@ -68,6 +68,8 @@ struct Plek {
     Endian endian = Endian::LSB;    //used for multi-byte writes (d[bwldq], etc)
     Directives directives;          //active directives
     Tracker tracker;                //used to track writes to detect overwrites
+    int64_t stringTable[256];       //overrides for d[bwldq] text strings
+    bool charactersUseMap = true;   //0 = '*' parses as ASCII; 1 = '*' uses stringTable[]
     shared_pointer<Architecture> architecture;
     friend class Architecture;
 
