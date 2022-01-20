@@ -39,6 +39,10 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
       res = evaluateRHS(stmt->left()).negate();
       break;
     }
+    case st(Reference): {
+      res = evalReference(stmt);
+      break;
+    }
     case st(Evaluation):
     case st(Grouped): {
       res = evaluateRHS(stmt->left());
@@ -48,6 +52,14 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
   }
 
   return res;
+}
+
+auto Plek::evalReference(Statement stmt) -> Result {
+  auto key = evaluateRHS(stmt->left());
+  auto [found, scope, name, res] = find(key.getString());
+
+  if(!found) error("Reference ", key, " not found.");
+  return {res.value};
 }
 
 auto Plek::evalAssign(Statement stmt) -> Result {
