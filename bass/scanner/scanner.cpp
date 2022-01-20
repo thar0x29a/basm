@@ -181,14 +181,21 @@ auto Scanner::anNumber() -> void {
     start+=2;
   }
    
-  // consume numbers
-  while (isNumber(peek())) advance();
-
-  // is floating point?
-  if (peek() == '.' && isNumber(peekNext())) {
-    advance(); // .
+  if(type=='b') {
+    while (isBinNumber(peek())) advance();
+  }
+  else if(type=='x') {
+    while (isHexNumber(peek())) advance();
+  }
+  else {
     while (isNumber(peek())) advance();
-    type = 'f';
+    
+    // is floating point?
+    if (peek() == '.' && isNumber(peekNext())) {
+      advance(); // .
+      while (isNumber(peek())) advance();
+      type = 'f';
+    }
   }
 
   string lit = source.slice(start, current-start).replace("'", "");
