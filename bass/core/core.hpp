@@ -63,13 +63,14 @@ struct Plek {
     vector<Frame> frames;
     map<string, CoreFunction> coreFunctions;
     bool strict = false;            // strict mode
-    int64_t origin = 0;                //file offset
-    int64_t base = 0;                   //file offset to memory map displacement
-    Endian endian = Endian::LSB;    //used for multi-byte writes (d[bwldq], etc)
-    Directives directives;          //active directives
-    Tracker tracker;                //used to track writes to detect overwrites
-    int64_t stringTable[256];       //overrides for d[bwldq] text strings
-    bool charactersUseMap = true;   //0 = '*' parses as ASCII; 1 = '*' uses stringTable[]
+    bool simulate = false;          // if set no output will be done.
+    int64_t origin = 0;             // file offset
+    int64_t base = 0;               // file offset to memory map displacement
+    Endian endian = Endian::LSB;    // used for multi-byte writes (d[bwldq], etc)
+    Directives directives;          // active directives
+    Tracker tracker;                // used to track writes to detect overwrites
+    int64_t stringTable[256];       // overrides for d[bwldq] text strings
+    bool charactersUseMap = true;   // 0 = '*' parses as ASCII; 1 = '*' uses stringTable[]
     shared_pointer<Architecture> architecture;
     friend class Architecture;
 

@@ -74,12 +74,11 @@ namespace Bass {
 
   auto Plek::seek(uint offset) -> void {
     if(!targetFile) return;
-    //if(writePhase()) 
-    targetFile.seek(offset);
+    if(!simulate) targetFile.seek(offset);
   }
 
   auto Plek::write(uint64_t data, uint length) -> void {
-    //if(writePhase()) {
+    if(!simulate) {
       if(targetFile) {
         track(length);
         if(endian == Endian::LSB) targetFile.writel(data, length);
@@ -88,7 +87,7 @@ namespace Bass {
         if(endian == Endian::LSB) for(uint n : range(length)) fputc(data >> n * 8, stdout);
         if(endian == Endian::MSB) for(uint n : reverse(range(length))) fputc(data >> n * 8, stdout);
       }
-    //}
+    }
     origin += length;
   }
 
