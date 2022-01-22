@@ -11,8 +11,6 @@ namespace Bass {
   #include "../architecture/table/table.cpp"
 
   auto Plek::init() -> void {
-    for(int i=0; i<256; i++) stringTable[i] = i;
-
     initFunctions();
     initExecution();
   }

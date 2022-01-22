@@ -17,7 +17,7 @@ using Program = vector<Statement>;
 
 enum class EvaluationMode : uint { Default = 0, Strict, LeftSide };
 enum class Endian : uint { LSB, MSB };
-enum class ReturnState : uint { Running = 0, Default, Return, Break, Continue };
+enum class ReturnState : uint { Running = 0, Default, Return, Break, Continue, Lookahead, Error };
 
 struct Tracker {
   bool enable = false;
@@ -94,6 +94,8 @@ struct Plek {
     auto initExecution() -> void;
     auto execute() -> bool;
     auto exBlock(Statement) -> ReturnState;
+    auto exLookahead(Statement, uint, int64_t) -> ReturnState;
+    auto exStatement(Statement) -> ReturnState;
     auto exConstDeclaration(Statement) -> bool;
     auto exVarDeclaration(Statement) -> bool;
     auto exFunDeclaration(Statement) -> bool;
@@ -107,7 +109,7 @@ struct Plek {
     auto exIf(Statement) -> ReturnState;
     auto exElse(Statement) -> ReturnState;
     auto exWhile(Statement) -> bool;
-    auto exAssembly(Statement) -> bool;
+    auto exAssembly(Statement) -> ReturnState;
 
   // functions.cpp
     auto initFunctions() -> void;

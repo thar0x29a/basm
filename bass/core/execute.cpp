@@ -1,4 +1,9 @@
 auto Plek::initExecution() -> void {
+  origin = 0;
+  base = 0;
+  endian = Endian::LSB;
+  for(int i=0; i<256; i++) stringTable[i] = i;
+
   // init scopes and rootscope
   frames.reset();
   frames.append(Frame::create(nullptr, ""));
@@ -45,36 +50,78 @@ auto Plek::execute() -> bool {
 
 auto Plek::exBlock(Statement stmt) -> ReturnState {
   if(!stmt) error("No Instructions found");
-  
-  for(auto item : stmt->all()) {
-    ReturnState result = ReturnState::Default;
+  ReturnState result = ReturnState::Default;
+  int64_t oldOrigin = 0;
 
-    switch(item->type) {
-      case st(File):
-      case st(Block): exBlock(item); break;
-      case st(Break): return ReturnState::Break;
-      case st(Continue): return ReturnState::Continue;
-      case st(Namespace): exNamespace(item); break;
-      case st(DeclConst): exConstDeclaration(item); break;
-      case st(Label): exLabel(item); break;
-      case st(DeclVar): exVarDeclaration(item); break;
-      case st(Assignment): exAssign(item); break;
-      case st(MapAssignment): exMapAssign(item); break;
-      case st(Macro): exFunDeclaration(item); break;
-      case st(Return): result = exReturn(item); break;
-      case st(IfClause): result = exIfState(item); break;
-      case st(While): exWhile(item); break;
-      case st(Call): if(exCall(item)) break;
-      case st(Raw): exAssembly(item); break;
-      default: warning("todo: ", item);
-    }
+  for(uint i=0; i<stmt->size(); ++i) {
+    oldOrigin = pc();
+    result = exStatement(stmt->content[i]);
 
+    if(result==ReturnState::Lookahead) result = exLookahead(stmt, i, oldOrigin);
     if(result==ReturnState::Continue) return ReturnState::Continue;
     if(result==ReturnState::Break) return ReturnState::Break;
     if(result==ReturnState::Return) return ReturnState::Return;
   }
  
   return ReturnState::Default;
+}
+
+auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> ReturnState {
+  notice("Lookahead started!");
+  ReturnState result = ReturnState::Default;
+  int64_t oldBase = base;
+  simulate = true; // switch off writing
+
+  // run lookaheads still block is done
+  for(uint i=offset+1; i<stmt->size(); ++i) {
+    result = exStatement(stmt->content[i]);
+
+    if(result==ReturnState::Continue) break;
+    if(result==ReturnState::Break) break;
+    if(result==ReturnState::Return) break;
+  }
+
+  // rollback
+  origin = oldOrigin;
+  base = oldBase;
+  simulate = false;
+  seek(pc());
+
+  // rerun core instruction.
+  result = exStatement(stmt->content[offset]);
+  
+  // still demands lookahead -> fail.
+  if(result==ReturnState::Lookahead) {
+    error("Unknown value (lookahead failed).");
+  }
+
+  return result;
+}
+
+auto Plek::exStatement(Statement item) -> ReturnState {
+  ReturnState result = ReturnState::Default;
+
+  switch(item->type) {
+    case st(File):
+    case st(Block): exBlock(item); break;
+    case st(Break): return ReturnState::Break;
+    case st(Continue): return ReturnState::Continue;
+    case st(Namespace): exNamespace(item); break;
+    case st(DeclConst): exConstDeclaration(item); break;
+    case st(Label): exLabel(item); break;
+    case st(DeclVar): exVarDeclaration(item); break;
+    case st(Assignment): exAssign(item); break;
+    case st(MapAssignment): exMapAssign(item); break;
+    case st(Macro): exFunDeclaration(item); break;
+    case st(Return): result = exReturn(item); break;
+    case st(IfClause): result = exIfState(item); break;
+    case st(While): exWhile(item); break;
+    case st(Call): if(exCall(item)) break;
+    case st(Raw): result = exAssembly(item); break;
+    default: warning("todo: ", item);
+  }
+
+  return result;
 }
 
 auto Plek::exConstDeclaration(Statement stmt) -> bool {
@@ -134,7 +181,14 @@ auto Plek::exNamespace(Statement stmt) -> bool {
 
 auto Plek::exLabel(Statement stmt) -> bool {  
   auto left = evaluateLHS(stmt->left());
-  frames.last()->setConstant(left.getString(), {pc()});
+  
+  if(simulate == true) {
+    frames.last()->setVariable(left.getString(), {pc()});
+  }
+  else {
+    frames.last()->setConstant(left.getString(), {pc()});
+  }
+
   return true;
 }
 
@@ -252,7 +306,8 @@ auto Plek::exWhile(Statement stmt) -> bool {
   return true;
 }
 
-auto Plek::exAssembly(Statement stmt) -> bool {
+auto Plek::exAssembly(Statement stmt) -> ReturnState {
+  ReturnState result = ReturnState::Default;
   string name = {stmt->value.getString(), " "};
   
   // are we an call-fallback?
@@ -260,7 +315,7 @@ auto Plek::exAssembly(Statement stmt) -> bool {
   bool callAtemt = (stmt->is(st(Call))==true);
 
   // is this an directive?
-  if(handleDirective(name, pool)) return true;
+  if(handleDirective(name, pool)) return result;
 
   //TODO: outsource fancy debug stuff
   string text{};
@@ -284,16 +339,19 @@ auto Plek::exAssembly(Statement stmt) -> bool {
   for(auto el : pool->all()) {
     auto res = evaluateRHS(el);
     string dbug = res.getString();
-    if(res.isNothing()) dbug = el->value.getString();
+    if(res.isNothing()) {
+      result = ReturnState::Lookahead;
+      dbug = {(int64_t)pc()};
+    }
     cmd.append(dbug);
   }
-  
+
   print(cmd, "\n");
 
   // run it!
-  if(architecture->assemble(cmd)) return true;
+  if(architecture->assemble(cmd)) return result;
   else if(callAtemt) error("function call finally failed (no assembly possible)");
   else error("assembly failed for: ", cmd);
 
-  return false;
+  return ReturnState::Error;
 }

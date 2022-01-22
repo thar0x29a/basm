@@ -1,1 +1,6 @@
-notice("Hello World")
+arch("snes.cpu")
+
+  lda.w   42
+  beq     {Skip}
+  jsr     12
+Skip:
