@@ -125,6 +125,8 @@ struct Plek {
     auto evalReference(Statement stmt) -> Result;
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Result;
+    template<typename T>
+    auto calculateLogic(StmtType type, const T& a, const T& b) -> Result;
     auto handleDirective(string, Statement) -> bool;
     auto handleDirectiveValue(Result value, uint dataLength) -> void;
   

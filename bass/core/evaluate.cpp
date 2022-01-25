@@ -142,21 +142,32 @@ auto Plek::calculate(StmtType type, const T& a, const T& b) -> Result {
   else if(type == st(CmpEqualMore)) result = Result{(int64_t)(a>=b)};
   else if(type == st(CmpEqualLess)) result = Result{(int64_t)(a<=b)};
   else if(type == st(CmpNotEqual))  result = Result{(int64_t)(a!=b)};
-
-  // bitwise operations 
-  else if (typeid(T) == typeid(int64_t)) { 
-    // if(type == st(LogicAnd))             result = Result{(int64_t) (a&b)};
-    // else if(type == st(LogicOr))         result = Result{(int64_t) (a|b)};
-    // else if(type == st(LogicShiftLeft))  result = Result{(int64_t) (a<<b)};
-    // else if(type == st(LogicShiftRight)) result = Result{(int64_t) (a>>b)};
-    // else if(type == st(LogicModulo))     result = Result{(int64_t) (a%b)};
-    // else error("unknown operation");  
-  }
- 
+  else if (typeid(T) == typeid(int64_t)) calculateLogic(type, a, b);
   else error("unknown operation");
 
   return result;
 }
+
+template<typename T>
+auto Plek::calculateLogic(StmtType type, const T& a, const T& b) -> Result {
+  error("Operation not allowed");
+  return {nothing};
+}
+
+template<>
+auto Plek::calculateLogic<int64_t>(StmtType type, const int64_t& a, const int64_t& b) -> Result {
+  Result result{nothing};
+
+  if(type == st(LogicAnd))             result = Result{(int64_t) (a&b)};
+  else if(type == st(LogicOr))         result = Result{(int64_t) (a|b)};
+  else if(type == st(LogicShiftLeft))  result = Result{(int64_t) (a<<b)};
+  else if(type == st(LogicShiftRight)) result = Result{(int64_t) (a>>b)};
+  else if(type == st(LogicModulo))     result = Result{(int64_t) (a%b)};
+  else error("unknown operation");
+
+  return {nothing};
+}
+
 
 auto Plek::handleDirective(string name, Statement items) -> bool {
   uint dataLength = 0;
