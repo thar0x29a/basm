@@ -454,7 +454,7 @@ auto Parser::term() -> const Statement {
 
     expr = Statement::create(op, type, expr, subTerm());
   }
-
+  
   return expr;
 }
 
