@@ -1,0 +1,11 @@
+var a = 1
+var b = 32
+var c = 9
+
+assert((a<<4)==16)
+assert((b>>1)==16)
+
+assert((a<<1+2*3)==128)
+
+assert(b%8==0)
+assert(c%8==1)

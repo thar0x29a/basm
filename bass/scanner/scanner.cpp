@@ -50,7 +50,7 @@ auto Scanner::scanToken() -> void {
       break;
     case '>':
       if(match('=')) addToken(TokenType::GREATER_EQUAL);
-      else if(match('<')) addToken(TokenType::GREATER_GREATER);
+      else if(match('>')) addToken(TokenType::GREATER_GREATER);
       else addToken(TokenType::GREATER);
       break;
 
