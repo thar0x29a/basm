@@ -31,7 +31,11 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
     case st(CmpLess):
     case st(CmpEqualMore):
     case st(CmpEqualLess):
-    case st(CmpNotEqual): {
+    case st(LogicAnd):
+    case st(LogicOr):
+    case st(LogicShiftLeft):
+    case st(LogicShiftRight):
+    case st(LogicModulo): {
       res = calculate(stmt);
       break;
     }
@@ -142,7 +146,7 @@ auto Plek::calculate(StmtType type, const T& a, const T& b) -> Result {
   else if(type == st(CmpEqualMore)) result = Result{(int64_t)(a>=b)};
   else if(type == st(CmpEqualLess)) result = Result{(int64_t)(a<=b)};
   else if(type == st(CmpNotEqual))  result = Result{(int64_t)(a!=b)};
-  else if (typeid(T) == typeid(int64_t)) calculateLogic(type, a, b);
+  else if (typeid(T) == typeid(int64_t)) result = calculateLogic(type, a, b);
   else error("unknown operation");
 
   return result;
@@ -165,7 +169,7 @@ auto Plek::calculateLogic<int64_t>(StmtType type, const int64_t& a, const int64_
   else if(type == st(LogicModulo))     result = Result{(int64_t) (a%b)};
   else error("unknown operation");
 
-  return {nothing};
+  return {result};
 }
 
 

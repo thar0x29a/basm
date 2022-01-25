@@ -439,6 +439,26 @@ auto Parser::comparison() -> const Statement {
 }
 
 auto Parser::term() -> const Statement {
+  auto expr = subTerm();
+
+  while(match(tt(AND), tt(PIPE), tt(LESS_LESS), tt(GREATER_GREATER), tt(PERCENT))) {
+    auto op = previous();
+    StmtType type = st(Raw);
+
+    if(op.type == tt(AND)) type = st(LogicAnd);
+    else if(op.type == tt(PIPE)) type = st(LogicOr);
+    else if(op.type == tt(LESS_LESS)) type = st(LogicShiftLeft);
+    else if(op.type == tt(GREATER_GREATER)) type = st(LogicShiftRight);
+    else if(op.type == tt(PERCENT)) type = st(LogicModulo);
+    else throw string{"Internal parsing error 460"};
+
+    expr = Statement::create(op, type, expr, subTerm());
+  }
+
+  return expr;
+}
+
+auto Parser::subTerm() -> const Statement {
   auto expr = factor();
 
   while(match(tt(MINUS), tt(PLUS))) {

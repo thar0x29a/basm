@@ -1,5 +1,5 @@
 var a = 1
-var b = a << 1
-var c = b << 2
+var b = 32 << 1
+var c = 32 << 2
 
 notice(a, "\n", b, "\n", c)

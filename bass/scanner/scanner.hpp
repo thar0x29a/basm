@@ -10,6 +10,7 @@ enum class TokenType : uint {
   // One or two character tokens.
   BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL,
   GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
+  LESS_LESS, GREATER_GREATER,
 
   // Keywords
   KW_GLOBAL, KW_PARENT, KW_EXIT, KW_MACRO,
