@@ -54,6 +54,13 @@ auto Scanner::scanToken() -> void {
       else addToken(TokenType::GREATER);
       break;
 
+    case '\'':
+      if(peekNext()=='\'') {
+        addToken(TokenType::INTEGER, (int64_t)advance());
+        advance(); // ending '
+        break;
+      }
+
     case '/':
       if (match('/')) {
         while (peek() != '\n' && !isAtEnd()) advance();
@@ -61,7 +68,7 @@ auto Scanner::scanToken() -> void {
         addToken(TokenType::SLASH);
       }
       break;
-
+    
     case '\n':
       line++;
       break;

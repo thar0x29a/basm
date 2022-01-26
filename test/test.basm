@@ -1,5 +1,3 @@
-arch("wdc65816")
+var bla = 'm'
 
-    asl
-    ror
-    rol
+notice(bla)
