@@ -345,7 +345,9 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
     }
     cmd.append(dbug);
   }
-
+  
+  // table-chan is picky. clean up your instructions!
+  cmd.trimRight(" ");
   print(cmd, "\n");
 
   // run it!

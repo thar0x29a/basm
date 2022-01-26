@@ -4,40 +4,6 @@ Table::Table(Plek& self, const string& table) : Architecture(self) {
   parseTable(table);
 }
 
-/*auto Table::assemble(Statement stmt) -> bool {
-  uint pc = Architecture::pc();
-  
-  // building full key
-  string key = {stmt->value.getString(), " "};
-  for(auto& el : stmt->all()) {
-    string dis = el->result.getString();
-    if(el->type == st(Raw)) key.append(dis);
-    else break;
-  }
-
-  vector<Opcode> findings;
-  for(auto& opcode : table) {
-    string start = opcode.prefix.left().text;
-    if(start != key) continue;
-    
-    print(opcode.pattern);
-    print("\tprefixes: ", opcode.prefix.size());
-
-    for(int i=1; i<opcode.prefix.size(); i++) {
-      print(" '", opcode.prefix[i].text, "'");
-    }
-
-    print("\n");
-
-    // cool. how about the other prefixes
-
-
-    findings.append(opcode);
-  }
-
-  return false;
-}/**/
-
 auto Table::assemble(const string& statement) -> bool {
   string s = statement;
 

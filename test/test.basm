@@ -1,5 +1,5 @@
-var a = 1
-var b = 32 << 1
-var c = 32 << 2
+arch("wdc65816")
 
-notice(a, "\n", b, "\n", c)
+    asl
+    ror
+    rol
