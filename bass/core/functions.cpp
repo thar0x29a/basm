@@ -69,7 +69,7 @@ auto Plek::initFunctions() -> void {
       auto res = evaluateRHS(args->left());
       if(!res.isInt()) error("wrong parameter type3");
       
-      base = res.getInt();
+      base = res.getInt() - origin;
     }
 
     return Result{(int64_t)base};
