@@ -306,6 +306,31 @@ auto Plek::exWhile(Statement stmt) -> bool {
   return true;
 }
 
+auto Plek::exDirective(string name, Statement items) -> ReturnState {
+  uint dataLength = 0;
+  for(auto d : directives.EmitBytes) {
+    if(d.token == name) {
+      dataLength = d.dataLength;
+      break;
+    }
+  }
+
+  if(dataLength==0) return ReturnState::Running;
+  
+  for(auto el : items->all()) {
+    if(el->type != st(Raw)) {
+      auto res = evaluateRHS(el);
+      if(res.isNothing()) {
+        write(0, dataLength); // fake write
+        return ReturnState::Lookahead;
+      }
+      handleDirectiveValue(res, dataLength);
+    }
+  }
+
+  return ReturnState::Default;
+}
+
 auto Plek::exAssembly(Statement stmt) -> ReturnState {
   ReturnState result = ReturnState::Default;
   string name = {stmt->value.getString(), " "};
@@ -315,7 +340,8 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
   bool callAtemt = (stmt->is(st(Call))==true);
 
   // is this an directive?
-  if(handleDirective(name, pool)) return result;
+  auto dirtate = exDirective(name, pool);
+  if(dirtate != ReturnState::Running) return dirtate;
 
   //TODO: outsource fancy debug stuff
   string text{};

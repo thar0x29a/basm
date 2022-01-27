@@ -17,7 +17,7 @@ using Program = vector<Statement>;
 
 enum class EvaluationMode : uint { Default = 0, Strict, LeftSide };
 enum class Endian : uint { LSB, MSB };
-enum class ReturnState : uint { Running = 0, Default, Return, Break, Continue, Lookahead, Error };
+enum class ReturnState : uint { Default = 0, Running, Return, Break, Continue, Lookahead, Error };
 
 struct Tracker {
   bool enable = false;
@@ -110,6 +110,7 @@ struct Plek {
     auto exElse(Statement) -> ReturnState;
     auto exWhile(Statement) -> bool;
     auto exAssembly(Statement) -> ReturnState;
+    auto exDirective(string, Statement) -> ReturnState;
 
   // functions.cpp
     auto initFunctions() -> void;
@@ -126,9 +127,7 @@ struct Plek {
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Result;
     template<typename T>
-    auto calculateLogic(StmtType type, const T& a, const T& b) -> Result;
-    auto handleDirective(string, Statement) -> bool;
-    auto handleDirectiveValue(Result value, uint dataLength) -> void;
+    auto calculateLogic(StmtType type, const T& a, const T& b) -> Result;   
   
   // utility.cpp
     auto find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol>;
@@ -138,6 +137,7 @@ struct Plek {
     auto invoke(const string& name, Statement call) -> Result;
 
     auto readArchitecture(const string& name) -> string;
+    auto handleDirectiveValue(Result value, uint dataLength) -> void;
 };
 
 // loaded here because of high dependencys

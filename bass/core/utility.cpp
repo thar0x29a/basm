@@ -125,3 +125,35 @@ auto Plek::readArchitecture(const string& name) -> string {
   if(!file::exists(location)) error("unknown architecture: ", name);
   return string::read(location);
 }
+
+auto Plek::handleDirectiveValue(Result value, uint dataLength) -> void {
+  if(value.isInt()) {
+    write(value.getInt(), dataLength);
+  }
+
+  else if(value.isString()) {
+    for(auto c : value.getString()) {
+      if(charactersUseMap) write(stringTable[c], 1);
+      else write(c, dataLength);
+    }
+  }
+      
+  else if(value.isSymbol()) {
+    auto symb = value.getSymbol();
+    if(symb.isMap()) {
+      for(auto item : symb.references) {
+        handleDirectiveValue({item.value}, dataLength);
+      }
+    }
+    else if(symb.isValue()) {
+      handleDirectiveValue({symb.value}, dataLength);
+    }
+    else {
+      error("Directive cannot handle this symbol");
+    }
+  }
+
+  else {
+    error("Directive cannot handle ", value);
+  }  
+}
