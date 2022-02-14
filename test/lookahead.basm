@@ -1,6 +1,10 @@
-arch("snes.cpu")
+endian("msb")
 
-  lda.w   42
-  beq     {Skip}
-  jsr     12
-Skip:
+base(0x100)
+dw 0x0000
+
+Label:
+  dw {End}
+  dw 0xffff
+  dw {Label}
+End:

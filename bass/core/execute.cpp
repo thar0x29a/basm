@@ -54,7 +54,7 @@ auto Plek::exBlock(Statement stmt) -> ReturnState {
   int64_t oldOrigin = 0;
 
   for(uint i=0; i<stmt->size(); ++i) {
-    oldOrigin = pc();
+    oldOrigin = origin;
     result = exStatement(stmt->content[i]);
 
     if(result==ReturnState::Lookahead) result = exLookahead(stmt, i, oldOrigin);
@@ -67,7 +67,6 @@ auto Plek::exBlock(Statement stmt) -> ReturnState {
 }
 
 auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> ReturnState {
-  notice("Lookahead started!");
   ReturnState result = ReturnState::Default;
   int64_t oldBase = base;
   simulate = true; // switch off writing
@@ -85,7 +84,7 @@ auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> Return
   origin = oldOrigin;
   base = oldBase;
   simulate = false;
-  seek(pc());
+  seek(origin);
 
   // rerun core instruction.
   result = exStatement(stmt->content[offset]);
@@ -93,6 +92,8 @@ auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> Return
   // still demands lookahead -> fail.
   if(result==ReturnState::Lookahead) {
     error("Unknown value (lookahead failed).");
+    simulate = false;
+    result = ReturnState::Error;
   }
 
   return result;
@@ -309,13 +310,13 @@ auto Plek::exWhile(Statement stmt) -> bool {
 auto Plek::exAssembly(Statement stmt) -> ReturnState {
   ReturnState result = ReturnState::Default;
   string name = {stmt->value.getString(), " "};
-  
+
+  // is this an directive?
+  if(uint dl = isDirective(name)) return exDirective(dl, stmt);
+
   // are we an call-fallback?
   auto pool = (stmt->is(st(Call))) ? stmt->right() : stmt;
   bool callAtemt = (stmt->is(st(Call))==true);
-
-  // is this an directive?
-  if(handleDirective(name, pool)) return result;
 
   //TODO: outsource fancy debug stuff
   string text{};
@@ -331,8 +332,10 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
     else dbug = terminal::color::red(dbug);
     text.append(dbug);
   }
-  print(terminal::color::yellow(name), text, "\n");
- 
+  if(simulate) {
+    print(terminal::color::green("// "), 
+      terminal::color::yellow(name), text, "\n");
+  }
 
   // prepare command to be passed to the assembler
   string cmd = name;
@@ -346,7 +349,8 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
     cmd.append(dbug);
   }
 
-  print(cmd, "\n");
+  if(simulate) print(terminal::color::green("// "), cmd, "\n");
+  else print(cmd, "\n");
 
   // run it!
   if(architecture->assemble(cmd)) return result;
@@ -355,3 +359,15 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
 
   return ReturnState::Error;
 }
+
+auto Plek::exDirective(uint dataLength, Statement items) -> ReturnState {
+  for(auto el : items->all()) {
+    if(el->type != st(Raw)) {
+      auto res = evaluateRHS(el);
+      handleDirective(res, dataLength);
+    }
+  }
+
+  return (simulate) ? ReturnState::Lookahead : ReturnState::Default;
+}
+

@@ -148,28 +148,7 @@ auto Plek::calculate(StmtType type, const T& a, const T& b) -> Result {
   return result;
 }
 
-auto Plek::handleDirective(string name, Statement items) -> bool {
-  uint dataLength = 0;
-  for(auto d : directives.EmitBytes) {
-    if(d.token == name) {
-      dataLength = d.dataLength;
-      break;
-    }
-  }
-
-  if(dataLength==0) return false;
-  
-  for(auto el : items->all()) {
-    if(el->type != st(Raw)) {
-      auto res = evaluateRHS(el);
-      handleDirectiveValue(res, dataLength);
-    }
-  }
-
-  return true;
-}
-
-auto Plek::handleDirectiveValue(Result value, uint dataLength) -> void {
+auto Plek::handleDirective(Result value, uint dataLength) -> void {
   if(value.isInt()) {
     write(value.getInt(), dataLength);
   }
@@ -180,23 +159,28 @@ auto Plek::handleDirectiveValue(Result value, uint dataLength) -> void {
       else write(c, dataLength);
     }
   }
-      
+
   else if(value.isSymbol()) {
     auto symb = value.getSymbol();
     if(symb.isMap()) {
       for(auto item : symb.references) {
-        handleDirectiveValue({item.value}, dataLength);
+        handleDirective({item.value}, dataLength);
       }
     }
     else if(symb.isValue()) {
-      handleDirectiveValue({symb.value}, dataLength);
+      handleDirective({symb.value}, dataLength);
     }
     else {
       error("Directive cannot handle this symbol");
     }
   }
 
+  else if(value.isNothing()) {
+    simulate = true;
+    write(0, dataLength);
+  }
+
   else {
-    error("Directive cannot handle ", value);
-  }  
+    error("Directive cannot handle ", value, " for ", dataLength, "bytes");
+  }
 }

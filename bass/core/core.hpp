@@ -110,6 +110,7 @@ struct Plek {
     auto exElse(Statement) -> ReturnState;
     auto exWhile(Statement) -> bool;
     auto exAssembly(Statement) -> ReturnState;
+    auto exDirective(uint, Statement) -> ReturnState;
 
   // functions.cpp
     auto initFunctions() -> void;
@@ -125,8 +126,7 @@ struct Plek {
     auto evalReference(Statement stmt) -> Result;
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Result;
-    auto handleDirective(string, Statement) -> bool;
-    auto handleDirectiveValue(Result value, uint dataLength) -> void;
+    auto handleDirective(Result value, uint dataLength) -> void;
   
   // utility.cpp
     auto find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol>;
@@ -136,6 +136,7 @@ struct Plek {
     auto invoke(const string& name, Statement call) -> Result;
 
     auto readArchitecture(const string& name) -> string;
+    auto isDirective(const string& name) -> uint;
 };
 
 // loaded here because of high dependencys

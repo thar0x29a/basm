@@ -125,3 +125,15 @@ auto Plek::readArchitecture(const string& name) -> string {
   if(!file::exists(location)) error("unknown architecture: ", name);
   return string::read(location);
 }
+
+auto Plek::isDirective(const string& name) -> uint {
+  uint dataLength = 0;
+  for(auto d : directives.EmitBytes) {
+    if(d.token == name) {
+      dataLength = d.dataLength;
+      break;
+    }
+  }
+  return dataLength;
+};
+  
