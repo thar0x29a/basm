@@ -8,7 +8,4 @@ namespace foo.baa {
   var text2 = "World";
 }
 
-notice(
-  foo.baa.text,
-  foo.baa.text2
-);
+assert("HelloWorld" == foo.baa.text + foo.baa.text2);

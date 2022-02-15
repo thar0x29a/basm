@@ -190,7 +190,7 @@ auto Plek::initFunctions() -> void {
     if(!p.isSymbol()) error("wrong parameter type");
     
     auto s = p.getSymbol();
-    if(s.type != symbt(Map)) error("wrong parameter type");
+    if(!s.isMap()) error("wrong parameter type");
 
     return Result{  (int64_t)s.references.size() };
   });
