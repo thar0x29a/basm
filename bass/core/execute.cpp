@@ -176,7 +176,7 @@ auto Plek::exNamespace(Statement stmt) -> bool {
   for(auto name : names.split('.')) {
     auto top_scope = frames.last();
 
-    if(auto res = scope->children.find(name)) {
+    if(auto res = top_scope->children.find(name)) {
       frames.append(res());
     }
     else {
