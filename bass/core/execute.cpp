@@ -168,14 +168,30 @@ auto Plek::exNamespace(Statement stmt) -> bool {
   if(!stmt->left() || !stmt->right()) throw "Broken AST #103";
   auto left = evaluateLHS(stmt->left());
 
-  string name = left.getString();
-  auto scope = frames.last();
-  auto subscope = Frame::create(scope, name);
+  string names = left.getString();
+  if(!names) error("empty namespace name");
 
-  scope->addScope(subscope);
-  frames.append(subscope);
-    exBlock(stmt->right());
-  frames.removeRight(); 
+  // walk into the right scope
+  int depth = 0;
+  for(auto name : names.split('.')) {
+    auto top_scope = frames.last();
+
+    if(auto res = scope->children.find(name)) {
+      frames.append(res());
+    }
+    else {
+      auto subscope = Frame::create(top_scope, name);
+      top_scope->addScope(subscope);
+      frames.append(subscope);
+    }
+    ++depth;
+  }
+
+  // progress
+  exBlock(stmt->right());
+
+  // walk back
+  for(int i=0; i<depth; i++) frames.removeRight();
 
   return true;
 }
