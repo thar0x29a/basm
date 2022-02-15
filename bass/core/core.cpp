@@ -125,5 +125,13 @@ namespace Bass {
 
     struct BassError {};
     throw BassError();
-  }  
+  }
+
+  auto Plek::stmt_origin(Statement stmt) -> const string {
+    if(!stmt) stmt = currentStmt;
+
+    int fid = stmt->origin.fileId;
+    auto src = sourceFiles[fid];
+    return {src.filename, ":", stmt->origin.line, ":", stmt->origin.line_offset};
+  }
 };

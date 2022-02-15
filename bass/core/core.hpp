@@ -61,6 +61,7 @@ struct Plek {
     vector<SourceCode> sourceFiles;
     Program program;
     vector<Frame> frames;
+    Statement currentStmt = nullptr;
     map<string, CoreFunction> coreFunctions;
     bool strict = false;            // strict mode
     bool simulate = false;          // if set no output will be done.
@@ -85,6 +86,7 @@ struct Plek {
     auto seek(uint offset) -> void;
     auto track(uint length) -> void;
     auto write(uint64_t data, uint bytelength = 1) -> void;
+    auto stmt_origin(Statement stmt = nullptr) -> const string;
 
     template<typename... P> auto notice(P&&... p) -> void;
     template<typename... P> auto warning(P&&... p) -> void;

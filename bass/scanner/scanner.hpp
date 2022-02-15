@@ -29,6 +29,11 @@ enum class TokenType : uint {
 struct FileLocation {
   uint fileId = UINT_MAX;
   uint line = UINT_MAX;
+  uint line_offset = UINT_MAX;
+
+  auto toString() -> const string {
+    return {fileId, ":", line, ":", line_offset};
+  }
 };
 
 struct Token {
@@ -84,7 +89,7 @@ protected:
   const Keywords keywords;
   vector<Token> tokens;
   const string& source;
-  uint start = 0, current = 0, line = 0;
+  uint start = 0, current = 0, line = 0, line_start = 0;
 
   auto scanToken() -> void;
 

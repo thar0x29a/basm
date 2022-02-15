@@ -101,7 +101,8 @@ auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> Return
 
 auto Plek::exStatement(Statement item) -> ReturnState {
   ReturnState result = ReturnState::Default;
-
+  currentStmt = item;
+  
   switch(item->type) {
     case st(File):
     case st(Block): exBlock(item); break;
