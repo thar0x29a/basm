@@ -485,13 +485,13 @@ auto Parser::primary(bool allfeatures) -> const Statement {
     return evaluation();
   }
 
+  if(check(tt(IDENTIFIER))) {
+    return symbol();
+  }
+
   if(allfeatures) {
     // in possible assembly lines we do not allow the
     // full syntax since it would collide with the assembly one
-    if(check(tt(IDENTIFIER))) {
-      return symbol();
-    }
-
     if(match(tt(LEFT_PAREN))) {
       auto prev = previous();
       auto expr = expression();
