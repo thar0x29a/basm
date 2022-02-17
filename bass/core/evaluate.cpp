@@ -35,6 +35,10 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
       res = calculate(stmt);
       break;
     }
+    case st(LabelRef): {
+      res = evaluateLabelRef(stmt);
+      break;
+    }
     case st(Negative): {
       res = evaluateRHS(stmt->left()).negate();
       break;
@@ -60,6 +64,24 @@ auto Plek::evalReference(Statement stmt) -> Result {
 
   if(!found) error("Reference ", key, " not found.");
   return {res.value};
+}
+
+auto Plek::evaluateLabelRef(Statement stmt) -> Result {
+  Result res{nothing};
+  LabelRefStatement ref{stmt};
+  int offs = ref.getOffset();
+  auto scope = frames.last();
+  int total = scope->labels.size();
+
+  if(offs<0) {
+    if(total+offs < 0) error("relative label access failed: not enought labels!");
+    res = scope->labels[total+offs];
+  }
+  else if(offs>0) {
+    error("lazy label lookahead is not supported right now");
+  }
+  
+  return res;
 }
 
 auto Plek::evalAssign(Statement stmt) -> Result {

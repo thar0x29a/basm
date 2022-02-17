@@ -1,6 +1,7 @@
 #include "Statement.hpp"
 #include "MacroStatement.hpp"
 #include "MapAssignStatement.hpp"
+#include "LabelRefStatement.hpp"
 
 struct Parser {
   Parser(Scanner& scanner);
@@ -34,7 +35,6 @@ protected:
   auto argument() -> const Statement;
   auto label() -> const Statement;
   auto anonymousLabel() -> const Statement;
-//  auto labelRef() -> const Statement;
   auto assignment() -> const Statement;
   auto block() -> const Statement;
   auto blockOrEval() -> const Statement;

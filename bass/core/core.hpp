@@ -126,7 +126,8 @@ struct Plek {
     auto evalIdentifier(Statement) -> Result;
     auto evalCall(Statement) -> Result;
     auto evalMapItem(Statement) -> Result;
-    auto evalReference(Statement stmt) -> Result;
+    auto evalReference(Statement) -> Result;
+    auto evaluateLabelRef(Statement) -> Result;
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Result;
     auto handleDirective(Result value, uint dataLength) -> void;

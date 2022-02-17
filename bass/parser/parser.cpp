@@ -507,7 +507,10 @@ auto Parser::primary(bool allfeatures) -> const Statement {
     throw string{"not expected"};
   }
   else {
-    // not all features = everything else is raw
+    // not all features = raw mode
+    if(match(tt(MINUS), tt(MINUSMINUS), tt(PLUS), tt(PLUSPLUS))) {
+      return anonymousLabel();
+    }
     return Statement::create(advance());
   }
 }
