@@ -96,26 +96,28 @@ In other words: It should behave like you would expect it from a function. Ah an
 ### Arrays
 'Arrays' are hash-maps. They can be created using the construction function `var myarray = Array.new(1, ..)`. This syntax had been choosen to be as close as possible to the given array functions `Array.size()` and `Array.sort()`. On const arrays everything inside is constant. So its not possible to add, change, remove or sort its content.  Access is possible with the common `myarray[index]` syntax. Arrays to not have a fixed size. All array-keys will be thread as strings, other types will be converted.
 
-### Special Syntax
-One of bass strong points had always been, that it was basically just replacing stuff. This is not anymore. And I did my best to add some features that ensure, that you still can do ALOT more then usual script languages would allow you, to implement cool features all by yourself.
+### Evaluations
+Evaluations between braches `{ }` have the purpose to allow the construction of an idetifier that would not be possible otherwise. 
 
-Note one thing: Special syntax always allows only one parameter. If you need more, you will need to store your content in a variable, or simply enclose it by and parentheses like `("more"+"here")`
+Evaluations can be understood as 'special syntax' - less an swiss army knife then just a filler that was 'available'. Their effect depends strongly on where you use them.
 
+#### Left-Side Evaluations
+``` as
+var {"constructed"+"name"+(OFFSET+2)} = "Hello World"
+// equals
+var constuctedname3 = "Hello World"
+```
+Used as Left-Side evaluation it allows to construct an identifier.
 
-#### Access brackets
-The general meaning of brackets `[ ]` is to access something by an given index or name. This is generally used in Array's, but might be used without identifier as well.
-```
-var foo = 42
-var baa = "foo"
-var tmp = [baa]
-print(["foo"], tmp)  // prints 4242
-```
+#### Right-Side Assembly Evaluations
+``` as 
+  var x = 5
+  var x2 = 32
 
-#### manual identifyer
-They allow you to store something by an just created name. Just surround it by braces `{ }`
+  mov ax, {x*x}     // allows calculation
+  mov ax, 25        // equals
+
+  mov ax, {"x"+2}   // allows identifier construction
+  mov ax, 32        // equals
 ```
-var i = 1
-var {"name"} = 12
-const {"solution"} = 42
-{ ("labelNo"+i) }:
-```
+Inside of assembly lines it's impossible to use the full script-syntax except you wrap it into an Evaluation. If the Result of this Evaluation is an existing Identifier the value will be returned instead.
