@@ -31,7 +31,12 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
     case st(CmpLess):
     case st(CmpEqualMore):
     case st(CmpEqualLess):
-    case st(CmpNotEqual): {
+    case st(CmpNotEqual):
+    case st(LogicAnd):
+    case st(LogicOr):
+    case st(LogicShiftLeft):
+    case st(LogicShiftRight):
+    case st(LogicModulo): {
       res = calculate(stmt);
       break;
     }
@@ -121,6 +126,45 @@ auto Plek::evalMapItem(Statement stmt) -> Result {
   return { ref.getSymbol().get(key) };
 }
 
+
+auto Plek::handleDirective(Result value, uint dataLength) -> void {
+  if(value.isInt()) {
+    write(value.getInt(), dataLength);
+  }
+
+  else if(value.isString()) {
+    for(auto c : value.getString()) {
+      if(charactersUseMap) write(stringTable[c], 1);
+      else write(c, dataLength);
+    }
+  }
+
+  else if(value.isSymbol()) {
+    auto symb = value.getSymbol();
+    if(symb.isMap()) {
+      for(auto item : symb.references) {
+        handleDirective({item.value}, dataLength);
+      }
+    }
+    else if(symb.isValue()) {
+      handleDirective({symb.value}, dataLength);
+    }
+    else {
+      error("Directive cannot handle this symbol");
+    }
+  }
+
+  else if(value.isNothing()) {
+    simulate = true;
+    write(0, dataLength);
+  }
+
+  else {
+    error("Directive cannot handle ", value, " for ", dataLength, "bytes");
+  }
+}
+
+
 auto Plek::calculate(Statement stmt) -> Result {
   Result result;
   for(auto item : stmt->content) {
@@ -167,45 +211,28 @@ auto Plek::calculate(StmtType type, const T& a, const T& b) -> Result {
   else if(type == st(CmpEqualMore)) result = Result{(int64_t)(a>=b)};
   else if(type == st(CmpEqualLess)) result = Result{(int64_t)(a<=b)};
   else if(type == st(CmpNotEqual))  result = Result{(int64_t)(a!=b)};
-
+  else if (typeid(T) == typeid(int64_t)) result = calculateLogic(type, a, b);
   else error("unknown operation");
 
   return result;
 }
 
-auto Plek::handleDirective(Result value, uint dataLength) -> void {
-  if(value.isInt()) {
-    write(value.getInt(), dataLength);
-  }
+template<typename T>
+auto Plek::calculateLogic(StmtType type, const T& a, const T& b) -> Result {
+  error("Operation not allowed");
+  return {nothing};
+}
 
-  else if(value.isString()) {
-    for(auto c : value.getString()) {
-      if(charactersUseMap) write(stringTable[c], 1);
-      else write(c, dataLength);
-    }
-  }
+template<>
+auto Plek::calculateLogic<int64_t>(StmtType type, const int64_t& a, const int64_t& b) -> Result {
+  Result result{nothing};
 
-  else if(value.isSymbol()) {
-    auto symb = value.getSymbol();
-    if(symb.isMap()) {
-      for(auto item : symb.references) {
-        handleDirective({item.value}, dataLength);
-      }
-    }
-    else if(symb.isValue()) {
-      handleDirective({symb.value}, dataLength);
-    }
-    else {
-      error("Directive cannot handle this symbol");
-    }
-  }
+  if(type == st(LogicAnd))             result = Result{(int64_t) (a&b)};
+  else if(type == st(LogicOr))         result = Result{(int64_t) (a|b)};
+  else if(type == st(LogicShiftLeft))  result = Result{(int64_t) (a<<b)};
+  else if(type == st(LogicShiftRight)) result = Result{(int64_t) (a>>b)};
+  else if(type == st(LogicModulo))     result = Result{(int64_t) (a%b)};
+  else error("unknown operation");
 
-  else if(value.isNothing()) {
-    simulate = true;
-    write(0, dataLength);
-  }
-
-  else {
-    error("Directive cannot handle ", value, " for ", dataLength, "bytes");
-  }
+  return {result};
 }

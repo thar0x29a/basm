@@ -130,6 +130,8 @@ struct Plek {
     auto evaluateLabelRef(Statement) -> Result;
     template <typename T>
     auto calculate(StmtType type, const T& a, const T& b) -> Result;
+    template<typename T>
+    auto calculateLogic(StmtType type, const T& a, const T& b) -> Result;
     auto handleDirective(Result value, uint dataLength) -> void;
   
   // utility.cpp

@@ -48,11 +48,16 @@ auto Scanner::scanToken() -> void {
       else if(match('<')) addToken(TokenType::LESS_EQUAL);
       else addToken(TokenType::EQUAL);
       break;
+
     case '<':
-      addToken(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS);
+      if(match('=')) addToken(TokenType::LESS_EQUAL);
+      else if(match('<')) addToken(TokenType::LESS_LESS);
+      else addToken(TokenType::LESS);
       break;
     case '>':
-      addToken(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER);
+      if(match('=')) addToken(TokenType::GREATER_EQUAL);
+      else if(match('>')) addToken(TokenType::GREATER_GREATER);
+      else addToken(TokenType::GREATER);
       break;
 
     case '/':

@@ -55,6 +55,7 @@ protected:
   auto equality() -> const Statement;
   auto comparison() -> const Statement;
   auto term() -> const Statement;
+  auto subTerm() -> const Statement;
   auto factor() -> const Statement;
   auto unary() -> const Statement;
   auto primary(bool allfeatures = true) -> const Statement;
