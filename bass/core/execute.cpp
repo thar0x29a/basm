@@ -213,14 +213,13 @@ auto Plek::exLabel(Statement stmt) -> bool {
   }
 
   // at to label history
-  scope->addLabel({pc()});
+  // do not, because label refs are racist scope->addLabel({pc()});
   return true;
 }
 
 auto Plek::exLabelRef(Statement stmt) -> bool {  
   auto scope = frames.last();
   string name = {"#ll#",stmt_origin()};
-  notice("Lazy label ", name);
 
   if(simulate == true) {
     scope->setVariable(name, {pc()});
@@ -360,7 +359,7 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
   bool callAtemt = (stmt->is(st(Call))==true);
 
   //TODO: outsource fancy debug stuff
-  string text{};
+/*  string text{};
   for(auto& el : pool->all()) {
     auto res = evaluateRHS(el);
     string dbug = res.getString();
@@ -377,7 +376,7 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
     print(terminal::color::green("// "), 
       terminal::color::yellow(name), text, "\n");
   }
-
+/**/
   // prepare command to be passed to the assembler
   string cmd = name;
   for(auto el : pool->all()) {
@@ -385,6 +384,7 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
     string dbug = res.getString();
     if(res.isNothing()) {
       result = ReturnState::Lookahead;
+      simulate = true;
       dbug = {(int64_t)pc()};
     }
     cmd.append(dbug);
@@ -393,7 +393,7 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
   // table-chan is picky. clean up your instructions!
   cmd.trimRight(" ");
 
-  if(simulate) print(terminal::color::green("// "), cmd, "\n");
+  if(simulate) print(terminal::color::green("~~ "), cmd, "\n");
   else print(cmd, "\n");
 
   // run it!

@@ -114,7 +114,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Result {
   }
 
   frames.append(fscope);
-  exBlock(macro.getCode());
+    exBlock(macro.getCode());
   frames.removeRight();
   return fscope->result;
 }
