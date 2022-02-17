@@ -390,13 +390,16 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
     cmd.append(dbug);
   }
 
+  // table-chan is picky. clean up your instructions!
+  cmd.trimRight(" ");
+
   if(simulate) print(terminal::color::green("// "), cmd, "\n");
   else print(cmd, "\n");
 
   // run it!
   if(architecture->assemble(cmd)) return result;
   else if(callAtemt) error("function call finally failed (no assembly possible)");
-  else error("assembly failed for: ", cmd);
+  else error("assembly failed for: '", cmd, "'");
 
   return ReturnState::Error;
 }

@@ -50,20 +50,13 @@ auto Plek::initFunctions() -> void {
     return Result{nothing};
   });
 
-/*  coreFunctions.insert("seek#1", [&](Statement args) {
-    auto res = evaluateRHS(args->left());
-    if(!res.isInt()) error("wrong parameter type1");
-    
-    seek(res.getInt());
-    return Result{nothing};
-  });/**/
-
   auto originFun = [&](Statement args) {  
     if(args->left()) {
       auto res = evaluateRHS(args->left());
       if(!res.isInt()) error("wrong parameter type2");
       
       origin = res.getInt();
+      seek(origin);
     }
 
     return Result{(int64_t)origin};
@@ -76,7 +69,7 @@ auto Plek::initFunctions() -> void {
       auto res = evaluateRHS(args->left());
       if(!res.isInt()) error("wrong parameter type3");
       
-      base = res.getInt();
+      base = res.getInt() - origin;
     }
 
     return Result{(int64_t)base};
