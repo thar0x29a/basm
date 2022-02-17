@@ -124,6 +124,7 @@ struct Plek {
     auto calculate(Statement) -> Result;
     auto evalAssign(Statement) -> Result;
     auto evalIdentifier(Statement) -> Result;
+    auto evalEvaluation(Statement) -> Result;
     auto evalCall(Statement) -> Result;
     auto evalMapItem(Statement) -> Result;
     auto evalReference(Statement) -> Result;

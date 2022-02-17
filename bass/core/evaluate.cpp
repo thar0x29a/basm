@@ -52,7 +52,10 @@ auto Plek::evaluateRHS(Statement stmt) -> Result {
       res = evalReference(stmt);
       break;
     }
-    case st(Evaluation):
+    case st(Evaluation): {
+      res = evalEvaluation(stmt);
+      break;
+    }
     case st(Grouped): {
       res = evaluateRHS(stmt->left());
       break;    
@@ -111,6 +114,17 @@ auto Plek::evalIdentifier(Statement stmt) -> Result {
   }
   return tmp;
 }
+
+auto Plek::evalEvaluation(Statement stmt) -> Result {
+  Result tmp{nothing};
+  tmp = evaluateRHS(stmt->left());
+
+  if(tmp.isString()) {
+    auto [found, scope, name, res] = find(tmp.getString());
+    if(found) tmp = res.value;
+  }
+  return tmp;
+};
 
 auto Plek::evalCall(Statement stmt) -> Result {
   return invoke(stmt->value, stmt->left());
