@@ -33,6 +33,8 @@ protected:
   auto defList() -> const Statement;
   auto argument() -> const Statement;
   auto label() -> const Statement;
+  auto anonymousLabel() -> const Statement;
+//  auto labelRef() -> const Statement;
   auto assignment() -> const Statement;
   auto block() -> const Statement;
   auto blockOrEval() -> const Statement;
@@ -54,7 +56,7 @@ protected:
   auto comparison() -> const Statement;
   auto term() -> const Statement;
   auto factor() -> const Statement;
-  auto unary(bool allfeatures = true) -> const Statement;
+  auto unary() -> const Statement;
   auto primary(bool allfeatures = true) -> const Statement;
   auto symbol() -> const Statement;
   auto identifier() -> const Statement;

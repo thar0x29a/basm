@@ -110,6 +110,7 @@ auto Plek::exStatement(Statement item) -> ReturnState {
     case st(Continue): return ReturnState::Continue;
     case st(Namespace): exNamespace(item); break;
     case st(DeclConst): exConstDeclaration(item); break;
+    case st(LabelRef): exLabelRef(item); break;
     case st(Label): exLabel(item); break;
     case st(DeclVar): exVarDeclaration(item); break;
     case st(Assignment): exAssign(item); break;
@@ -199,14 +200,34 @@ auto Plek::exNamespace(Statement stmt) -> bool {
 
 auto Plek::exLabel(Statement stmt) -> bool {  
   auto left = evaluateLHS(stmt->left());
-  
+  auto scope = frames.last();
+
   if(simulate == true) {
-    frames.last()->setVariable(left.getString(), {pc()});
+    scope->setVariable(left.getString(), {pc()});
   }
   else {
-    frames.last()->setConstant(left.getString(), {pc()});
+    scope->setConstant(left.getString(), {pc()});
   }
 
+  // at to label history
+  scope->labels.append({pc()});
+  return true;
+}
+
+auto Plek::exLabelRef(Statement stmt) -> bool {  
+  auto scope = frames.last();
+  string name = {"#ll#",stmt_origin()};
+  notice("Lazy label ", name);
+
+  if(simulate == true) {
+    scope->setVariable(name, {pc()});
+  }
+  else {
+    scope->setConstant(name, {pc()});
+  }
+
+  // at to label history
+  scope->labels.append({pc()});
   return true;
 }
 

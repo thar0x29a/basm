@@ -14,6 +14,7 @@ struct FrameElement {
   /** used on 'this' */
   shared_pointer<Symbol> context = nullptr;
   map<string, Frame> children;
+  vector<Result> labels;
 
   FrameElement(const Frame parent) 
     : parent(parent), name("#"), temporary(true) {};

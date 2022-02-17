@@ -53,6 +53,11 @@ auto Parser::statement() -> const Statement {
   else if(t.type == tt(KW_BREAK)) return _break();
   else if(t.type == tt(KW_NAMESPACE)) return _namespace();
 
+  else if(t.type == tt(MINUS)) return anonymousLabel();
+  else if(t.type == tt(MINUSMINUS)) return anonymousLabel();
+  else if(t.type == tt(PLUS)) return anonymousLabel();
+  else if(t.type == tt(PLUSPLUS)) return anonymousLabel();
+
   else if(t.type == tt(IDENTIFIER)) {
     if(check(tt(EQUAL))) {
       back(); // yes i know ..
@@ -67,16 +72,7 @@ auto Parser::statement() -> const Statement {
     else if(check(tt(LEFT_BRACKET))) {
       return mapAssignOrAlien();
     }
-  }
-
-  else if(t.type == tt(CMD_PRINT)) {
-    return cmdPrint();
-  }
-  else if(t.type == tt(CMD_ARCH)) {
-    return cmdArch();
-  }
-  else if(t.type == tt(CMD_INCLUDE)) {
-    return cmdInclude();
+    else return alien();
   }
 
   return alien();
@@ -110,11 +106,11 @@ auto Parser::alien() -> const Statement {
   while(!isAtEnd()) {
     if(peek().type == tt(TERMINAL)) break;
     if(peek().origin.line > start.origin.line) break;
-    if(peek().type == tt(COMMA)) {
+    if(peek().type == tt(COMMA)) {  // why do we did th
       node->append( Statement::create(advance()) );
       continue;
     }
-    node->append( unary(false) );
+    node->append( primary(false) );
   }
 
   return node;
@@ -245,6 +241,10 @@ auto Parser::label() -> const Statement {
 
   advance(); // :
   return Statement::create(newt, StmtType::Label, value);
+}
+
+auto Parser::anonymousLabel() -> const Statement {
+  return Statement::create(previous(), StmtType::LabelRef);
 }
 
 auto Parser::assignment() -> const Statement {
@@ -463,17 +463,18 @@ auto Parser::factor() -> const Statement {
   return expr;
 }
 
-auto Parser::unary(bool allfeatures) -> const Statement {
+auto Parser::unary() -> const Statement {
   if (match(tt(BANG))) {
     auto op = previous();
     return Statement::create(op, StmtType::Banged, unary());
   }
+
   if (match(tt(MINUS))) {
     auto op = previous();
     return Statement::create(op, StmtType::Negative, unary());
   }
 
-  return primary(allfeatures);
+  return primary();
 }
 
 auto Parser::primary(bool allfeatures) -> const Statement {
@@ -505,9 +506,10 @@ auto Parser::primary(bool allfeatures) -> const Statement {
 
     throw string{"not expected"};
   }
-
-  // thread as unknown/raw item
-  return Statement::create(advance());
+  else {
+    // not all features = everything else is raw
+    return Statement::create(advance());
+  }
 }
 
 // something that could result in an value

@@ -24,8 +24,6 @@ auto Scanner::scanToken() -> void {
     case '}': addToken(TokenType::RIGHT_BRACE); break;
     case ',': addToken(TokenType::COMMA); break;
     case '.': addToken(TokenType::DOT); break;
-    case '-': addToken(TokenType::MINUS); break;
-    case '+': addToken(TokenType::PLUS); break;
     case ':': addToken(TokenType::COLON); break;
     case ';': addToken(TokenType::TERMINAL); break;
     case '&': addToken(TokenType::AND); break;
@@ -34,6 +32,13 @@ auto Scanner::scanToken() -> void {
     case '~': addToken(TokenType::WAVE); break;
     case '#': addToken(TokenType::HASH); break;
 
+    case '-':
+      addToken(match('-') ? TokenType::MINUSMINUS : TokenType::MINUS); 
+      break;
+    case '+':
+      addToken(match('+') ? TokenType::PLUSPLUS : TokenType::PLUS); 
+      break;
+    
     case '!':
       addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG);
       break;

@@ -105,6 +105,7 @@ struct Plek {
     auto exReturn(Statement) -> ReturnState;
     auto exNamespace(Statement) -> bool;
     auto exLabel(Statement) -> bool;
+    auto exLabelRef(Statement) -> bool;
     auto exAssign(Statement) -> bool;
     auto exMapAssign(Statement)-> bool;
     auto exIfState(Statement) -> ReturnState;
