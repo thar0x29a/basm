@@ -56,3 +56,22 @@ auto FrameElement::assign(const string& name, Result val) -> void {;
 auto FrameElement::addScope(const Frame frm) -> void {
   children.insert(frm->name, frm);
 }
+
+/**
+ * Helper to manage label 'history' in combination of
+ * lookaheads. Stores values since labels are meant to
+ * be const anyway. 
+**/
+auto FrameElement::addLabel(const Result& val) -> void {
+  if(labels.size()==labelp) {
+    labels.append(val);
+  }
+  else if(labels.size()>labelp) {
+    labels[labelp] = val;
+  }
+  else {
+    throw string{"Scope contains an invalid label state."};
+  }
+  labelp++;
+}
+

@@ -67,8 +67,10 @@ auto Plek::exBlock(Statement stmt) -> ReturnState {
 }
 
 auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> ReturnState {
+  auto scope = frames.last();
   ReturnState result = ReturnState::Default;
   int64_t oldBase = base;
+  int labelc = scope->labelp;
   simulate = true; // switch off writing
 
   // run lookaheads still block is done
@@ -83,12 +85,13 @@ auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> Return
   // rollback
   origin = oldOrigin;
   base = oldBase;
+  scope->labelp = labelc;
   simulate = false;
   seek(origin);
 
   // rerun core instruction.
   result = exStatement(stmt->content[offset]);
-  
+
   // still demands lookahead -> fail.
   if(result==ReturnState::Lookahead) {
     error("Unknown value (lookahead failed).");
@@ -210,7 +213,7 @@ auto Plek::exLabel(Statement stmt) -> bool {
   }
 
   // at to label history
-  scope->labels.append({pc()});
+  scope->addLabel({pc()});
   return true;
 }
 
@@ -227,7 +230,7 @@ auto Plek::exLabelRef(Statement stmt) -> bool {
   }
 
   // at to label history
-  scope->labels.append({pc()});
+  scope->addLabel({pc()});
   return true;
 }
 

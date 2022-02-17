@@ -72,15 +72,18 @@ auto Plek::evaluateLabelRef(Statement stmt) -> Result {
   int offs = ref.getOffset();
   auto scope = frames.last();
   int total = scope->labels.size();
+  int current = scope->labelp;
+  string emsg{"relative label access failed: not enought labels!"};
 
   if(offs<0) {
-    if(total+offs < 0) error("relative label access failed: not enought labels!");
-    res = scope->labels[total+offs];
+    if(current+offs < 0) error(emsg);
+    res = scope->labels[current+offs];
   }
   else if(offs>0) {
-    error("lazy label lookahead is not supported right now");
+    if(current+offs <= total) res = scope->labels[current+offs-1];
+    else if(simulate) res = Value{pc()};
   }
-  
+
   return res;
 }
 
