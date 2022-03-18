@@ -1,10 +1,17 @@
-endian("msb")
+arch("snes.cpu")
 
-base(0x100)
-dw 0x0000
+// ref list
+db 0, {header+1}, 0, gfx
 
-Label:
-  dw {End}
-  dw 0xffff
-  dw {Label}
-End:
+fun initStuff() {
+  sta {header-1},y
+}
+
+initStuff();
+
+header:
+  db 0,0,0,0,0,0,0,0,0
+  db "Bass is awesome!"
+gfx:
+  db ":**:**:**:**:**:"
+  db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
