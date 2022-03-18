@@ -36,10 +36,10 @@ auto Plek::execute() -> bool {
   catch(BassWarning be) {}
   catch(BassError be) {}
   catch(string e) {
-    print(terminal::color::red("ERROR: "), e);
+    print(terminal::color::red("ERROR: "), e, "\n");
   }
   catch(...) {
-    print(terminal::color::red("ERROR: "), "unknown error!");
+    print(terminal::color::red("ERROR: "), "unknown error!\n");
   }
 /*
   auto scope = frames.last();

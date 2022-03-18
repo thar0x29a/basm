@@ -192,7 +192,10 @@ auto Plek::calculate(Statement stmt) -> Result {
   Result result;
   for(auto item : stmt->content) {
     Result ir = evaluateRHS(item);
-    if(!ir) throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", ir};
+    if(!ir || ir.isNothing()) {
+      if(mode == EvaluationMode::Assembly) ir = (int64_t)pc();
+      else throw string{"Parameter had not been solved: ", item, " ", item->value, " -> ", ir};
+    }
     if(!result) { result = ir; continue; }
 
     if(result.isString()) {

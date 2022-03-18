@@ -1,10 +1,10 @@
 arch("snes.cpu")
 
 // ref list
-db 0, header, 0, gfx
+db 0, {header+1}, 0, gfx
 
 fun initStuff() {
-  sta {header},y
+  sta {header-1},y
 }
 
 initStuff();
