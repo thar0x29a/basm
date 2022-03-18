@@ -112,6 +112,10 @@ auto Plek::evalIdentifier(Statement stmt) -> Result {
     if(res.isMap() || res.isReference()) tmp = res;
     else tmp = res.value;
   }
+  else if(mode == EvaluationMode::Assembly) {
+    addMissing(name);
+   // return {(uint64_t)pc()};
+  }
   return tmp;
 }
 
@@ -127,6 +131,12 @@ auto Plek::evalEvaluation(Statement stmt) -> Result {
 };
 
 auto Plek::evalCall(Statement stmt) -> Result {
+  if(mode == EvaluationMode::Assembly) {
+    mode = EvaluationMode::Default;
+    auto res = invoke(stmt->value, stmt->left());
+    mode = EvaluationMode::Assembly;
+    return res;
+  }
   return invoke(stmt->value, stmt->left());
 }
 
@@ -139,7 +149,6 @@ auto Plek::evalMapItem(Statement stmt) -> Result {
   auto key = evaluateRHS(stmt->content[1]).getString();
   return { ref.getSymbol().get(key) };
 }
-
 
 auto Plek::handleDirective(Result value, uint dataLength) -> void {
   if(value.isInt()) {
@@ -169,7 +178,7 @@ auto Plek::handleDirective(Result value, uint dataLength) -> void {
   }
 
   else if(value.isNothing()) {
-    simulate = true;
+    // fake write, hopefully the value is present later on
     write(0, dataLength);
   }
 

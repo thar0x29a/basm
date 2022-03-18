@@ -108,13 +108,12 @@ namespace Bass {
   template<typename... P> auto Plek::warning(P&&... p) -> void {
     string s{forward<P>(p)...};
     print(stderr, terminal::color::yellow("warning "), stmt_origin(),": ", s, "\n");
-    if(!strict) {
+    if(mode != EvaluationMode::Strict) {
       //printInstruction();
       return;
     }
 
     //printInstructionStack();
-    struct BassWarning {};
     throw BassWarning();
   }
 
@@ -123,7 +122,6 @@ namespace Bass {
     print(stderr, terminal::color::red("ERROR "), stmt_origin(),": ", s, "\n");
     //todo: printInstructionStack();
 
-    struct BassError {};
     throw BassError();
   }
 

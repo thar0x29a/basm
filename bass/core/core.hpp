@@ -15,9 +15,14 @@ using Program = vector<Statement>;
 #include "../parser/parser.hpp"
 #include "../frame/frame.hpp"
 
-enum class EvaluationMode : uint { Default = 0, Strict, LeftSide };
+enum class EvaluationMode : uint { Default = 0, Strict, LeftSide, Assembly };
 enum class Endian : uint { LSB, MSB };
 enum class ReturnState : uint { Running = 0, Default, Return, Break, Continue, Lookahead, Error };
+
+struct Architecture;
+
+struct BassWarning {};
+struct BassError {};
 
 struct Tracker {
   bool enable = false;
@@ -49,7 +54,18 @@ struct SourceCode {
   Statement entryPoint;
 };
 
-struct Architecture;
+struct MissingSymbol {
+  string identName{};
+  Statement missing;
+
+  int64_t origin = 0;
+  int64_t base = 0;
+  int64_t offset = 0;
+
+  Endian endian = Endian::LSB;
+  shared_pointer<Architecture> architecture;
+  Frame frame;
+};
 
 using CoreFunction = std::function<Result (Statement)>;
 using string_vector = vector<string>;
@@ -63,7 +79,8 @@ struct Plek {
     vector<Frame> frames;
     Statement currentStmt = nullptr;
     map<string, CoreFunction> coreFunctions;
-    bool strict = false;            // strict mode
+    //bool strict = false;            // strict mode
+    EvaluationMode mode = EvaluationMode::Default;
     bool simulate = false;          // if set no output will be done.
     int64_t origin = 0;             // file offset
     int64_t base = 0;               // file offset to memory map displacement
@@ -73,6 +90,7 @@ struct Plek {
     int64_t stringTable[256];       // overrides for d[bwldq] text strings
     bool charactersUseMap = true;   // 0 = '*' parses as ASCII; 1 = '*' uses stringTable[]
     shared_pointer<Architecture> architecture;
+    vector<MissingSymbol> missing;  // vector of missing symbols that needs to be found.
     friend class Architecture;
 
   public:
@@ -144,6 +162,10 @@ struct Plek {
 
     auto readArchitecture(const string& name) -> string;
     auto isDirective(const string& name) -> uint;
+
+    auto addMissing(const string& name) -> void;
+    auto testMissing(const MissingSymbol& mimi) -> void;
+    auto solveMissing(const MissingSymbol& mimi) -> void;
 };
 
 // loaded here because of high dependencys

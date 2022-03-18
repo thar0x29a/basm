@@ -137,3 +137,62 @@ auto Plek::isDirective(const string& name) -> uint {
   return dataLength;
 };
   
+
+auto Plek::addMissing(const string& name) -> void {
+  MissingSymbol mimi{
+    name, currentStmt,
+    origin, base, (targetFile) ? targetFile.offset() : 0,
+    endian,
+    architecture,
+    frames.last()
+  };
+
+  //notice("Added issue for ", name);
+  missing.append(mimi);
+}
+
+auto Plek::testMissing(const MissingSymbol& mimi) -> void {
+  //notice("test for missing ", mimi.identName);
+  frames.append(mimi.frame);
+
+  auto [found, scope, name, res] = find(mimi.identName);
+  if(!found) {
+    error("Cannot solve '", mimi.identName, "'.");
+  }
+  else {
+    if(!res.isProtected()) {
+      error("Lookahead is limited to const values.");
+    }
+    //notice(name, " is ", res.value);
+  }
+
+  frames.removeRight();
+}
+
+auto Plek::solveMissing(const MissingSymbol& mimi) -> void {
+  //notice("try to handle ", mimi.identName);
+  
+  currentStmt = mimi.missing;
+  origin = mimi.origin;
+  base = mimi.base;
+  endian = mimi.endian;
+  architecture = mimi.architecture;
+
+  frames.append(mimi.frame);
+  seek(mimi.offset);
+
+  warning("stmt:",currentStmt,
+    ", origin:", origin, 
+    ", base:",base, 
+    ", endian:",(uint)endian, 
+    ", offset:",mimi.offset);
+
+  // ex asm stmt
+  auto ret_state = exAssembly(currentStmt);
+
+  if(ret_state == ReturnState::Lookahead) {
+    error("Cannot solve '", mimi.identName, "' !");
+  }
+
+  frames.removeRight();
+}

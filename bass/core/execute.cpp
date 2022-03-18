@@ -14,15 +14,32 @@ auto Plek::initExecution() -> void {
 
 auto Plek::execute() -> bool {
   try {
-    //todo: better errorhandling. probl somewhere else. 
-
     //Parser::debug(program);
-
+    // run code
     for(auto& item : program) {
       exBlock(item);
     }
-  } catch(string e) {
-    error(e);
+
+    // try to solve missings
+    for(const auto& item : missing) testMissing(item);
+    if(targetFile) {
+      string recent{};
+      for(const auto& item : missing) {
+        // ensure we do not redo the same stmt twice
+        string current = stmt_origin(item.missing);
+        if(recent==current) continue;
+        solveMissing(item);
+        recent = current;
+      }
+    }
+  }
+  catch(BassWarning be) {}
+  catch(BassError be) {}
+  catch(string e) {
+    print(terminal::color::red("ERROR: "), e);
+  }
+  catch(...) {
+    print(terminal::color::red("ERROR: "), "unknown error!");
   }
 /*
   auto scope = frames.last();
@@ -57,7 +74,7 @@ auto Plek::exBlock(Statement stmt) -> ReturnState {
     oldOrigin = origin;
     result = exStatement(stmt->content[i]);
 
-    if(result==ReturnState::Lookahead) result = exLookahead(stmt, i, oldOrigin);
+    //if(result==ReturnState::Lookahead) result = exLookahead(stmt, i, oldOrigin);
     if(result==ReturnState::Continue) return ReturnState::Continue;
     if(result==ReturnState::Break) return ReturnState::Break;
     if(result==ReturnState::Return) return ReturnState::Return;
@@ -349,8 +366,11 @@ auto Plek::exWhile(Statement stmt) -> bool {
 
 auto Plek::exAssembly(Statement stmt) -> ReturnState {
   ReturnState result = ReturnState::Default;
+  EvaluationMode oldMode = mode;
+  mode = EvaluationMode::Assembly;
+  
   string name = {stmt->value.getString(), " "};
-
+  
   // is this an directive?
   if(uint dl = isDirective(name)) return exDirective(dl, stmt);
 
@@ -377,15 +397,23 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
       terminal::color::yellow(name), text, "\n");
   }
 /**/
+
   // prepare command to be passed to the assembler
   string cmd = name;
   for(auto el : pool->all()) {
-    auto res = evaluateRHS(el);
-    string dbug = res.getString();
-    if(res.isNothing()) {
-      result = ReturnState::Lookahead;
-      simulate = true;
-      dbug = {(int64_t)pc()};
+    string dbug{};
+
+    if(el->type == st(Evaluation)) {
+      auto res = evaluateRHS(el);
+      dbug = res.getString();
+      
+      if(res.isNothing()) {
+        result = ReturnState::Lookahead;
+        //simulate = true;
+        dbug = {(int64_t)pc()};
+      }
+    } else {
+      dbug = el->value.getString();
     }
     cmd.append(dbug);
   }
@@ -396,6 +424,7 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
   if(simulate) print(terminal::color::green("~~ "), cmd, "\n");
   else print(cmd, "\n");
 
+  mode = oldMode;
   // run it!
   if(architecture->assemble(cmd)) return result;
   else if(callAtemt) error("function call finally failed (no assembly possible)");
