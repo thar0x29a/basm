@@ -60,7 +60,6 @@ struct MissingSymbol {
 
   int64_t origin = 0;
   int64_t base = 0;
-  int64_t offset = 0;
 
   Endian endian = Endian::LSB;
   shared_pointer<Architecture> architecture;
@@ -83,6 +82,7 @@ struct Plek {
     EvaluationMode mode = EvaluationMode::Default;
     bool simulate = false;          // if set no output will be done.
     int64_t origin = 0;             // file offset
+    int64_t clean_origin = 0;       // file offset on the beginning of last bin operation
     int64_t base = 0;               // file offset to memory map displacement
     Endian endian = Endian::LSB;    // used for multi-byte writes (d[bwldq], etc)
     Directives directives;          // active directives

@@ -368,6 +368,7 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
   ReturnState result = ReturnState::Default;
   EvaluationMode oldMode = mode;
   mode = EvaluationMode::Assembly;
+  clean_origin = origin;
   
   string name = {stmt->value.getString(), " "};
   

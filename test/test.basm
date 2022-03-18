@@ -1,11 +1,17 @@
-assert("test4" == {"test4"});
+arch("snes.cpu")
 
-fun foo(a, var b, const c, ref d) {
-    var str = "" + a + ":" + b + ":" + c + ":" + d + ":" + [d]
-    assert("1:2:3:test4:4" == str)
+// ref list
+db 0, header, 0, gfx
+
+fun initStuff() {
+  sta {header},y
 }
 
-var {"t"+"e"+"s"+"t"+4} = 4
-foo(1,2,3,test4)
+initStuff();
 
-assert(4 == {"test4"});
+header:
+  db 0,0,0,0,0,0,0,0,0
+  db "Iam soo awesome!"
+gfx:
+  db ":**:**:**:**:**:"
+  db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1

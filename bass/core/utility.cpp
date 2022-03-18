@@ -141,7 +141,7 @@ auto Plek::isDirective(const string& name) -> uint {
 auto Plek::addMissing(const string& name) -> void {
   MissingSymbol mimi{
     name, currentStmt,
-    origin, base, (targetFile) ? targetFile.offset() : 0,
+    clean_origin, base,
     endian,
     architecture,
     frames.last()
@@ -179,13 +179,13 @@ auto Plek::solveMissing(const MissingSymbol& mimi) -> void {
   architecture = mimi.architecture;
 
   frames.append(mimi.frame);
-  seek(mimi.offset);
+  seek(mimi.origin);
 
-  warning("stmt:",currentStmt,
+  /*warning("stmt:",currentStmt,
     ", origin:", origin, 
     ", base:",base, 
     ", endian:",(uint)endian, 
-    ", offset:",mimi.offset);
+    ", offset:",mimi.offset);/**/
 
   // ex asm stmt
   auto ret_state = exAssembly(currentStmt);
