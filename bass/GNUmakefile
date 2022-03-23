@@ -1,7 +1,9 @@
+now = $(shell date +'%y-%m-%d')
+
 name := bass
 build := release
 console := true
-flags += -I..
+flags += -I.. -DNOW=\"$(now)\"
 
 nall.path := ../nall
 include $(nall.path)/GNUmakefile

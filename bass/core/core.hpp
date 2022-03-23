@@ -95,7 +95,7 @@ struct Plek {
 
   public:
     const int64_t appVersion = 20;
-    const string appLabel = {"v", appVersion, " plek 220115"};
+    const string appLabel = {"v", appVersion, " (", NOW, ")"};
 
     auto init() -> void;
     auto load(const string& filename) -> bool;
