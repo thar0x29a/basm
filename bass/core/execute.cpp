@@ -14,15 +14,32 @@ auto Plek::initExecution() -> void {
 
 auto Plek::execute() -> bool {
   try {
-    //todo: better errorhandling. probl somewhere else. 
-
     //Parser::debug(program);
-
+    // run code
     for(auto& item : program) {
       exBlock(item);
     }
-  } catch(string e) {
-    error(e);
+
+    // try to solve missings
+    for(const auto& item : missing) testMissing(item);
+    if(targetFile) {
+      string recent{};
+      for(const auto& item : missing) {
+        // ensure we do not redo the same stmt twice
+        string current = stmt_origin(item.missing);
+        if(recent==current) continue;
+        solveMissing(item);
+        recent = current;
+      }
+    }
+  }
+  catch(BassWarning be) {}
+  catch(BassError be) {}
+  catch(string e) {
+    print(terminal::color::red("ERROR: "), e, "\n");
+  }
+  catch(...) {
+    print(terminal::color::red("ERROR: "), "unknown error!\n");
   }
 /*
   auto scope = frames.last();
@@ -54,10 +71,10 @@ auto Plek::exBlock(Statement stmt) -> ReturnState {
   int64_t oldOrigin = 0;
 
   for(uint i=0; i<stmt->size(); ++i) {
-    oldOrigin = pc();
+    oldOrigin = origin;
     result = exStatement(stmt->content[i]);
 
-    if(result==ReturnState::Lookahead) result = exLookahead(stmt, i, oldOrigin);
+    //if(result==ReturnState::Lookahead) result = exLookahead(stmt, i, oldOrigin);
     if(result==ReturnState::Continue) return ReturnState::Continue;
     if(result==ReturnState::Break) return ReturnState::Break;
     if(result==ReturnState::Return) return ReturnState::Return;
@@ -67,9 +84,10 @@ auto Plek::exBlock(Statement stmt) -> ReturnState {
 }
 
 auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> ReturnState {
-  notice("Lookahead started!");
+  auto scope = frames.last();
   ReturnState result = ReturnState::Default;
   int64_t oldBase = base;
+  int labelc = scope->labelp;
   simulate = true; // switch off writing
 
   // run lookaheads still block is done
@@ -84,15 +102,18 @@ auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> Return
   // rollback
   origin = oldOrigin;
   base = oldBase;
+  scope->labelp = labelc;
   simulate = false;
-  seek(pc());
+  seek(origin);
 
   // rerun core instruction.
   result = exStatement(stmt->content[offset]);
-  
+
   // still demands lookahead -> fail.
   if(result==ReturnState::Lookahead) {
     error("Unknown value (lookahead failed).");
+    simulate = false;
+    result = ReturnState::Error;
   }
 
   return result;
@@ -100,7 +121,8 @@ auto Plek::exLookahead(Statement stmt, uint offset, int64_t oldOrigin) -> Return
 
 auto Plek::exStatement(Statement item) -> ReturnState {
   ReturnState result = ReturnState::Default;
-
+  currentStmt = item;
+  
   switch(item->type) {
     case st(File):
     case st(Block): exBlock(item); break;
@@ -108,6 +130,7 @@ auto Plek::exStatement(Statement item) -> ReturnState {
     case st(Continue): return ReturnState::Continue;
     case st(Namespace): exNamespace(item); break;
     case st(DeclConst): exConstDeclaration(item); break;
+    case st(LabelRef): exLabelRef(item); break;
     case st(Label): exLabel(item); break;
     case st(DeclVar): exVarDeclaration(item); break;
     case st(Assignment): exAssign(item); break;
@@ -167,28 +190,63 @@ auto Plek::exNamespace(Statement stmt) -> bool {
   if(!stmt->left() || !stmt->right()) throw "Broken AST #103";
   auto left = evaluateLHS(stmt->left());
 
-  string name = left.getString();
-  auto scope = frames.last();
-  auto subscope = Frame::create(scope, name);
+  string names = left.getString();
+  if(!names) error("empty namespace name");
 
-  scope->addScope(subscope);
-  frames.append(subscope);
-    exBlock(stmt->right());
-  frames.removeRight(); 
+  // walk into the right scope
+  int depth = 0;
+  for(auto name : names.split('.')) {
+    auto top_scope = frames.last();
+
+    if(auto res = top_scope->children.find(name)) {
+      frames.append(res());
+    }
+    else {
+      auto subscope = Frame::create(top_scope, name);
+      top_scope->addScope(subscope);
+      frames.append(subscope);
+    }
+    ++depth;
+  }
+
+  // progress
+  exBlock(stmt->right());
+
+  // walk back
+  for(int i=0; i<depth; i++) frames.removeRight();
 
   return true;
 }
 
 auto Plek::exLabel(Statement stmt) -> bool {  
   auto left = evaluateLHS(stmt->left());
-  
+  auto scope = frames.last();
+
   if(simulate == true) {
-    frames.last()->setVariable(left.getString(), {pc()});
+    scope->setVariable(left.getString(), {pc()});
   }
   else {
-    frames.last()->setConstant(left.getString(), {pc()});
+    scope->setConstant(left.getString(), {pc()});
   }
 
+  // at to label history
+  // do not, because label refs are racist scope->addLabel({pc()});
+  return true;
+}
+
+auto Plek::exLabelRef(Statement stmt) -> bool {  
+  auto scope = frames.last();
+  string name = {"#ll#",stmt_origin()};
+
+  if(simulate == true) {
+    scope->setVariable(name, {pc()});
+  }
+  else {
+    scope->setConstant(name, {pc()});
+  }
+
+  // at to label history
+  scope->addLabel({pc()});
   return true;
 }
 
@@ -306,45 +364,23 @@ auto Plek::exWhile(Statement stmt) -> bool {
   return true;
 }
 
-auto Plek::exDirective(string name, Statement items) -> ReturnState {
-  uint dataLength = 0;
-  for(auto d : directives.EmitBytes) {
-    if(d.token == name) {
-      dataLength = d.dataLength;
-      break;
-    }
-  }
-
-  if(dataLength==0) return ReturnState::Running;
-  
-  for(auto el : items->all()) {
-    if(el->type != st(Raw)) {
-      auto res = evaluateRHS(el);
-      if(res.isNothing()) {
-        write(0, dataLength); // fake write
-        return ReturnState::Lookahead;
-      }
-      handleDirectiveValue(res, dataLength);
-    }
-  }
-
-  return ReturnState::Default;
-}
-
 auto Plek::exAssembly(Statement stmt) -> ReturnState {
   ReturnState result = ReturnState::Default;
+  EvaluationMode oldMode = mode;
+  mode = EvaluationMode::Assembly;
+  clean_origin = origin;
+  
   string name = {stmt->value.getString(), " "};
   
+  // is this an directive?
+  if(uint dl = isDirective(name)) return exDirective(dl, stmt);
+
   // are we an call-fallback?
   auto pool = (stmt->is(st(Call))) ? stmt->right() : stmt;
   bool callAtemt = (stmt->is(st(Call))==true);
 
-  // is this an directive?
-  auto dirtate = exDirective(name, pool);
-  if(dirtate != ReturnState::Running) return dirtate;
-
   //TODO: outsource fancy debug stuff
-  string text{};
+/*  string text{};
   for(auto& el : pool->all()) {
     auto res = evaluateRHS(el);
     string dbug = res.getString();
@@ -357,29 +393,55 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
     else dbug = terminal::color::red(dbug);
     text.append(dbug);
   }
-  print(terminal::color::yellow(name), text, "\n");
- 
+  if(simulate) {
+    print(terminal::color::green("// "), 
+      terminal::color::yellow(name), text, "\n");
+  }
+/**/
 
   // prepare command to be passed to the assembler
   string cmd = name;
   for(auto el : pool->all()) {
-    auto res = evaluateRHS(el);
-    string dbug = res.getString();
-    if(res.isNothing()) {
-      result = ReturnState::Lookahead;
-      dbug = {(int64_t)pc()};
+    string dbug{};
+
+    if(el->type == st(Evaluation)) {
+      auto res = evaluateRHS(el);
+      dbug = res.getString();
+      
+      if(res.isNothing()) {
+        result = ReturnState::Lookahead;
+        //simulate = true;
+        dbug = {(int64_t)pc()};
+      }
+    } else {
+      dbug = el->value.getString();
     }
     cmd.append(dbug);
   }
-  
+
   // table-chan is picky. clean up your instructions!
   cmd.trimRight(" ");
-  print(cmd, "\n");
 
+  if(simulate) print(terminal::color::green("~~ "), cmd, "\n");
+  else print(cmd, "\n");
+
+  mode = oldMode;
   // run it!
   if(architecture->assemble(cmd)) return result;
   else if(callAtemt) error("function call finally failed (no assembly possible)");
-  else error("assembly failed for: ", cmd);
+  else error("assembly failed for: '", cmd, "'");
 
   return ReturnState::Error;
 }
+
+auto Plek::exDirective(uint dataLength, Statement items) -> ReturnState {
+  for(auto el : items->all()) {
+    if(el->type != st(Raw)) {
+      auto res = evaluateRHS(el);
+      handleDirective(res, dataLength);
+    }
+  }
+
+  return (simulate) ? ReturnState::Lookahead : ReturnState::Default;
+}
+

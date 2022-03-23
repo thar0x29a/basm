@@ -1,0 +1,11 @@
+namespace foo {
+  namespace baa {
+    const text = "Hello";
+  }
+}
+
+namespace foo.baa {
+  var text2 = "World";
+}
+
+assert("HelloWorld" == foo.baa.text + foo.baa.text2);

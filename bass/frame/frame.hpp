@@ -14,6 +14,8 @@ struct FrameElement {
   /** used on 'this' */
   shared_pointer<Symbol> context = nullptr;
   map<string, Frame> children;
+  vector<Result> labels;
+  int labelp{0};
 
   FrameElement(const Frame parent) 
     : parent(parent), name("#"), temporary(true) {};
@@ -27,4 +29,6 @@ struct FrameElement {
 
   auto assign(const string& name, Result val) -> void;
   auto addScope(const Frame frm) -> void;
+
+  auto addLabel(const Result&) -> void;
 };

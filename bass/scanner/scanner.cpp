@@ -24,8 +24,6 @@ auto Scanner::scanToken() -> void {
     case '}': addToken(TokenType::RIGHT_BRACE); break;
     case ',': addToken(TokenType::COMMA); break;
     case '.': addToken(TokenType::DOT); break;
-    case '-': addToken(TokenType::MINUS); break;
-    case '+': addToken(TokenType::PLUS); break;
     case ':': addToken(TokenType::COLON); break;
     case ';': addToken(TokenType::TERMINAL); break;
     case '&': addToken(TokenType::AND); break;
@@ -34,6 +32,13 @@ auto Scanner::scanToken() -> void {
     case '~': addToken(TokenType::WAVE); break;
     case '#': addToken(TokenType::HASH); break;
 
+    case '-':
+      addToken(match('-') ? TokenType::MINUSMINUS : TokenType::MINUS); 
+      break;
+    case '+':
+      addToken(match('+') ? TokenType::PLUSPLUS : TokenType::PLUS); 
+      break;
+    
     case '!':
       addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG);
       break;
@@ -43,6 +48,7 @@ auto Scanner::scanToken() -> void {
       else if(match('<')) addToken(TokenType::LESS_EQUAL);
       else addToken(TokenType::EQUAL);
       break;
+
     case '<':
       if(match('=')) addToken(TokenType::LESS_EQUAL);
       else if(match('<')) addToken(TokenType::LESS_LESS);
@@ -71,6 +77,7 @@ auto Scanner::scanToken() -> void {
     
     case '\n':
       line++;
+      line_start = current;
       break;
     case ' ':
     case '\r':
@@ -116,12 +123,12 @@ auto Scanner::advance() -> char {
 
 auto Scanner::addToken(TokenType type) -> void {
   string text = source.slice(start, current-start);
-  tokens.append({{uid,line}, type, text, text});
+  tokens.append({{uid,line,start-line_start}, type, text, text});
 }
 
 auto Scanner::addToken(TokenType type, any literal) -> void {
   string text = source.slice(start, current-start);
-  tokens.append({{uid,line}, type, text, literal});
+  tokens.append({{uid,line,start-line_start}, type, text, literal});
 }
 
 auto Scanner::match(char expected) -> bool {
@@ -145,7 +152,10 @@ auto Scanner::peekNext() -> char {
 auto Scanner::anString() -> void {
   char last = 0;
   while (!isAtEnd() && !(last!='\\' && peek()=='"')) {
-    if (peek() == '\n') line++;
+    if (peek() == '\n') {
+      line++;
+      line_start = current;
+    }
     last = advance();
   }
 

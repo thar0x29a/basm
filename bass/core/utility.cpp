@@ -114,7 +114,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Result {
   }
 
   frames.append(fscope);
-  exBlock(macro.getCode());
+    exBlock(macro.getCode());
   frames.removeRight();
   return fscope->result;
 }
@@ -126,34 +126,73 @@ auto Plek::readArchitecture(const string& name) -> string {
   return string::read(location);
 }
 
-auto Plek::handleDirectiveValue(Result value, uint dataLength) -> void {
-  if(value.isInt()) {
-    write(value.getInt(), dataLength);
+auto Plek::isDirective(const string& name) -> uint {
+  uint dataLength = 0;
+  for(auto d : directives.EmitBytes) {
+    if(d.token == name) {
+      dataLength = d.dataLength;
+      break;
+    }
   }
+  return dataLength;
+};
+  
 
-  else if(value.isString()) {
-    for(auto c : value.getString()) {
-      if(charactersUseMap) write(stringTable[c], 1);
-      else write(c, dataLength);
-    }
-  }
-      
-  else if(value.isSymbol()) {
-    auto symb = value.getSymbol();
-    if(symb.isMap()) {
-      for(auto item : symb.references) {
-        handleDirectiveValue({item.value}, dataLength);
-      }
-    }
-    else if(symb.isValue()) {
-      handleDirectiveValue({symb.value}, dataLength);
-    }
-    else {
-      error("Directive cannot handle this symbol");
-    }
-  }
+auto Plek::addMissing(const string& name) -> void {
+  MissingSymbol mimi{
+    name, currentStmt,
+    clean_origin, base,
+    endian,
+    architecture,
+    frames.last()
+  };
 
+  //notice("Added issue for ", name);
+  missing.append(mimi);
+}
+
+auto Plek::testMissing(const MissingSymbol& mimi) -> void {
+  //notice("test for missing ", mimi.identName);
+  frames.append(mimi.frame);
+
+  auto [found, scope, name, res] = find(mimi.identName);
+  if(!found) {
+    error("Cannot solve '", mimi.identName, "'.");
+  }
   else {
-    error("Directive cannot handle ", value);
-  }  
+    if(!res.isProtected()) {
+      error("Lookahead is limited to const values.");
+    }
+    //notice(name, " is ", res.value);
+  }
+
+  frames.removeRight();
+}
+
+auto Plek::solveMissing(const MissingSymbol& mimi) -> void {
+  //notice("try to handle ", mimi.identName);
+  
+  currentStmt = mimi.missing;
+  origin = mimi.origin;
+  base = mimi.base;
+  endian = mimi.endian;
+  architecture = mimi.architecture;
+
+  frames.append(mimi.frame);
+  seek(mimi.origin);
+
+  /*warning("stmt:",currentStmt,
+    ", origin:", origin, 
+    ", base:",base, 
+    ", endian:",(uint)endian, 
+    ", offset:",mimi.offset);/**/
+
+  // ex asm stmt
+  auto ret_state = exAssembly(currentStmt);
+
+  if(ret_state == ReturnState::Lookahead) {
+    error("Cannot solve '", mimi.identName, "' !");
+  }
+
+  frames.removeRight();
 }

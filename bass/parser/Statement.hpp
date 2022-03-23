@@ -1,6 +1,6 @@
 enum class StmtType : uint {
   File, Block, Grouped,
-  Value, Identifier, Label, Evaluation, Reference, MapItem,
+  Value, Identifier, Label, LabelRef, Evaluation, Reference, MapItem,
 
   // declarations
   DeclConst, DeclVar, DecList,
@@ -22,12 +22,12 @@ enum class StmtType : uint {
 
 const vector<string> StmtNames = {
   "File", "Block", "Grouped",
-  "Value", "Identifier", "Label", "Evaluation", "Reference", "MapItem",
+  "Value", "Identifier", "Label", "LabelRef", "Evaluation", "Reference", "MapItem",
   "DeclConst", "DeclVar", "DecList",
   "ConstArgument", "VarArgument", "RefArgument",
   "Expr", "Negative", "Banged",
-    "Add", "Sub", "Mul", "Div", 
-    "LogicAnd", "LogicOr", "LogicShiftLeft", "LogicShiftRight", "LogicModulo", 
+  "Add", "Sub", "Mul", "Div", 
+  "LogicAnd", "LogicOr", "LogicShiftLeft", "LogicShiftRight", "LogicModulo",
   "Macro", "Call", "List", "Assignment", "MapAssignment",
   "Return",
   "While", "IfClause", "If", "ElseIf", "Else", "Break", "Continue",

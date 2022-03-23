@@ -107,23 +107,29 @@ namespace Bass {
 
   template<typename... P> auto Plek::warning(P&&... p) -> void {
     string s{forward<P>(p)...};
-    print(stderr, terminal::color::yellow("warning: "), s, "\n");
-    if(!strict) {
+    print(stderr, terminal::color::yellow("warning "), stmt_origin(),": ", s, "\n");
+    if(mode != EvaluationMode::Strict) {
       //printInstruction();
       return;
     }
 
     //printInstructionStack();
-    struct BassWarning {};
     throw BassWarning();
   }
 
   template<typename... P> auto Plek::error(P&&... p) -> void {
     string s{forward<P>(p)...};
-    print(stderr, terminal::color::red("error: "), s, "\n");
+    print(stderr, terminal::color::red("ERROR "), stmt_origin(),": ", s, "\n");
     //todo: printInstructionStack();
 
-    struct BassError {};
     throw BassError();
-  }  
+  }
+
+  auto Plek::stmt_origin(Statement stmt) -> const string {
+    if(!stmt) stmt = currentStmt;
+
+    int fid = stmt->origin.fileId;
+    auto src = sourceFiles[fid];
+    return {src.filename, ":", stmt->origin.line, ":", stmt->origin.line_offset};
+  }
 };
