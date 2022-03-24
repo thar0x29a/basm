@@ -33,13 +33,19 @@ auto Plek::execute() -> bool {
       }
     }
   }
-  catch(BassWarning be) {}
-  catch(BassError be) {}
+  catch(BassWarning be) {
+    return false;
+  }
+  catch(BassError be) {
+    return false;
+  }
   catch(string e) {
     print(terminal::color::red("ERROR: "), e, "\n");
+    return false;
   }
   catch(...) {
     print(terminal::color::red("ERROR: "), "unknown error!\n");
+    return false;
   }
 /*
   auto scope = frames.last();

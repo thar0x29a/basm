@@ -53,7 +53,9 @@ auto nall::main(Arguments arguments) -> void {
     }
     plek.target(targetFilename, create);
 
-    plek.execute();
+    if(plek.execute() == false) {
+      exit(EXIT_FAILURE);
+    }
   } catch(string e) {
     plek.error(e);
     exit(EXIT_FAILURE);
