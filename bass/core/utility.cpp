@@ -157,6 +157,7 @@ auto Plek::testMissing(const MissingSymbol& mimi) -> void {
 
   auto [found, scope, name, res] = find(mimi.identName);
   if(!found) {
+    currentStmt = mimi.missing;
     error("Cannot solve '", mimi.identName, "'.");
   }
   else {

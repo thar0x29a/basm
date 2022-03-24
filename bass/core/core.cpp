@@ -130,6 +130,6 @@ namespace Bass {
 
     int fid = stmt->origin.fileId;
     auto src = sourceFiles[fid];
-    return {src.filename, ":", stmt->origin.line, ":", stmt->origin.line_offset};
+    return {src.filename, ":", stmt->origin.line+1, ":", stmt->origin.line_offset};
   }
 };
