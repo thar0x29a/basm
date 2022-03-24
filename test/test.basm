@@ -1,17 +1,8 @@
-arch("snes.cpu")
+arch("wdc65816")
 
-// ref list
-db 0, {header+1}, 0, gfx
+    lda.w   {missing}
 
-fun initStuff() {
-  sta {header-1},y
-}
+    nop
+    nop
 
-initStuff();
-
-header:
-  db 0,0,0,0,0,0,0,0,0
-  db "Iam soo awesome!"
-gfx:
-  db ":**:**:**:**:**:"
-  db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+    rts
