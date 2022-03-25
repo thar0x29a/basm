@@ -208,7 +208,7 @@ auto Parser::list() -> const Statement {
 auto Parser::defList() -> const Statement {
   auto start = consume(tt(LEFT_PAREN), "expected list opening");
   auto expr = Statement::create(start, StmtType::DecList);
-    
+
   while(!check(tt(RIGHT_PAREN))) {
     expr->append(argument());
     if(!check(tt(COMMA))) break;
@@ -288,7 +288,7 @@ auto Parser::blockOrEval() -> const Statement {
       return Statement::create(eq, StmtType::Assignment,
               eva, expression());
     }
-      
+
     throw string{"unbound evaluation found."};
   }
   else {
@@ -384,7 +384,7 @@ auto Parser::_for() -> const Statement {
   // end-of-thing
 
   consume(tt(COLON), "expected colon");
-  auto ref = identifier();
+  auto ref = primary();
   consume(tt(RIGHT_PAREN), "expected list closing");
 
   // body

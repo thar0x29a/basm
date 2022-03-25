@@ -2,6 +2,7 @@
 #include "MacroStatement.hpp"
 #include "MapAssignStatement.hpp"
 #include "LabelRefStatement.hpp"
+#include "ForStatement.hpp"
 
 struct Parser {
   Parser(Scanner& scanner);

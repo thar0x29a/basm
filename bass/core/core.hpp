@@ -130,6 +130,7 @@ struct Plek {
     auto exIf(Statement) -> ReturnState;
     auto exElse(Statement) -> ReturnState;
     auto exWhile(Statement) -> bool;
+    auto exFor(Statement) -> bool;
     auto exAssembly(Statement) -> ReturnState;
     auto exDirective(uint, Statement) -> ReturnState;
 

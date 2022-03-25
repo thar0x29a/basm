@@ -145,6 +145,7 @@ auto Plek::exStatement(Statement item) -> ReturnState {
     case st(Return): result = exReturn(item); break;
     case st(IfClause): result = exIfState(item); break;
     case st(While): exWhile(item); break;
+    case st(For): exFor(item); break;
     case st(Call): if(exCall(item)) break;
     case st(Raw): result = exAssembly(item); break;
     default: warning("todo: ", item);
@@ -367,6 +368,46 @@ auto Plek::exWhile(Statement stmt) -> bool {
     }
   } while(result==true);
   
+  return true;
+}
+
+auto Plek::exFor(Statement stmt) -> bool {
+  auto scope = frames.last();
+  bool result = false;
+  ForStatement helper{stmt};
+
+  auto var = evaluateLHS(helper.getVariable());
+  auto cnstVar = helper.isVarConstant();
+  auto vName = var.getString();
+
+  auto src = evaluateRHS(helper.getSource());
+
+  if(!src.isSymbol()) error("Cannot iterate non Array value");
+  auto srcMap = src.getSymbol();
+  if(!srcMap.isMap()) error("Cannot iterate non Array value");
+
+  for(const auto& [key, item] : srcMap.references) {
+    auto subscope = Frame::create(scope);
+    if(cnstVar) {
+      subscope->setVariable(vName, {item.value});
+    }
+    else {
+      subscope->setConstant(vName, {item.value});
+    }
+
+    frames.append(subscope);
+    auto retstate = exBlock(helper.getCode());
+    frames.removeRight();
+  
+    if(retstate==ReturnState::Continue) continue;
+    if(retstate==ReturnState::Break) break;
+    if(retstate==ReturnState::Return) {
+      scope->result = subscope->result;
+      scope->returned = true;
+      return true;
+    }
+  }
+
   return true;
 }
 
