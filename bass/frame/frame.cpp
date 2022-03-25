@@ -37,11 +37,11 @@ auto FrameElement::setMacro(MacroStatement def) -> void {
   if(auto res = symbolTable.find(id)) {
     if(res->type == symbt(Map)) {
       map = res();
-
       if(auto ex = map.references.find(key)) {
-        if(ex->isProtected()) throw string{"constant cannot be modified '", name, "'"};    
+        if(ex->isProtected()) throw string{"Function  already exist '", name, "'"};    
       }
     }
+    else if(res->isProtected()) throw string{"Function name is allready taken '", name, "'"};
   }
 
   Symbol entry{SymbolType::Reference, SymbolMode::Const, {nothing}, def.ref};
