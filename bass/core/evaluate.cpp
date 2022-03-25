@@ -202,7 +202,9 @@ auto Plek::calculate(Statement stmt) -> Result {
       // as long the target is a string, value can append everything on it.
     }
     else if(result.type() != ir.type()) {
-      throw string{"incompatible types: ", result, ":", ir};
+      if(stmt->type == st(CmpEqual)) return {(int64_t)0};
+      else if(stmt->type == st(CmpNotEqual))  return {(int64_t)1};
+      else throw string{"incompatible types: ", result, ":", ir};
     }
 
     if(result.isInt()) result = calculate(stmt->type, result.getInt(), ir.getInt());
