@@ -256,4 +256,49 @@ auto Plek::initFunctions() -> void {
 
   coreFunctions.insert("output#1", output);
   coreFunctions.insert("output#2", output);
+
+  coreFunctions.insert("File.size#1", [&](Statement args) {
+    if(!args->leftValue().isString()) error("Filename expected");
+    auto filename = args->leftValue().getString();
+    if(!file::exists(filename)) error("File not found '", filename, "'");
+
+    auto fp = file::open(filename, file::mode::read);
+    return Result{(int64_t)fp.size()};
+  });
+
+  coreFunctions.insert("File.exists#1", [&](Statement args) {
+    if(!args->leftValue().isString()) error("Filename expected");
+    auto filename = args->leftValue().getString();
+
+    if(file::exists(filename)) return Result{(uint64_t)1};
+    return Result{(uint64_t)0};
+  });
+
+  // read? 
+
+  // copy?
+
+  // delete?
+
+  // enqueue
+  coreFunctions.insert("enqueue#0", [&](Statement args) {
+    auto result = Symbol::newMap();
+    result.references.insert({"pc"}, Symbol::newConst({(int64_t)pc()}));
+    result.references.insert({"base"}, Symbol::newConst({(int64_t)base}));
+    result.references.insert({"origin"}, Symbol::newConst({(int64_t)origin}));
+
+    return Result{result};
+  });
+
+  // dequeue
+  coreFunctions.insert("dequeue#1", [&](Statement args) {
+    auto res = evaluateRHS(args->left());
+    if(!res.isSymbol()) error("Invalid state");
+
+    auto map = res.getSymbol();
+    if(auto tmp = map.get("base")) base = tmp.getInt();
+    if(auto tmp = map.get("origin")) origin = tmp.getInt();
+
+    return Result{nothing};
+  });
 }

@@ -42,5 +42,9 @@ struct Symbol {
 
   static Symbol newVar(Value val) {
     return {SymbolType::Value, SymbolMode::Var, val};   
-  } 
+  }
+
+  static Symbol newConst(Value val) {
+    return {SymbolType::Value, SymbolMode::Const, val};   
+  }
 };
