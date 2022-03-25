@@ -51,6 +51,7 @@ auto Parser::statement() -> const Statement {
   else if(t.type == tt(KW_WHILE)) return _while();
   else if(t.type == tt(KW_CONTINUE)) return _continue();
   else if(t.type == tt(KW_BREAK)) return _break();
+  else if(t.type == tt(KW_FOR)) return _for();
   else if(t.type == tt(KW_NAMESPACE)) return _namespace();
 
   else if(t.type == tt(MINUS)) return anonymousLabel();
@@ -363,6 +364,34 @@ auto Parser::_break() -> const Statement {
 }
 auto Parser::_continue() -> const Statement {
   return Statement::create(previous(), StmtType::Continue);
+}
+
+auto Parser::_for() -> const Statement {
+  auto start = previous();
+  
+  // header
+  auto head = consume(tt(LEFT_PAREN), "expected list opening");
+  
+  // This whole thing should maybe be outsourced ... 
+  StmtType type = StmtType::DeclVar;
+  if(check(tt(KW_VAR))) advance();
+  else if(check(tt(KW_CONST))) {
+    type = StmtType::DeclConst;
+    advance();
+  }
+
+  auto var = Statement::create(head, type, identOrEval());
+  // end-of-thing
+
+  consume(tt(COLON), "expected colon");
+  auto ref = identifier();
+  consume(tt(RIGHT_PAREN), "expected list closing");
+
+  // body
+  consume(tt(LEFT_BRACE), "expected block opening");
+  auto body = block();
+
+  return Statement::create(start, StmtType::For, var, ref, body);
 }
 
 auto Parser::_namespace() -> const Statement {

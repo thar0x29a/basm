@@ -10,7 +10,7 @@ enum class StmtType : uint {
     LogicAnd, LogicOr, LogicShiftLeft, LogicShiftRight, LogicModulo, 
   Macro, Call, List, Assignment, MapAssignment,
   Return,
-  While, IfClause, If, ElseIf, Else, Break, Continue, 
+  While, For, IfClause, If, ElseIf, Else, Break, Continue, 
   Namespace,
   
   CmpEqual, CmpLess, CmpMore, CmpEqualLess, CmpEqualMore, CmpNotEqual,
@@ -30,7 +30,7 @@ const vector<string> StmtNames = {
   "LogicAnd", "LogicOr", "LogicShiftLeft", "LogicShiftRight", "LogicModulo",
   "Macro", "Call", "List", "Assignment", "MapAssignment",
   "Return",
-  "While", "IfClause", "If", "ElseIf", "Else", "Break", "Continue",
+  "While", "For", "IfClause", "If", "ElseIf", "Else", "Break", "Continue",
   "Namespace",
 
   "CmpEqual", "CmpLess", "CmpMore", "CmpEqualLess", "CmpEqualMore", "CmpNotEqual",

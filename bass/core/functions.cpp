@@ -188,6 +188,10 @@ auto Plek::initFunctions() -> void {
     return Result{  (int64_t)s.references.size() };
   });
 
+  /*
+  This approach seems to not working. We need an for-each syntax to archive this
+
+  
   coreFunctions.insert("String.map#*", [&](Statement args) {
     if(!(args->size()==2 || args->size()==3)) error("wrong parameter count");
 
@@ -215,5 +219,5 @@ auto Plek::initFunctions() -> void {
     }
     
     return Result{nothing};
-  });  
+  });/**/
 }

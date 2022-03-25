@@ -45,6 +45,7 @@ protected:
   auto _while() -> const Statement;
   auto _break() -> const Statement;
   auto _continue() -> const Statement;
+  auto _for() -> const Statement;
   auto _namespace() -> const Statement;
 
   auto cmdPrint() -> const Statement;
