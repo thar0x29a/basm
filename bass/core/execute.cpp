@@ -170,14 +170,8 @@ auto Plek::exVarDeclaration(Statement stmt) -> bool {
 }
 
 auto Plek::exFunDeclaration(Statement stmt) -> bool {
-  try {
-    frames.last()->setMacro({stmt});
-    return true;
-  }
-  catch(string s) {
-    error("Function name allready taken");
-  }
-  return false;
+  frames.last()->setMacro({stmt});
+  return true;
 }
 
 
