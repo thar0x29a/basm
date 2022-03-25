@@ -301,4 +301,13 @@ auto Plek::initFunctions() -> void {
 
     return Result{nothing};
   });
+
+  // String size
+  coreFunctions.insert("String.size#1", [&](Statement args) {
+    auto res = evaluateRHS(args->left());
+    if(!res.isString()) error("No string found");
+
+    int64_t len = res.getString().size();
+    return Result{len};
+  });  
 }
