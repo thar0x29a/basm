@@ -239,8 +239,18 @@ auto Plek::initFunctions() -> void {
   coreFunctions.insert("File.include#3", include);
 
   auto output = [&](Statement args) {
+    if(!args->leftValue().isString()) error("Filename expected");
+    auto filename = args->leftValue().getString();
+    bool create = false;
 
+    if(args->size()==2) {
+      auto b = evaluateRHS(args->right());
+      create = b.isTrue();
+    }
 
+    if(!create && !file::exists(filename)) error("File not found '", filename, "'"); 
+
+    target(filename, create);
     return Result{nothing};
   };
 
