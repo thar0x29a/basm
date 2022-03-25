@@ -188,36 +188,62 @@ auto Plek::initFunctions() -> void {
     return Result{  (int64_t)s.references.size() };
   });
 
-  /*
-  This approach seems to not working. We need an for-each syntax to archive this
+  /* "filename", (offset), (length) -> specs */
+  auto include = [&](Statement args) {
+    if(!args->leftValue().isString()) error("Filename expected");
+    auto filename = args->leftValue().getString();
 
-  
-  coreFunctions.insert("String.map#*", [&](Statement args) {
-    if(!(args->size()==2 || args->size()==3)) error("wrong parameter count");
+    if(!file::exists(filename)) error("File not found '", filename, "'");  
+    auto fp = file::open(filename, file::mode::read);
 
-    int64_t s = 0;
-    int64_t v = 0;
-    int64_t l = 1;
+    uint offset = 0;
+    uint length = fp.size();
 
-    auto start = evaluateRHS(args->left());
-    if(start.isString()) s = start.getString()[0];
-    else if(start.isInt()) s = start.getInt();
-    else error("Unexpedted type on parameter 1");
+    // offset
+    if(args->size()>=2) {
+      auto ofs = args->all()[1]->value;
+      if(!ofs.isInt()) error("Second parameter needs to be Int");
+      
+      auto tmp = ofs.getInt();
+      offset = tmp;
 
-    auto val = evaluateRHS(args->right());
-    if(!val.isInt()) error("Unexpedted type on parameter 2");
-    v = val.getInt();
+      if(length-offset <=0 ) error("Offset is too big: ", tmp, ">=", fp.size());
+      length -= offset;
+    }
 
+    // length
     if(args->size()==3) {
-      auto last = evaluateRHS(args->content[2]);
-      if(!last.isInt()) error("Unexpedted type on parameter 3");
-      l = last.getInt();
+      auto len = args->all()[2]->value;
+      if(!len.isInt()) error("Second parameter needs to be Int");
+      
+      auto tmp = len.getInt();
+      if(tmp > length) error("Length is too big: ", offset, "+", tmp, ">=", fp.size());
+      length = tmp;
     }
 
-    for(int i=s; i<(s+l); i++) {
-      stringTable[i] = v++;
-    }
-    
+    // copy
+    int64_t oldpc = pc();
+    fp.seek(offset);
+    for(uint todo=length; !fp.end() && todo; todo--) write(fp.read());
+
+    // return some specs
+    auto result = Symbol::newMap();
+    result.references.insert({"offset"}, Symbol::newVar({(int64_t)oldpc}));
+    result.references.insert({"size"}, Symbol::newVar({(int64_t)length}));
+  
+    return Result{result};
+  };
+
+  coreFunctions.insert("File.include#1", include);
+  coreFunctions.insert("File.include#2", include);
+  coreFunctions.insert("File.include#3", include);
+
+  auto output = [&](Statement args) {
+
+
     return Result{nothing};
-  });/**/
+  };
+
+  coreFunctions.insert("output#1", output);
+  coreFunctions.insert("output#2", output);
 }
