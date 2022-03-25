@@ -393,14 +393,19 @@ auto Table::evaluate(const string& expr, EvaluationMode mode) -> int64_t {
   // everything is allready pre-evaluated. we just have this to change as least as possible on
   // this file. 
 
+  bool isfloat = false;
+  int i = 0;
   for(auto& c : expr) {
-    if(c<'0' || c>'9') throw string{expr, " cannot evaluate parameter"};
+    if(i==0 && c=='-') continue;
+
+    if(c=='.' && isfloat==false) isfloat = true;
+    else if(c<'0' || c>'9') throw string{expr, " cannot evaluate parameter "};
+    i++;
   }
 
-
   //todo: floats!
-  //todo: contains invalid?
+  if(isfloat==true) throw string{"Not implemented: float"};
+  
   auto res = (int64_t)toInteger(expr);
-  //notice(expr, " => ", res);
   return res;
 };
