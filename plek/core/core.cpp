@@ -23,7 +23,7 @@ namespace Bass {
     if(!file::exists(filename)) create = true;
 
     if(!targetFile.open(filename, create ? file::mode::write : file::mode::modify)) {
-      print(stderr, "warning: unable to open target file: ", filename, "\n");
+      warning("unable to open target file: ", filename, "\n");
       return false;
     }
 
@@ -37,7 +37,7 @@ namespace Bass {
   **/
   auto Plek::load(const string& filename) -> bool {
     if(!file::exists(filename)) {
-      warning(stderr, "warning: source file not found: ", filename, "\n");
+      warning("source file not found: ", filename, "\n");
       return false;
     }
 
