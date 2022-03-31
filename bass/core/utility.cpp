@@ -1,36 +1,51 @@
 auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol> {
   auto parts = symbolName.split(".");
   auto lastId = parts.takeRight();
+  
   Symbol symbol{};
-  bool found = false;
-
+  bool foundVal = false;
   Frame scope = frames.last();
+  auto downScope = scope;
+
   do {
+    auto upScope = downScope;
+    bool foundPath = false;
+
     // try to walk upstream
-    auto upScope = scope;
-    for(auto el : parts) {
-      if(auto nextScope = upScope->children.find(el)) {
-        upScope = nextScope();
-      } else {
-        upScope = scope;
-        break;
+    if(parts.size() > 0) {
+      for(auto el : parts) {
+        if(auto nextScope = upScope->children.find(el)) {
+          upScope = nextScope();
+          foundPath = true;
+        } else {
+          foundPath = false;
+          break;
+        }
       }
+    }
+    else {
+      foundPath = true;
     }
     
     // end of the road. do we find it?
-    if(auto res = upScope->symbolTable.find(lastId)) {
-      symbol = res();
-      scope = upScope;
-      found = true;
-      break;
+    if(foundPath==true) {
+      if(auto res = upScope->symbolTable.find(lastId)) {
+        symbol = res();
+        scope = upScope;
+        foundVal = true;
+        break;
+      }
+      else {
+        foundVal = false;
+      }
     }
 
     // walk downstream
-    scope = scope->parent;
-  } while(scope);  
+    downScope = downScope->parent;
+  } while(downScope);  
   
   // return stuff, if successfull or not, to caller
-  return std::make_tuple(found, scope, lastId, symbol);
+  return std::make_tuple(foundVal, scope, lastId, symbol);
 }
 
 auto Plek::assign(const string& dest, Result src) -> void {
