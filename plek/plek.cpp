@@ -12,6 +12,7 @@ Bass::Plek plek;
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {
   string targetFilename;
+  string loglevel;
   bool create = false;
 
   if(!arguments) {
@@ -24,12 +25,28 @@ auto nall::main(Arguments arguments) -> void {
     print(stderr, "  -o target        specify default output filename [overwrite]\n");
     print(stderr, "  -m target        specify default output filename [modify]\n");
     print(stderr, "  -c name[=value]  create constant with optional value\n");
+    print(stderr, "  -l level         set log level (All=0, Debug, Notice, Warn, Error)\n");
     exit(EXIT_FAILURE);
   }
 
   //todo: handle options
   if(arguments.take("-o", targetFilename)) create = true;
   if(arguments.take("-m", targetFilename)) create = false;
+  if(arguments.take("-l", loglevel)) {
+    Bass::LogLevel lvl;
+
+    if(loglevel.equals("0")) lvl = Bass::LogLevel::LEVEL_ALL;
+    else if(loglevel.equals("1")) lvl = Bass::LogLevel::LEVEL_DEBUG;
+    else if(loglevel.equals("2")) lvl = Bass::LogLevel::LEVEL_NOTICE;
+    else if(loglevel.equals("3")) lvl = Bass::LogLevel::LEVEL_WARN;
+    else if(loglevel.equals("4")) lvl = Bass::LogLevel::LEVEL_ERROR;
+    else if(loglevel.equals("5")) lvl = Bass::LogLevel::LEVEL_FATAL;
+    else if(loglevel.equals("6")) lvl = Bass::LogLevel::LEVEL_OFF;
+    else lvl = Bass::LogLevel::LEVEL_NOTICE;
+
+    plek.log_level = lvl;
+  }
+  
 
   vector<string> constants;
   string constant;

@@ -18,6 +18,7 @@ using Program = vector<Statement>;
 enum class EvaluationMode : uint { Default = 0, Strict, LeftSide, Assembly };
 enum class Endian : uint { LSB, MSB };
 enum class ReturnState : uint { Running = 0, Default, Return, Break, Continue, Lookahead, Error };
+enum class LogLevel : uint { LEVEL_ALL = 0, LEVEL_DEBUG, LEVEL_NOTICE, LEVEL_WARN, LEVEL_ERROR, LEVEL_FATAL, LEVEL_OFF };
 
 struct Architecture;
 
@@ -96,6 +97,7 @@ struct Plek {
   public:
     const int64_t appVersion = 20;
     const string appLabel = {"v", appVersion, " (", NOW, ")"};
+    LogLevel log_level = LogLevel::LEVEL_NOTICE;         // how talkish is bass?
 
     auto init() -> void;
     auto load(const string& filename) -> bool;
@@ -106,6 +108,7 @@ struct Plek {
     auto write(uint64_t data, uint bytelength = 1) -> void;
     auto stmt_origin(Statement stmt = nullptr) -> const string;
 
+    template<typename... P> auto debug(P&&... p) -> void;
     template<typename... P> auto notice(P&&... p) -> void;
     template<typename... P> auto warning(P&&... p) -> void;
     template<typename... P> auto error(P&&... p) -> void;

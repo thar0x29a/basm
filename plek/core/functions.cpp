@@ -13,10 +13,10 @@ auto Plek::initFunctions() -> void {
 
     if(name=="" || name=="none") {
       architecture = new Architecture{*this};
-      notice("architecture reseted");
+      debug("architecture reseted");
     } else {
       architecture = new Table{*this, readArchitecture(name)};
-      notice("switch architecture to ", terminal::color::green(name), " using the table engine");
+      debug("switch architecture to ", terminal::color::green(name), " using the table engine");
     }
 
     return Result{nothing};

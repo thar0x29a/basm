@@ -469,8 +469,8 @@ auto Plek::exAssembly(Statement stmt) -> ReturnState {
   // table-chan is picky. clean up your instructions!
   cmd.trimRight(" ");
 
-  if(simulate) print(terminal::color::green("~~ "), cmd, "\n");
-  else print(cmd, "\n");
+  if(simulate) debug(terminal::color::green("~~ "), cmd);
+  else debug(cmd);
 
   mode = oldMode;
   // run it!

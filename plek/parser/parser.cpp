@@ -276,7 +276,7 @@ auto Parser::blockOrEval() -> const Statement {
     back();
     eva = evaluation();
   } catch(...) {
-    print("No eval\n");
+    //print("No eval\n");
   }
 
   if(eva) {

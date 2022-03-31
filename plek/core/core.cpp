@@ -43,7 +43,7 @@ namespace Bass {
 
     for(auto item : sourceFiles) {
       if(item.filename != filename) continue;
-      notice(filename, " was found in cache.");
+      debug(filename, " was found in cache.");
       program.append(item.entryPoint);
       return true;
     }
@@ -62,7 +62,7 @@ namespace Bass {
     program.append(entry);
     sourceFiles.append({filename, tokens, entry});
 
-    notice("Done loading ", filename);
+    debug("Done loading ", filename);
     return true;
   }
 
@@ -100,12 +100,23 @@ namespace Bass {
     }
   }
 
+  template<typename... P> auto Plek::debug(P&&... p) -> void {
+    if((uint)log_level > (uint)LogLevel::LEVEL_DEBUG) return;
+
+    string s{forward<P>(p)...};
+    print(stderr, terminal::color::cyan("debug: "), s, "\n");
+  }
+
   template<typename... P> auto Plek::notice(P&&... p) -> void {
+    if((uint)log_level > (uint)LogLevel::LEVEL_NOTICE) return;
+
     string s{forward<P>(p)...};
     print(stderr, terminal::color::cyan("notice: "), s, "\n");
   }
 
   template<typename... P> auto Plek::warning(P&&... p) -> void {
+    if((uint)log_level > (uint)LogLevel::LEVEL_WARN) return;
+
     string s{forward<P>(p)...};
     print(stderr, terminal::color::yellow("warning "), stmt_origin(),": ", s, "\n");
     if(mode != EvaluationMode::Strict) {
@@ -118,6 +129,8 @@ namespace Bass {
   }
 
   template<typename... P> auto Plek::error(P&&... p) -> void {
+    if((uint)log_level > (uint)LogLevel::LEVEL_ERROR) return;
+
     string s{forward<P>(p)...};
     print(stderr, terminal::color::red("ERROR "), stmt_origin(),": ", s, "\n");
     //todo: printInstructionStack();
