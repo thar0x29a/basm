@@ -318,4 +318,25 @@ auto Plek::initFunctions() -> void {
     if(res.isNothing()) return Result{(int64_t)1};
     else return Result{(int64_t)0};
   });
+
+  coreFunctions.insert("logLevel#1", [&](Statement args) {
+    auto res = evaluateRHS(args->left());
+    int64_t old = (uint)log_level;
+
+    if(!res.isInt()) error("Invalid parameter type.");
+
+    switch(res.getInt()) {
+      case 0: log_level = LogLevel::LEVEL_ALL; break;
+      case 1: log_level = LogLevel::LEVEL_DEBUG; break;
+      case 2: log_level = LogLevel::LEVEL_NOTICE; break;
+      case 3: log_level = LogLevel::LEVEL_WARN; break;
+      case 4: log_level = LogLevel::LEVEL_ERROR; break;
+      case 5: log_level = LogLevel::LEVEL_FATAL; break;
+      case 6: log_level = LogLevel::LEVEL_OFF; break;
+      default:
+        error("Invalid parameter.");
+    }
+
+    return Result{old};
+  });
 }
