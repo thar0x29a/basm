@@ -270,8 +270,8 @@ auto Plek::initFunctions() -> void {
     if(!args->leftValue().isString()) error("Filename expected");
     auto filename = args->leftValue().getString();
 
-    if(file::exists(filename)) return Result{(uint64_t)1};
-    return Result{(uint64_t)0};
+    if(file::exists(filename)) return Result{(int64_t)1};
+    return Result{(int64_t)0};
   });
 
   // read? 
@@ -309,5 +309,13 @@ auto Plek::initFunctions() -> void {
 
     int64_t len = res.getString().size();
     return Result{len};
-  });  
+  });
+
+  // is 'null'?
+  coreFunctions.insert("isNull#1", [&](Statement args) {
+    auto res = evaluateRHS(args->left());
+
+    if(res.isNothing()) return Result{(int64_t)1};
+    else return Result{(int64_t)0};
+  });
 }
