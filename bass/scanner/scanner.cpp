@@ -26,11 +26,16 @@ auto Scanner::scanToken() -> void {
     case '.': addToken(TokenType::DOT); break;
     case ':': addToken(TokenType::COLON); break;
     case ';': addToken(TokenType::TERMINAL); break;
-    case '&': addToken(TokenType::AND); break;
-    case '|': addToken(TokenType::PIPE); break;
     case '*': addToken(TokenType::STAR); break;
     case '~': addToken(TokenType::WAVE); break;
     case '#': addToken(TokenType::HASH); break;
+
+    case '&': 
+      addToken(match('&') ? TokenType::ANDAND : TokenType::AND); 
+      break;
+    case '|': 
+      addToken(match('|') ? TokenType::PIPEPIPE : TokenType::PIPE); 
+      break;
 
     case '-':
       addToken(match('-') ? TokenType::MINUSMINUS : TokenType::MINUS); 
