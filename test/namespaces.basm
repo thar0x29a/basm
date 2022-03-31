@@ -9,3 +9,28 @@ namespace foo.baa {
 }
 
 assert("HelloWorld" == foo.baa.text + foo.baa.text2);
+
+
+
+namespace NS1 {
+  const Label = 12
+  assert(12==NS1.Label)
+  assert(12==Label)
+}
+
+namespace NS2 {
+  const Label = 42
+  assert(12==NS1.Label)
+  assert(42==NS2.Label)
+  assert(42==Label)
+
+  namespace NS3 {
+    assert(12==NS1.Label)
+    assert(42==NS2.Label)
+    assert(42==Label)
+  }
+}
+
+assert(12==NS1.Label)
+assert(42==NS2.Label)
+assert(isNull(NS2.NS3.Label))
