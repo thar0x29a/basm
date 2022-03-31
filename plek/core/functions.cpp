@@ -25,20 +25,48 @@ auto Plek::initFunctions() -> void {
   coreFunctions.insert("arch#1", arch);
   coreFunctions.insert("architecture#1", arch);
 
-  coreFunctions.insert("include#1", [&](Statement args) {
-    auto scope = frames.right();
+  auto includeFun = [&](Statement args) {
     auto res = evaluateRHS(args->left());
+    vector<Frame> buffer;
 
-    if(res) {
-      auto file = res.getString();
-      if(load(file)) {
-        // loaded file got added to the main program.
-        // we will remove it from there, since we just execute it once
-        exBlock(program.takeRight());
+    if(!res) error("Invalid parameter");
+
+    // custom scope parameter
+    if(args->right()) {
+      auto place = args->rightValue();
+      if(!place || !place.isString()) error("Invalid second parameter.");
+      
+      string p = place.getString();
+      
+      if(p.equals("GLOBAL")) {
+        while(frames.size()>1) buffer.append( frames.takeLast() );
+      }
+      else if(p.equals("PARENT")) {
+        buffer.append( frames.takeLast() );
+      }
+      else {
+        error("Invalid second parameter: ", p);
       }
     }
+
+    // include    
+    auto file = res.getString();
+    if(load(file)) {
+      // loaded file got added to the main program.
+      // we will remove it from there, since we just execute it once
+      exBlock(program.takeRight());
+    }
+
+    // restore scopes, if any
+    while(buffer.size()>0) {
+      frames.append( buffer.takeLast() );
+    }
+
     return Result{nothing};
-  });
+  };
+
+  coreFunctions.insert("include#1", includeFun);
+  coreFunctions.insert("include#2", includeFun);
 
   coreFunctions.insert("ds#1", [&](Statement args) {
     auto res = evaluateRHS(args->left());
