@@ -59,15 +59,12 @@ Assembly code may use alot of stuff that looks like script syntax in the first p
 
 Then it must be assembly! 
 
-Bass will try to solve the parameters for you. 
-
-* Identifiers and function calls should work out of the box. But **avoid** using parameters that have the same name as parts of your fixed assembly syntax.
-* Inline math an other stuff is not possible. Since assembly commands may use parentheses and brackets (`() and []`) by themselfes you need to use the 'manual identifyer'-syntax if you really need to do stuff inline.
+To avoid conflicts within the assembly line, all parameters have to be enclosed by braches `{}`. Yes. All of them. Im well aware that many assembly users going to hate this but some trades had to be made at some points, and this is one of them.
 
 ```
-lda.b MY_CONST_VALUE
-lda.b getConfig()
-lda.b {(100+12)}
+lda.b {MY_CONST_VALUE}
+lda.b {getConfig()}
+lda.b {100+12}
 ```
 This will work. 
 
