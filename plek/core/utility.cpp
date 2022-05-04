@@ -119,15 +119,19 @@ auto Plek::invoke(const string& fullName, Statement args) -> Result {
     ArgumentStatement pdef{args->content[i]};
     auto t = padef[i];
     auto v = args->content[i];
-    auto name = t->value.getString();
+    auto name = pdef.getName();
     
-    if(pdef.isCustom()) {
-      // TODO: check for the right type on symbol
-    }
+    
 
     Result res = pdef.isReference() ? Result{v->value} : evaluateRHS(v);
 
     if(!res || res.isNothing()) warning("Parameter ", i+1, " is not set");
+    if(pdef.isCustom()) {
+      if(!res.isCustom())
+        error("Parameter ", i+1, " is not an custom type.");
+      if(!res.isCustom(pdef.getCustomType())) 
+        error("Parameter ", i+1, " does not match the custom type. Found ", res.getCustom().name, " but expected ", pdef.getCustomType());
+    }
 
     if(t->type == st(ConstArgument)) fscope->setConstant(name, res);
     else fscope->setVariable(name, res);/**/
