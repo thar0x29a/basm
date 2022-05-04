@@ -220,17 +220,30 @@ auto Parser::defList() -> const Statement {
 }
 
 auto Parser::argument() -> const Statement {
-  if(match(tt(KW_CONST))) {
-    return Statement::create(previous(), StmtType::ConstArgument, identifier());
-  }
-  if(match(tt(KW_VAR))) {
-    return Statement::create(previous(), StmtType::VarArgument, identifier());
-  }
-  if(match(tt(KW_REF))) {
-    return Statement::create(previous(), StmtType::RefArgument, identifier());
-  }
+  auto newt = previous();
+  StmtType access_type = StmtType::VarArgument;
+  Statement a, b;
+
+  // type
+  if(match(tt(KW_CONST))) access_type = StmtType::ConstArgument;
+  if(match(tt(KW_VAR))) access_type = StmtType::VarArgument;
+  if(match(tt(KW_REF))) access_type = StmtType::RefArgument;
   
-  return Statement::create(previous(), StmtType::VarArgument, identifier());
+  // get identifier
+  if(check(tt(IDENTIFIER))) {
+    a = identifier();
+  } else {
+    throw string{"expected IDENTIFIER"};
+  }
+
+  auto res = Statement::create(newt, access_type, a);
+
+  // check for an second identifier
+  if(check(tt(IDENTIFIER))) {
+    res->append(identifier());
+  }
+
+  return res;
 }
 
 auto Parser::label() -> const Statement {

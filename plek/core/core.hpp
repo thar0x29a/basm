@@ -8,6 +8,10 @@ using Statement = shared_pointer<StmtNode>;
 using Program = vector<Statement>;
 #define st(t) (Bass::StmtType::t)
 
+struct custom {
+  string name;
+};
+
 #include "value.hpp"
 #include "symbol.hpp"
 #include "result.hpp"

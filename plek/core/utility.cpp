@@ -116,16 +116,21 @@ auto Plek::invoke(const string& fullName, Statement args) -> Result {
   fscope->context = SymbolRef::create(res);
 
   for(int i=0; i<args->size(); i++) {
+    ArgumentStatement pdef{args->content[i]};
     auto t = padef[i];
     auto v = args->content[i];
     auto name = t->value.getString();
     
-    Result res = (t->is(st(RefArgument))) ? Result{v->value} : evaluateRHS(v);
+    if(pdef.isCustom()) {
+      // TODO: check for the right type on symbol
+    }
+
+    Result res = pdef.isReference() ? Result{v->value} : evaluateRHS(v);
 
     if(!res || res.isNothing()) warning("Parameter ", i+1, " is not set");
 
     if(t->type == st(ConstArgument)) fscope->setConstant(name, res);
-    else fscope->setVariable(name, res);
+    else fscope->setVariable(name, res);/**/
   }
 
   frames.append(fscope);

@@ -1,4 +1,5 @@
 #include "Statement.hpp"
+#include "ArgumentStatement.hpp"
 #include "MacroStatement.hpp"
 #include "MapAssignStatement.hpp"
 #include "LabelRefStatement.hpp"
