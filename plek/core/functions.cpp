@@ -189,6 +189,46 @@ auto Plek::initFunctions() -> void {
     return Result{nothing};
   });
 
+  coreFunctions.insert("Type.define#1", [&](Statement args) {
+    if(args->size()!=1) error("wrong parameter count");
+    if(!args->leftValue().isString()) error("Typename expected");
+
+    auto name = args->leftValue().getString();
+
+    // check / create entry in global lookup
+    if(!customTypes.find(name)) {
+      debug("Define type ", name);
+      Symbol m = Symbol::newMap();
+      Result v{name};
+      m.references.insert(name,Symbol::newConst(v));
+      customTypes.insert(name, m);
+    }
+    else {
+      warning("Type '", name, "' has allready been defined.");
+    }
+
+    return Result{Value::Custom{name}};
+  });
+
+  coreFunctions.insert("Type.of#1", [&](Statement args) {
+    if(args->size()!=1) error("wrong parameter count");
+
+    auto source = evaluateRHS(args->left());
+    string res;
+    
+    if(!source) error("Invalid parameter");
+    else if(source.isInt()) res = "integer";
+    else if(source.isFloat()) res = "float";
+    else if(source.isString()) res = "string";
+    else if(source.isNothing()) res = "null";
+    else if(source.isCustom()) {
+      res = source.getCustom().name;
+    }
+    else res = "unknown";
+
+    return Result{res};
+  });
+
   coreFunctions.insert("Array.new#*", [&](Statement args) {
     Symbol m = Symbol::newMap();
     int i = 0;

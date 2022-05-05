@@ -8,10 +8,6 @@ using Statement = shared_pointer<StmtNode>;
 using Program = vector<Statement>;
 #define st(t) (Bass::StmtType::t)
 
-struct custom {
-  string name;
-};
-
 #include "value.hpp"
 #include "symbol.hpp"
 #include "result.hpp"
@@ -83,6 +79,7 @@ struct Plek {
     vector<Frame> frames;
     Statement currentStmt = nullptr;
     map<string, CoreFunction> coreFunctions;
+    map<string, Symbol> customTypes;
     //bool strict = false;            // strict mode
     EvaluationMode mode = EvaluationMode::Default;
     bool simulate = false;          // if set no output will be done.

@@ -104,7 +104,7 @@ namespace Bass {
     if((uint)log_level > (uint)LogLevel::LEVEL_DEBUG) return;
 
     string s{forward<P>(p)...};
-    print(stderr, terminal::color::cyan("debug: "), s, "\n");
+    print(stderr, terminal::color::cyan("debug "), stmt_origin(),": ", s, "\n");
   }
 
   template<typename... P> auto Plek::notice(P&&... p) -> void {

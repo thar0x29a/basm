@@ -1,16 +1,26 @@
+struct Value;
+
 struct Value : public any {
+  struct Custom {
+    string name;
+    shared_pointer<Value> value;
+
+    Custom(string name) : name(name), value(shared_pointer<Value>::create()) {}
+    Custom(string name, Value val) : name(name), value(shared_pointer<Value>::create(val)) {}
+  };
+
   auto isInt() -> bool { return type() == typeid(int64_t); };
   auto isFloat() -> bool { return type() == typeid(double); };
   auto isString() -> bool { return type() == typeid(string); };
   auto isNothing() -> bool { return type() == typeid(nothing); };
-  auto isCustom() -> bool { return type() == typeid(custom); };
+  auto isCustom() -> bool { return type() == typeid(Custom); };
   auto isCustom(string name) -> bool { 
     return isCustom() ? name.equals(getCustom().name) : false;
   }
 
   auto getInt() -> int64_t { return get<int64_t>(); };
   auto getFloat() -> double { return get<double>(); };
-  auto getCustom() -> custom { return get<custom>(); };
+  auto getCustom() -> Custom { return get<Custom>(); };
   auto getString() -> string { 
     if(isString()) return get<string>(); 
     else if(isInt()) return { getInt() };

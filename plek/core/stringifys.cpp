@@ -1,3 +1,14 @@
+template<> struct nall::stringify<Bass::Value::Custom> {
+  stringify(Bass::Value::Custom source) {
+    _text = { source.value() };
+  }
+
+  auto data() const -> const char* { return _text.data(); }
+  auto size() const -> uint { return _text.size(); }
+
+  string _text;
+};
+
 template<> struct nall::stringify<Bass::Value> {
   stringify(Bass::Value source) {
     if(!source) _text = {"nothing"};
@@ -5,6 +16,7 @@ template<> struct nall::stringify<Bass::Value> {
     else if(source.isFloat()) _text = { source.getFloat() };
     else if(source.isString()) _text = { source.getString() };
     else if(source.isNothing()) _text = { "NULL" };
+    else if(source.isCustom()) _text = { source.getCustom() };
     //else if(source.isBool()) _text = (source.getBool()) ? "true" : "false";
     else _text =  {"`", source.type().name(), "`"};
   }
@@ -23,6 +35,7 @@ template<> struct nall::stringify<Bass::Result> {
     else if(source.isString()) _text = { source.getString() };
     else if(source.isSymbol()) _text = { "Symbol" };
     else if(source.isNothing()) _text = { "NULL" };
+    else if(source.isCustom()) _text = { source.getCustom() };
     //else if(source.isBool()) _text = (source.getBool()) ? "true" : "false";
     else _text =  {"`", source.type().name(), "`"};
   }
