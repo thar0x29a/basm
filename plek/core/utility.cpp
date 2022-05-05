@@ -116,25 +116,22 @@ auto Plek::invoke(const string& fullName, Statement args) -> Result {
   fscope->context = SymbolRef::create(res);
 
   for(int i=0; i<args->size(); i++) {
-    ArgumentStatement pdef{args->content[i]};
-    auto t = padef[i];
+    ArgumentStatement pdef{padef[i]};
     auto v = args->content[i];
     auto name = pdef.getName();
     
-    
-
     Result res = pdef.isReference() ? Result{v->value} : evaluateRHS(v);
 
     if(!res || res.isNothing()) warning("Parameter ", i+1, " is not set");
     if(pdef.isCustom()) {
-      if(!res.isCustom())
+      if(!res.isCustom()) 
         error("Parameter ", i+1, " is not an custom type.");
       if(!res.isCustom(pdef.getCustomType())) 
         error("Parameter ", i+1, " does not match the custom type. Found ", res.getCustom().name, " but expected ", pdef.getCustomType());
     }
 
-    if(t->type == st(ConstArgument)) fscope->setConstant(name, res);
-    else fscope->setVariable(name, res);/**/
+    if(pdef.isConst()) fscope->setConstant(name, res);
+    else fscope->setVariable(name, res);
   }
 
   frames.append(fscope);
@@ -142,6 +139,7 @@ auto Plek::invoke(const string& fullName, Statement args) -> Result {
   frames.removeRight();
   return fscope->result;
 }
+
 
 auto Plek::readArchitecture(const string& name) -> string {
   string location{Path::userData(), "bass/architectures/", name, ".arch"};

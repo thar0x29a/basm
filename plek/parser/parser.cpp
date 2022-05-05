@@ -222,7 +222,6 @@ auto Parser::defList() -> const Statement {
 auto Parser::argument() -> const Statement {
   auto newt = previous();
   StmtType access_type = StmtType::VarArgument;
-  Statement a, b;
 
   // type
   if(match(tt(KW_CONST))) access_type = StmtType::ConstArgument;
@@ -230,19 +229,14 @@ auto Parser::argument() -> const Statement {
   if(match(tt(KW_REF))) access_type = StmtType::RefArgument;
   
   // get identifier
-  if(check(tt(IDENTIFIER))) {
-    a = identifier();
-  } else {
-    throw string{"expected IDENTIFIER"};
-  }
+  if(!check(tt(IDENTIFIER))) throw string{"expected Identifier"};
+  auto res = Statement::create(newt, access_type, identifier());
 
-  auto res = Statement::create(newt, access_type, a);
-
-  // check for an second identifier
-  if(check(tt(IDENTIFIER))) {
-    res->append(identifier());
-  }
-
+  // check for type
+  if(!match(tt(COLON))) return res;
+  if(!check(tt(IDENTIFIER))) throw string{"expected Identifier"};
+  
+  res->append(identifier());
   return res;
 }
 

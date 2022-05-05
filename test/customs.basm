@@ -1,0 +1,7 @@
+
+fun foo(var arg:typ) {
+
+  notice("Ba ", arg)
+}
+
+foo(12)
