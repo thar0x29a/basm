@@ -189,25 +189,46 @@ auto Plek::initFunctions() -> void {
     return Result{nothing};
   });
 
+
+  coreFunctions.insert("Type.new#1", [&](Statement args) {
+    if(args->size()!=1) error("wrong parameter count");
+    
+    auto arg = evaluateRHS(args->left());
+    string name;
+
+    if(arg.isString()) name = arg.getString();
+    else if(arg.isSymbol()) {
+      auto s = arg.getSymbol();
+      if(!s.isMap()) error("Invalid parameter.");
+
+      auto field = s.get("name");
+      if(!field.isString()) error("Invalid parameter!");
+      name = field.getString();
+    }
+    else error("Invalid parameter..");
+
+    return Result{Value::Custom{name}};
+  });
+
   coreFunctions.insert("Type.define#1", [&](Statement args) {
     if(args->size()!=1) error("wrong parameter count");
     if(!args->leftValue().isString()) error("Typename expected");
 
-    auto name = args->leftValue().getString();
+    auto arg = evaluateRHS(args->left());
+    auto name = arg.getString();
 
     // check / create entry in global lookup
-    if(!customTypes.find(name)) {
-      debug("Define type ", name);
-      Symbol m = Symbol::newMap();
-      Result v{name};
-      m.references.insert(name,Symbol::newConst(v));
-      customTypes.insert(name, m);
+    if(auto res = customTypes.find(name)) {
+      return Result{res};
     }
     else {
-      warning("Type '", name, "' has allready been defined.");
+      debug("Define type ", name);
+      Symbol m = Symbol::newMap();
+      m.references.insert("name", Symbol::newConst( Result{name} ));
+      
+      customTypes.insert(name, m);
+      return Result{m};
     }
-
-    return Result{Value::Custom{name}};
   });
 
   coreFunctions.insert("Type.of#1", [&](Statement args) {
@@ -215,7 +236,7 @@ auto Plek::initFunctions() -> void {
 
     auto source = evaluateRHS(args->left());
     string res;
-    
+
     if(!source) error("Invalid parameter");
     else if(source.isInt()) res = "integer";
     else if(source.isFloat()) res = "float";
@@ -223,6 +244,11 @@ auto Plek::initFunctions() -> void {
     else if(source.isNothing()) res = "null";
     else if(source.isCustom()) {
       res = source.getCustom().name;
+    }
+    else if(source.isSymbol()) {
+      auto s = source.getSymbol();
+      if(s.isReference()) res = "function";
+      else if(s.isMap()) res = "array";
     }
     else res = "unknown";
 

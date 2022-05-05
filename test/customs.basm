@@ -1,9 +1,9 @@
 
 fun foo(var arg:ALU) {
-  
   notice(arg, ":", Type.of(arg))
 }
 
-var x = Type.define("ALU")
+const ALU = Type.define("ALU")
+var a = Type.new(ALU)
 
-foo(x)
+foo(a)
