@@ -49,8 +49,15 @@ auto FrameElement::setMacro(MacroStatement def) -> void {
   symbolTable.insert(def.getName(), map);
 }
 
-auto FrameElement::assign(const string& name, Result val) -> void {;
-  setVariable(name, val);
+auto FrameElement::assign(const string& name, Result val) -> void {
+  // try to assign, not just to replace
+  if(auto res = symbolTable.find(name)) {
+    if(res->isProtected()) throw string{"constant cannot be modified '", name, "'"};
+    res->value = val;
+  }
+  else {
+    setVariable(name, val);
+  }
 }
 
 auto FrameElement::addScope(const Frame frm) -> void {

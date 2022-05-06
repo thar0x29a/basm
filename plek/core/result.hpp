@@ -6,6 +6,7 @@ struct Result : public Value {
     any::operator=(value);
     return *this;
   }
+  
   auto operator=(const Value& source) -> Result& {
     Value::operator=(source);
     return *this;

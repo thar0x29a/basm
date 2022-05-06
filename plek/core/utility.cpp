@@ -48,9 +48,38 @@ auto Plek::find(const string& symbolName) -> std::tuple<bool, Frame, string, Sym
   return std::make_tuple(foundVal, scope, lastId, symbol);
 }
 
-auto Plek::assign(const string& dest, Result src) -> void {
-  auto [found, scope, name, res] = find(dest);
+auto Plek::assign(Result dest, Result src) -> void {
+  string destname = dest.getString();
+
+  auto [found, scope, name, res] = find(destname);
   if(found) {
+    if(res.isValue() && res.value.isCustom()) {
+      string tname = res.value.getCustom().name;
+      string aname = "";
+
+      if(src.isCustom()) aname = src.getCustom().name;
+
+      string fkey{"operator=", aname};
+      notice("Custom assignment! ", fkey);
+
+      // try to call overloaded function
+      if(auto type = customTypes.find(tname)) {
+        auto fun = type().get(fkey);
+        if(!fun.isNothing()) {
+          notice("Bingo! We can invoke this! ", fun);
+          // return afterwards
+        }
+        else {
+          notice("We cannot invoke this :/ ", fun);
+        }
+      } 
+      else {
+        error("Type ", tname, " got not properly defined.");
+      }
+
+      // 2. if not available, force value passing
+    }
+
     scope->assign(name, src);
   }
   else {

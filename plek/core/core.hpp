@@ -161,7 +161,7 @@ struct Plek {
   // utility.cpp
     auto find(const string& symbolName) -> std::tuple<bool, Frame, string, Symbol>;
 
-    auto assign(const string& dest, Result src) -> void;
+    auto assign(Result dest, Result src) -> void;
     auto constant(const string& name, const string& value) -> void;
     auto invoke(const string& name, Statement call) -> Result;
 

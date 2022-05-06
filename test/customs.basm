@@ -3,7 +3,27 @@ fun foo(var arg:ALU) {
   notice(arg, ":", Type.of(arg))
 }
 
+fun ALUassign(var other) {
+  notice("Try to assign ", other)
+}
+
+
 const ALU = Type.define("ALU")
+ALU["operator="] = ALUassign
+
 var a = Type.new(ALU)
 
-foo(a)
+// crashes for(var i:ALU) { notice(i) }
+
+
+var b = a
+var c = b
+c = 12
+
+notice(
+  "a:", Type.of(a)
+  , "\tb:", Type.of(b)
+  , "\tc:", Type.of(c)
+)
+
+//foo(b)

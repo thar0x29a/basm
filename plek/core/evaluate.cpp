@@ -99,7 +99,7 @@ auto Plek::evalAssign(Statement stmt) -> Result {
   auto left = evaluateLHS(stmt->left());
   auto right = evaluateRHS(stmt->right());
 
-  assign(left.getString(), right);
+  assign(left, right);
   return right;
 }
 
